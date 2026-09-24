@@ -72,6 +72,71 @@ def check_packages() -> bool:
     return not missing
 
 
+# 中文标点出现在配置值里通常说明是手误（比如把 = 打成了 ＝）
+SUSPICIOUS_PUNCTUATION = "，。；：（）＝“”‘’【】、《》"
+
+
+def inspect_env_format(env_path: Path) -> bool:
+    """体检 .env 的书写格式。
+
+    记事本保存的文件可能带 BOM，或者混入中文标点，这些都会导致配置读不出来，
+    但报错信息往往很隐晦，所以这里主动检查一次。
+    """
+    raw = env_path.read_bytes()
+    problems: list[str] = []
+
+    # Windows 记事本另存为「UTF-8 带 BOM」时，文件头会多出三个字节
+    if raw.startswith(b"\xef\xbb\xbf"):
+        problems.append("文件开头有 BOM 标记，第一个配置项会读不出来")
+        problems.append(
+            "  修复：记事本里「另存为」，编码选「UTF-8」（不要选带 BOM 的那个）"
+        )
+
+    text = raw.decode("utf-8-sig", errors="replace")
+
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+
+        if "=" not in stripped:
+            problems.append(f"第 {line_number} 行没有等号，这一行会被忽略")
+            continue
+
+        key, _, value = stripped.partition("=")
+        key = key.strip()
+        value = value.strip()
+
+        found = [char for char in SUSPICIOUS_PUNCTUATION if char in value]
+        if found:
+            problems.append(
+                f"第 {line_number} 行 {key} 的值里有中文标点：{' '.join(found)}"
+            )
+
+        if " " in value:
+            problems.append(f"第 {line_number} 行 {key} 的值里有空格，可能多了空格")
+
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            problems.append(f"第 {line_number} 行 {key} 的值被引号包着，建议去掉引号")
+
+    expected_keys = {"LLM_API_KEY", "LLM_BASE_URL", "LLM_MODEL", "DEBUG"}
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key = stripped.partition("=")[0].strip()
+        if key not in expected_keys:
+            problems.append(f"出现未知配置项 {key}，代码不会读它（不影响运行）")
+
+    if problems:
+        for problem in problems:
+            print(f"  [!] {problem}")
+        return False
+
+    print("  [v] .env 格式正常（无 BOM、无多余空格、无中文标点）")
+    return True
+
+
 def check_env_file() -> tuple[bool, str]:
     """检查 .env 文件与密钥。返回（是否就绪, 密钥）。"""
     env_path = ROOT / ".env"
@@ -82,6 +147,10 @@ def check_env_file() -> tuple[bool, str]:
         return False, ""
 
     print("  [v] .env 文件存在")
+
+    # 记事本等编辑器可能存出带 BOM 或带中文标点的文件，先做一次格式体检
+    if not inspect_env_format(env_path):
+        print("      格式有问题会读不到配置，建议按上面的提示改一下")
 
     # load_dotenv 会把 .env 里的内容塞进环境变量
     from dotenv import load_dotenv
@@ -130,10 +199,28 @@ def live_test(api_key: str) -> bool:
         response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": "回答一个字：好"}],
-            max_tokens=10,
+            # 推理类模型会先花掉一部分额度做内部推理，给太小会导致正文为空
+            max_tokens=200,
         )
-        content = response.choices[0].message.content
-        print(f"  [v] 调用成功，模型回复：{content}")
+
+        choice = response.choices[0]
+        content = choice.message.content or ""
+        print(f"  [v] 调用成功，模型回复：{content.strip() or '(空)'}")
+        print(f"      结束原因：{choice.finish_reason}")
+
+        # usage 里是本次消耗的 token 数，Day 9 会用它算成本
+        if response.usage:
+            print(
+                f"      token 用量：输入 {response.usage.prompt_tokens}，"
+                f"输出 {response.usage.completion_tokens}"
+            )
+
+        if not content.strip():
+            print(
+                "  [!] 回复为空。常见原因：额度给得太小，或该模型把内容放在推理字段里"
+            )
+            return False
+
         return True
     # 这里故意捕获所有异常：网络、密钥、模型名都可能出错，统一提示即可。
     # 行尾的忽略标记表示「我知道检查工具会警告，这里是刻意为之」。
@@ -162,14 +249,15 @@ def main() -> None:
     print("\n[4/4] 密钥安全")
     security_ok = check_gitignore()
 
+    live_ok = True
     if args.live:
         print("\n[额外] 真实 API 调用")
         if not env_ok:
             print("  跳过：密钥没配好")
         else:
-            live_test(api_key)
+            live_ok = live_test(api_key)
 
-    all_ok = python_ok and packages_ok and env_ok and security_ok
+    all_ok = python_ok and packages_ok and env_ok and security_ok and live_ok
     print("\n" + "=" * 30)
     if all_ok:
         print("环境就绪，可以开始 Day 1 了。")
