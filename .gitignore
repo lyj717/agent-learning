@@ -1,0 +1,44 @@
+# ---- 密钥与本地配置（最重要，绝不提交）----
+.env
+.env.*
+!.env.example
+*.pem
+secrets.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+build/
+dist/
+
+# ---- 虚拟环境 ----
+.venv/
+venv/
+env/
+
+# ---- 工具缓存 ----
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---- 数据与产物（本地数据不提交）----
+data/raw/
+*.sqlite
+*.db
+chroma/
+.chroma/
+outputs/
+
+# ---- 编辑器与系统 ----
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
