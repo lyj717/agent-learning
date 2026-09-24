@@ -1,0 +1,25 @@
+# 运行时依赖
+# 装法：.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+# 模型调用 SDK。OpenAI 兼容协议，换 DeepSeek / 通义千问 / GLM / Kimi 时只改 base_url
+openai>=1.60
+
+# HTTP 客户端，异步请求和流式处理要用
+httpx>=0.27
+
+# 读取 .env 里的密钥
+python-dotenv>=1.0
+
+# 数据校验与结构化输出（openai 会一并装上，这里显式声明版本）
+pydantic>=2.9
+
+# 终端里打印好看一点，调试时更直观
+rich>=13.9
+
+# ---- 开发工具 ----
+
+# 测试
+pytest>=8.3
+
+# 代码格式化与静态检查
+ruff>=0.8

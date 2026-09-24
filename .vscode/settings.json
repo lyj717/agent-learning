@@ -1,0 +1,28 @@
+{
+  // 使用仓库里的虚拟环境
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.terminal.activateEnvironment": true,
+
+  // 保存时自动格式化（需要装 Ruff 扩展）
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+
+  // 测试面板里默认用 pytest
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // Windows 终端默认用 GBK，中文输出会变成乱码。
+  // 这两个设置让 Python 与终端都用 UTF-8。
+  "terminal.integrated.env.windows": {
+    "PYTHONUTF8": "1",
+    "PYTHONIOENCODING": "utf-8"
+  }
+}
