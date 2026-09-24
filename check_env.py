@@ -65,7 +65,9 @@ def check_packages() -> bool:
             print(f"  [x] {package_name}：未安装")
 
     if missing:
-        print(f"\n  修复：.venv\\Scripts\\python.exe -m pip install {' '.join(missing)}")
+        print(
+            f"\n  修复：.venv\\Scripts\\python.exe -m pip install {' '.join(missing)}"
+        )
 
     return not missing
 
@@ -133,7 +135,9 @@ def live_test(api_key: str) -> bool:
         content = response.choices[0].message.content
         print(f"  [v] 调用成功，模型回复：{content}")
         return True
-    except Exception as error:  # 网络、密钥、模型名都可能出错，这里统一提示
+    # 这里故意捕获所有异常：网络、密钥、模型名都可能出错，统一提示即可。
+    # noqa 表示「我知道 ruff 会警告，但这里是有意为之」。
+    except Exception as error:  # noqa: BLE001
         print(f"  [x] 调用失败：{type(error).__name__}: {error}")
         print("      常见原因：密钥错、模型名不对、base_url 不匹配、网络不通")
         return False
