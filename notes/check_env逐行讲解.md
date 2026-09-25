@@ -92,7 +92,11 @@ def check_python() -> bool:
 
 `"""检查 Python 版本。..."""` —— 三引号字符串，放在函数第一行就是「文档字符串」。写 `help(check_python)` 时会把这段显示出来。养成写它的习惯，面试官看你仓库时会留意。
 
-`version = sys.version_info` —— 拿到 Python 版本信息。它的类型是一个「具名元组」，所以下面能用 `version.major` 这种点号访问。
+`version = sys.version_info` —— 拿到 Python 版本信息。它的类型是「类具名元组」的内置结构（CPython 里叫 structseq），所以既能用 `version[0]` 按下标取，也能用 `version.major` 按名字取。
+
+> 严格说它不是 `collections.namedtuple` 造出来的具名元组，而是内置的另一种结构，属性名不一样（它用 `n_fields`，具名元组用 `_fields`）。行为上两者一致。想看实际效果可以运行 `weeks/week00_python/day01_namedtuple_demo.py`。
+
+> 另外它还是元组，所以 `version < (3, 11)` 这种比较能成立——元组比较是**逐个位置从左往右比**。如果它不是元组，这行代码就得写成 `version.major < 3 or (version.major == 3 and version.minor < 11)`，啰嗦得多。
 
 `f"{version.major}.{version.minor}.{version.micro}"` —— **f-string**，字符串前面的 `f` 表示里面 `{}` 的内容会被求值后嵌进字符串。这是 Python 里最常用的字符串写法，你后面每天要用几十次。
 
