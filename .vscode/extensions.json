@@ -1,0 +1,13 @@
+{
+  // 打开这个项目时，编辑器会提示安装下面这些扩展。点一下就能装。
+  "recommendations": [
+    // Python 语法、调试、虚拟环境识别，必装
+    "ms-python.python",
+    // 保存时自动格式化与检查，配合 settings.json 里的配置使用
+    "charliermarsh.ruff",
+    // .env 文件高亮，改密钥时不容易看错
+    "mikestead.dotenv",
+    // 方便直接跑 pytest
+    "ms-python.vscode-pylance"
+  ]
+}

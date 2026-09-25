@@ -77,6 +77,35 @@ git log --oneline               # 看提交历史
 - 需要分享配置时，复制 `.env.example` 填写，不要复制 `.env` 本身。
 - 提交前用 `git status` 扫一眼，确认没有把密钥、个人数据、公司资料加进去。
 
+## 开发环境
+
+本机的编辑器与解释器位置，换机器时按这个重建即可。
+
+| 项目 | 位置 |
+|---|---|
+| 编辑器 | `C:\Users\dell\AppData\Local\Programs\VSCode\Code.exe`（免安装版，开始菜单里有快捷方式） |
+| Python 解释器 | 仓库内的 `.venv\Scripts\python.exe` |
+| 依赖清单 | `requirements.txt` |
+
+**常用命令**
+
+```bash
+# 环境自检（不含联网调用）
+.venv\Scripts\python.exe check_env.py
+
+# 环境自检 + 真实调用一次模型
+.venv\Scripts\python.exe check_env.py --live
+
+# 装新依赖（走国内镜像，虚拟环境里已配好）
+.venv\Scripts\python.exe -m pip install 包名
+
+# 格式化与检查代码
+.venv\Scripts\python.exe -m ruff format .
+.venv\Scripts\python.exe -m ruff check .
+```
+
+> 免安装版不会自动更新，需要升级时重新解压一份新版覆盖即可。
+
 ## 本周要交付的那「一个东西」
 
 > 每天开工前在这里写下今天的交付物，收工时确认是否完成。
