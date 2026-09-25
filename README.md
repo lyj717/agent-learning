@@ -16,6 +16,8 @@
 | `docs/python-7天补齐清单.md` | Python 补齐的知识点与练习 |
 | `docs/21天详细日程表.md` | 前 21 天逐时段日程 |
 | `docs/学习媒介与资源指南.md` | 用什么学、怎么筛选资源 |
+| `docs/agent面试八股文.md` | 面试题库 + 参考答案 + 14 天背诵计划 |
+| `notes/check_env逐行讲解.md` | 把 check_env.py 拆成 8 关讲 Python 语法 |
 
 ## 目录结构
 
