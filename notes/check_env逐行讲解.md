@@ -138,7 +138,9 @@ def check_packages() -> bool:
             print(f"  [x] {package_name}：未安装")
 
     if missing:
-        print(f"\n  修复：.venv\\Scripts\\python.exe -m pip install {' '.join(missing)}")
+        print(
+            f"\n  修复：.venv\\Scripts\\python.exe -m pip install {' '.join(missing)}"
+        )
 
     return not missing
 ```
@@ -181,6 +183,7 @@ def check_packages() -> bool:
 
 ```python
 SUSPICIOUS_PUNCTUATION = "，。；：（）＝“”‘’【】、《》"
+
 
 def inspect_env_format(env_path: Path) -> bool:
     raw = env_path.read_bytes()

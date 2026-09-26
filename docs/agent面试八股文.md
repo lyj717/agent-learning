@@ -887,11 +887,13 @@ def run_agent(user_input: str, max_steps: int = 10) -> str:
             name = tool_call.function.name
             args = json.loads(tool_call.function.arguments)
             result = execute_tool(name, args)
-            messages.append({
-                "role": "tool",
-                "tool_call_id": tool_call.id,
-                "content": str(result),
-            })
+            messages.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": str(result),
+                }
+            )
 
     # 步数用尽，兜底
     return "抱歉，这个问题我没能在限定步骤内解决。"
