@@ -30,6 +30,7 @@ REQUIRED_PACKAGES = {
     "rich": "rich",
     "pytest": "pytest",
 }
+MIN_KEY_LEN = 20
 
 
 def check_python() -> bool:
@@ -47,6 +48,7 @@ def check_python() -> bool:
 
     print(f"  [v] Python {version_text}：{venv_text}")
     print(f"      解释器路径：{sys.executable}")
+    print(f"      当前工作目录：{Path.cwd()}")
     return in_venv
 
 
@@ -162,8 +164,12 @@ def check_env_file() -> tuple[bool, str]:
         print("  [!] 密钥还没填（.env 里仍然是示例内容）")
         return False, api_key
 
+    if len(api_key) < MIN_KEY_LEN:
+        print("  [!] 密钥看起来太短，确认有没有复制完整")
+        return False, api_key
+
     # 只显示前后几位，不要把完整密钥打印出来或写进日志
-    masked = f"{api_key[:6]}...{api_key[-4:]}" if len(api_key) > 12 else "***"
+    masked = f"{api_key[:6]}...{api_key[-4:]}"
     print(f"  [v] 密钥已配置：{masked}")
     return True, api_key
 
