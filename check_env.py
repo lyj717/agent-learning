@@ -248,6 +248,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    org_out = ""
     if args.quiet:
         org_out = sys.stdout
         sys.stdout = io.StringIO()
@@ -276,6 +277,7 @@ def main() -> None:
 
     all_ok = python_ok and packages_ok and env_ok and security_ok and live_ok
 
+    capture_out = ""
     if args.quiet:
         capture_out = sys.stdout.getvalue()
         sys.stdout = org_out

@@ -102,7 +102,14 @@ git log --oneline               # 看提交历史
 # 格式化与检查代码
 .venv\Scripts\python.exe -m ruff format .
 .venv\Scripts\python.exe -m ruff check .
+
+# 跑测试（两种写法都行，配置在 pytest.ini 里）
+.venv\Scripts\pytest.exe
+.venv\Scripts\python.exe -m pytest -v
 ```
+
+> 测试放在 `tests/` 目录，文件名必须是 `test_*.py`，函数名必须是 `test_*`——
+> 这是 pytest 的命名约定，不符合的名字它不会执行。
 
 > 免安装版不会自动更新，需要升级时重新解压一份新版覆盖即可。
 
