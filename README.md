@@ -111,20 +111,22 @@ git log --oneline               # 看提交历史
 > 测试放在 `tests/` 目录，文件名必须是 `test_*.py`，函数名必须是 `test_*`——
 > 这是 pytest 的命名约定，不符合的名字它不会执行。
 
-### 排错：`PermissionError: [WinError 5] 拒绝访问`
+### 排错：`[WinError 5] 拒绝访问`
 
-如果报错指向 `C:\Users\dell\AppData\Local\Temp\pytest-of-dell`，说明 pytest 的临时目录
-权限不对（通常是它被别的账号创建过）。删掉这个目录让 pytest 重建即可：
+如果报错指向这两个位置，说明目录的权限不对（被别的账号创建过）：
+
+- `C:\Users\dell\AppData\Local\Temp\pytest-of-dell`
+- 仓库根目录下的 `.pytest_cache`
+
+用管理员权限的 PowerShell 删掉它们（注意用完整路径，管理员窗口里的 `%TEMP%`
+指向的不是你的临时目录）：
 
 ```
-Remove-Item "$env:TEMP\pytest-of-dell" -Recurse -Force
+Remove-Item "C:\Users\dell\AppData\Local\Temp\pytest-of-dell" -Recurse -Force
+Remove-Item ".pytest_cache" -Recurse -Force
 ```
 
-临时规避办法（不改动系统）：给测试指定一个项目内的临时目录。
-
-```
-.venv\Scripts\python.exe -m pytest -v --basetemp=.pytest_tmp
-```
+删完之后，`pytest.ini` 里那两行临时配置（`addopts` 和 `cache_dir`）就可以去掉了。
 
 > 免安装版不会自动更新，需要升级时重新解压一份新版覆盖即可。
 

@@ -20,7 +20,7 @@ env/
 
 # ---- 工具缓存 ----
 .pytest_cache/
-.pytest_tmp/
+.pytest_runtime/
 .ruff_cache/
 .mypy_cache/
 .coverage
