@@ -30,6 +30,8 @@ REQUIRED_PACKAGES = {
     "rich": "rich",
     "pytest": "pytest",
 }
+
+# 主流服务商的密钥都远长于这个数，明显更短基本是没复制完整
 MIN_KEY_LEN = 20
 
 
