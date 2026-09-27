@@ -127,6 +127,7 @@ Remove-Item ".pytest_cache" -Recurse -Force
 ```
 
 删完之后，`pytest.ini` 里那两行临时配置（`addopts` 和 `cache_dir`）就可以去掉了。
+本仓库在 2026-09 遇到过这个问题，已清理完毕，现在的 `pytest.ini` 里没有绕过配置。
 
 > 免安装版不会自动更新，需要升级时重新解压一份新版覆盖即可。
 
