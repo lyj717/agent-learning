@@ -14,6 +14,7 @@
 """
 
 import argparse
+import io
 import os
 import sys
 from pathlib import Path
@@ -241,7 +242,15 @@ def live_test(api_key: str) -> bool:
 def main() -> None:
     parser = argparse.ArgumentParser(description="环境自检")
     parser.add_argument("--live", action="store_true", help="额外发一次真实 API 请求")
+    # 新增：这一行就是练习 3 要加的参数
+    parser.add_argument(
+        "--quiet", "-q", action="store_true", help="只输出最后结论，不打印过程"
+    )
     args = parser.parse_args()
+
+    if args.quiet:
+        org_out = sys.stdout
+        sys.stdout = io.StringIO()
 
     print("\n=== 环境自检 ===\n")
 
@@ -266,6 +275,14 @@ def main() -> None:
             live_ok = live_test(api_key)
 
     all_ok = python_ok and packages_ok and env_ok and security_ok and live_ok
+
+    if args.quiet:
+        capture_out = sys.stdout.getvalue()
+        sys.stdout = org_out
+
+    if args.quiet and not all_ok:
+        print(capture_out)
+
     print("\n" + "=" * 30)
     if all_ok:
         print("环境就绪，可以开始 Day 1 了。")
