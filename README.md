@@ -111,6 +111,21 @@ git log --oneline               # 看提交历史
 > 测试放在 `tests/` 目录，文件名必须是 `test_*.py`，函数名必须是 `test_*`——
 > 这是 pytest 的命名约定，不符合的名字它不会执行。
 
+### 排错：`PermissionError: [WinError 5] 拒绝访问`
+
+如果报错指向 `C:\Users\dell\AppData\Local\Temp\pytest-of-dell`，说明 pytest 的临时目录
+权限不对（通常是它被别的账号创建过）。删掉这个目录让 pytest 重建即可：
+
+```
+Remove-Item "$env:TEMP\pytest-of-dell" -Recurse -Force
+```
+
+临时规避办法（不改动系统）：给测试指定一个项目内的临时目录。
+
+```
+.venv\Scripts\python.exe -m pytest -v --basetemp=.pytest_tmp
+```
+
 > 免安装版不会自动更新，需要升级时重新解压一份新版覆盖即可。
 
 ## 本周要交付的那「一个东西」
