@@ -16,21 +16,15 @@
 卡住就把报错原文和你的猜测一起发我。
 """
 
-
 def join_user_messages(messages: list[dict]) -> str:
     """把所有 role 是 "user" 的消息内容拼成一个字符串，用换行分隔。
-
-    输入长这样（这就是 Agent 开发里对话历史的标准结构）：
+    输入:
         [
             {"role": "user", "content": "你好"},
             {"role": "assistant", "content": "你好，有什么可以帮你"},
             {"role": "user", "content": "帮我查天气"},
         ]
-
     期望结果："你好\\n帮我查天气"
-
-    考点：列表推导式 + 字典取值 + join。
-    如果列表里一条 user 消息都没有，应返回空字符串。
     """
     contents = []
     for message in messages:
@@ -48,10 +42,6 @@ def top_words(text: str, limit: int = 5) -> list[tuple[str, int]]:
             -> [("a", 2), ("b", 1)]
         top_words("", 3)
             -> []
-
-    考点：字典做计数器 + sorted 配 key=lambda + 切片取前几个。
-    提示：用 text.split() 把句子切成单词列表。
-    注意：统计时用 counts.get(word, 0) + 1，这是字典计数的固定写法。
     """
     counts = {}
     words = text.split()
@@ -62,27 +52,12 @@ def top_words(text: str, limit: int = 5) -> list[tuple[str, int]]:
 
 def flatten_orders(orders: list[dict]) -> list[tuple[str, str, int]]:
     """把嵌套的订单结构拍平成 (订单号, 商品名, 数量) 的列表。
-
     输入长这样：
         [
-            {
-                "order_id": "A1",
-                "items": [
-                    {"name": "键盘", "qty": 2},
-                    {"name": "鼠标", "qty": 1},
-                ],
-            },
-            {
-                "order_id": "A2",
-                "items": [{"name": "显示器", "qty": 1}],
-            },
-        ]
-
+            {"order_id": "A1","items": [{"name": "键盘", "qty": 2},{"name": "鼠标", "qty": 1},],},
+            {"order_id": "A2","items": [{"name": "显示器", "qty": 1}], },]
     期望结果：
         [("A1", "键盘", 2), ("A1", "鼠标", 1), ("A2", "显示器", 1)]
-
-    考点：嵌套遍历（外层订单、内层商品）+ 每层取字典的值 + 组装元组。
-    这个「拍平」动作在你以后解析模型返回的嵌套 JSON 时天天用到。
     """
     f_list = []
     for order in orders:
