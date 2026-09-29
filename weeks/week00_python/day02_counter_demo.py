@@ -114,8 +114,8 @@ words = text.split()
 
 print("Python 标准库里有个专门做这件事的类：\n")
 
-print(f"  from collections import Counter")
-print(f"  counts = Counter(words)")
+print("  from collections import Counter")
+print("  counts = Counter(words)")
 print()
 
 counts = Counter(words)
