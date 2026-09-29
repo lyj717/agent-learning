@@ -42,8 +42,9 @@ section("2. 边界情况：空列表和单个元素")
 # ============================================================
 
 print('  "\\n".join([])          →  ' + repr("\n".join([])))
-print('  "\\n".join(["唯一"])    →  ' + repr("\n".join(["唯一"])))
-print('  "\\n".join(["甲", "乙"]) →  ' + repr("\n".join(["甲", "乙"])))
+# 这两行就是要演示 join 在单元素和多元素时的行为，故意用 join 而不是写死字符串
+print('  "\\n".join(["唯一"])    →  ' + repr("\n".join(["唯一"])))  # noqa: FLY002
+print('  "\\n".join(["甲", "乙"]) →  ' + repr("\n".join(["甲", "乙"])))  # noqa: FLY002
 
 print("\n规律：分隔符只出现在相邻两个元素「之间」。")
 print("所以空列表得到空字符串，单个元素不会多出分隔符——")
@@ -57,7 +58,7 @@ section("3. 最容易踩的坑：元素必须是字符串")
 print("如果列表里混了数字，会直接报错：\n")
 
 try:
-    ",".join(["第 1 名", 2, "第 3 名"])
+    ",".join(["第 1 名", 2, "第 3 名"])  # noqa: FLY002
 except TypeError as error:
     print(f"  报错：{error}")
 
@@ -67,11 +68,11 @@ numbers = [1, 2, 3]
 
 # 修法一：先把每个元素转成字符串（推导式）
 converted = [str(n) for n in numbers]
-print(f'  用推导式：",".join([str(n) for n in numbers])  →  ' + ",".join(converted))
+print('  用推导式：",".join([str(n) for n in numbers])  →  ' + ",".join(converted))
 
 # 修法二：用 map，把转换函数套到每个元素上
 print(
-    f'  用 map：  ",".join(map(str, numbers))          →  '
+    '  用 map：  ",".join(map(str, numbers))          →  '
     + ",".join(map(str, numbers))
 )
 
