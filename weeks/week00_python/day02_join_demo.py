@@ -72,8 +72,7 @@ print('  用推导式：",".join([str(n) for n in numbers])  →  ' + ",".join(c
 
 # 修法二：用 map，把转换函数套到每个元素上
 print(
-    '  用 map：  ",".join(map(str, numbers))          →  '
-    + ",".join(map(str, numbers))
+    '  用 map：  ",".join(map(str, numbers))          →  ' + ",".join(map(str, numbers))
 )
 
 print("\n两种都行。map 更短，推导式更好读——团队里两种都常见。")
