@@ -57,7 +57,7 @@ def top_words(text: str, limit: int = 5) -> list[tuple[str, int]]:
     words = text.split()
     for word in words:
         counts[word] = counts.get(word, 0) + 1
-    return sorted(list(counts.items()), key=lambda x: x[1], reverse=True)[:limit]
+    return sorted((counts.items()), key=lambda x: x[1], reverse=True)[:limit]
 
 
 def flatten_orders(orders: list[dict]) -> list[tuple[str, str, int]]:
@@ -86,10 +86,9 @@ def flatten_orders(orders: list[dict]) -> list[tuple[str, str, int]]:
     """
     f_list = []
     for order in orders:
-        goods = order.get("items")
+        goods = order["items"]
         for good in goods:
-            tup = (order.get("order_id"), good.get("name"), good.get("qty"))
-            f_list.append(tup)
+            f_list.append((order["order_id"], good["name"], good["qty"]))
     return f_list
 
 
