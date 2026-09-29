@@ -32,17 +32,15 @@ def join_user_messages(messages: list[dict]) -> str:
     考点：列表推导式 + 字典取值 + join。
     如果列表里一条 user 消息都没有，应返回空字符串。
     """
-    user_message = ""
-    for role, content in enumerate(messages):
-        if role == "user":
-            user_message.join(content)
-
-    raise NotImplementedError("第 1 题还没写")
+    contents = []
+    for message in messages:
+        if message["role"] == "user":
+            contents.append(message["content"])
+    return "\n".join(contents)
 
 
 def top_words(text: str, limit: int = 5) -> list[tuple[str, int]]:
     """统计每个词出现的次数，返回次数最多的前 limit 个。
-
     期望结果：
         top_words("the cat and the dog and the bird", 2)
             -> [("the", 3), ("and", 2)]
@@ -55,7 +53,11 @@ def top_words(text: str, limit: int = 5) -> list[tuple[str, int]]:
     提示：用 text.split() 把句子切成单词列表。
     注意：统计时用 counts.get(word, 0) + 1，这是字典计数的固定写法。
     """
-    raise NotImplementedError("第 2 题还没写")
+
+    words = dict.fromkeys(text.split(" "))
+    word_list = dict.keys(words)
+    for words in word_list:
+        words[word_list] = text.c
 
 
 def flatten_orders(orders: list[dict]) -> list[tuple[str, str, int]]:
