@@ -54,10 +54,15 @@ def top_words(text: str, limit: int = 5) -> list[tuple[str, int]]:
     注意：统计时用 counts.get(word, 0) + 1，这是字典计数的固定写法。
     """
 
-    words = dict.fromkeys(text.split(" "))
-    word_list = dict.keys(words)
-    for words in word_list:
-        words[word_list] = text.c
+    counts = {}
+    words = text.split(" ")
+    tops = []
+    for word in words:
+        counts[word] = counts.get(word, 0) + 1
+    tops = list(counts.items())
+    sorted(tops, key=lambda x: x[1])
+
+    return tops
 
 
 def flatten_orders(orders: list[dict]) -> list[tuple[str, str, int]]:
