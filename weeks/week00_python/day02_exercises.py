@@ -84,7 +84,13 @@ def flatten_orders(orders: list[dict]) -> list[tuple[str, str, int]]:
     考点：嵌套遍历（外层订单、内层商品）+ 每层取字典的值 + 组装元组。
     这个「拍平」动作在你以后解析模型返回的嵌套 JSON 时天天用到。
     """
-    raise NotImplementedError("第 3 题还没写")
+    f_list = []
+    for order in orders:
+        goods = order.get("items")
+        for good in goods:
+            tup = (order.get("order_id"), good.get("name"), good.get("qty"))
+            f_list.append(tup)
+    return f_list
 
 
 if __name__ == "__main__":
