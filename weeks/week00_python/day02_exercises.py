@@ -16,6 +16,7 @@
 卡住就把报错原文和你的猜测一起发我。
 """
 
+
 def join_user_messages(messages: list[dict]) -> str:
     """把所有 role 是 "user" 的消息内容拼成一个字符串，用换行分隔。
     输入:
