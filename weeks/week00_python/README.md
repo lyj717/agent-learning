@@ -8,7 +8,7 @@
 
 - [x] Day 1｜缩进语法、动态类型、f-string、真值判断
 - [x] Day 2｜list/dict/tuple/set、切片、推导式、解包、深浅拷贝
-- [ ] Day 3｜函数、`*args/**kwargs`、可变默认参数陷阱、类型注解
+- [x] Day 3｜函数、`*args/**kwargs`、可变默认参数陷阱、类型注解
 - [ ] Day 4｜类与 `self`、模块导入、Pydantic
 - [ ] Day 5｜文件、JSON、异常、虚拟环境、`.env`、logging
 - [ ] Day 6｜生成器、装饰器、`async/await`、`asyncio.gather`

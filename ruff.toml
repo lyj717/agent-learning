@@ -1,0 +1,9 @@
+# ruff 的配置文件。单独放一个 ruff.toml，不写进 pyproject.toml，
+# 是为了不掺和打包、pytest 那些工具的配置。
+
+line-length = 88
+
+# notes/ 和 docs/ 是手写笔记：里面的 Python 代码块是给人看的，
+# 有些注释靠空格对齐才好扫（比如 ✗ / ✓ 那几段对照），
+# 自动格式化会把它们压成单个空格。所以这两个目录整体不参与 ruff。
+extend-exclude = ["notes", "docs"]
