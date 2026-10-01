@@ -114,11 +114,12 @@ if __name__ == "__main__":
 #    读文件：load 写文件：dump
 #    s的含义是string，带s的方法是给字符串对象用的
 # 2. 如果读写文件时忘了写 encoding="utf-8"，在你这台机器上会发生什么？
-#    报错：UnicodeDecodeError
+#    报错：UnicodeDecodeError: 'gbk' codec can't decode byte 0xad in position 2: illegal multibyte sequence
+#    关键就是开头那个 'gbk'——python 拿系统默认编码去解 utf-8 的文件了
 #
 # 3. require_api_key 里为什么不能写成
 #    os.environ.get(env_name, "test") 这种带默认值的做法？
-#    带默认值会导致如果api——key不合法程序依然会带着默认值的假密钥运行
+#    带默认值会导致如果api_key不合法程序依然会带着默认值的假密钥运行
 #
 # 4. 动手：建一个干净的虚拟环境
 #
