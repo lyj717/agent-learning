@@ -1,0 +1,9 @@
+{
+  "dataset": "agent-docs",
+  "version": 1,
+  "documents": [
+    {"id": 1, "title": "工具调用详解", "score": 0.95, "tags": ["agent", "tools"]},
+    {"id": 2, "title": "RAG 检索入门", "score": 0.78, "tags": ["rag"]},
+    {"id": 3, "title": "提示词工程", "score": 0.85, "tags": ["prompt"]}
+  ]
+}
