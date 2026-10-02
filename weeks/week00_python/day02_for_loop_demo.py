@@ -330,6 +330,7 @@ section("14. 性能：不同写法差多少")
 
 SIZE = 1_000_000
 
+# perf_counter()：高精度计时器，专门用来量「这段代码跑了多久」
 start = time.perf_counter()
 total = 0
 for i in range(SIZE):

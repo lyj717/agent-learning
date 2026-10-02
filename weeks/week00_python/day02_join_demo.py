@@ -104,6 +104,7 @@ section("5. 为什么不推荐用 += 拼字符串")
 pieces = [str(i) for i in range(20000)]
 
 # 写法一：循环里 +=
+# perf_counter()：高精度计时器，专门用来量「这段代码跑了多久」
 start = time.perf_counter()
 result_a = ""
 for piece in pieces:
