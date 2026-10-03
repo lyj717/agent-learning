@@ -36,7 +36,7 @@ agent-learning/
 
 完成一项就把 `[ ]` 改成 `[x]`。
 
-- [ ] Week 00｜Python 补齐 + 环境配置
+- [x] Week 00｜Python 补齐 + 环境配置
 - [ ] Week 01｜LLM 基础与 API（交付：流式 CLI 聊天机器人）
 - [ ] Week 02｜结构化输出与工具调用（交付：多工具信息抽取器）
 - [ ] Week 03｜Agent 核心循环，手写不用框架（交付：ReAct Agent）
@@ -88,11 +88,13 @@ git log --oneline               # 看提交历史
 | Python 解释器 | 仓库内的 `.venv\Scripts\python.exe` |
 | 依赖清单 | `requirements.txt` |
 
-PyCharm 里有两处设置要照着配（换机器时别忘了）：
+PyCharm 里有几处要注意（换机器时别忘了）：
 
 - **Project 解释器**指向仓库里的 `.venv\Scripts\python.exe`
 - **默认测试运行器**改成 pytest：Settings → Tools → Python Integrated Tools →
   Default test runner（用 unittest 的话，`def test_xxx()` 这种函数式测试一个都收集不到）
+- **PyCharm 2023.2 对 pytest 8+ 的支持不好**：如果测试面板显示「没有发现测试」，
+  升级 PyCharm 就能解决（在终端里直接跑 `pytest` 不受影响）
 
 **常用命令**
 
@@ -135,7 +137,8 @@ Remove-Item ".pytest_cache" -Recurse -Force
 
 本仓库在 2026-09 遇到过这个问题，已清理完毕，现在的 `pytest.ini` 里没有绕过配置。
 
-> 免安装版不会自动更新，需要升级时重新解压一份新版覆盖即可。
+> 补充：AI 在这台机器上跑测试时也会留下同类目录——**名字带 `dell`，权限却属于另一个账号**。
+> 判断和处理办法写在 `AGENTS.md` 的「在这台机器上跑命令的注意」一节。
 
 ## 本周要交付的那「一个东西」
 
