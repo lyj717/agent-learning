@@ -362,6 +362,11 @@ say(
     "     用 asyncio.create_task 起的后台任务如果没人 await，会被直接取消。",
     "     这个坑很安静：任务没跑完就没了，屏幕上一条提示都没有。",
     "     要等它，就放进 gather，或者自己 await 一下。",
+    "  7. 异步是「传染」的：异步对象要配异步语法，四个关键字成对出现——",
+    "     async def 定义协程、await 等结果、async with 用异步资源、",
+    "     async for 消费异步流。看到其中一个，就要想到另外三个。",
+    "     （比如 httpx.AsyncClient 必须配 async with，写普通的 with 会报",
+    "      'AsyncClient' object does not support the context manager protocol）",
 )
 
 

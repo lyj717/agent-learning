@@ -11,7 +11,7 @@
 - [x] Day 3｜函数、`*args/**kwargs`、可变默认参数陷阱、类型注解
 - [x] Day 4｜类与 `self`、模块导入、Pydantic
 - [x] Day 5｜文件、JSON、异常、虚拟环境、`.env`、logging
-- [ ] Day 6｜生成器、装饰器、`async/await`、`asyncio.gather`
+- [x] Day 6｜生成器、装饰器、`async/await`、`asyncio.gather`
 - [ ] Day 7｜串烧实战：完成 CLI 小工具
 
 ## 验收标准
