@@ -84,9 +84,15 @@ git log --oneline               # 看提交历史
 
 | 项目 | 位置 |
 |---|---|
-| 编辑器 | `C:\Users\dell\AppData\Local\Programs\VSCode\Code.exe`（免安装版，开始菜单里有快捷方式） |
+| 编辑器 | PyCharm Community Edition 2023.2.1：`C:\Program Files\JetBrains\PyCharm Community Edition 2023.2.1\bin\pycharm64.exe` |
 | Python 解释器 | 仓库内的 `.venv\Scripts\python.exe` |
 | 依赖清单 | `requirements.txt` |
+
+PyCharm 里有两处设置要照着配（换机器时别忘了）：
+
+- **Project 解释器**指向仓库里的 `.venv\Scripts\python.exe`
+- **默认测试运行器**改成 pytest：Settings → Tools → Python Integrated Tools →
+  Default test runner（用 unittest 的话，`def test_xxx()` 这种函数式测试一个都收集不到）
 
 **常用命令**
 
