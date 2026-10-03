@@ -43,3 +43,36 @@
 - 本地提交（`git add` + `git commit`）正常做，做完就做
 - **推送（`git push`）由本人自己执行**，AI 不要推
 - 每次提交之后提醒一句：本地比远程领先几个提交，该推了
+
+## 在这台机器上跑命令的注意（`[WinError 5]` 的根源）
+
+这台机器上跑 Python 的**不止一个账号**：你的是 `dell`，AI 跑命令时用的是沙箱账号
+（`whoami` 显示 `codexsandboxoffline`，但环境变量 `USERNAME`/`TEMP` 指向 `dell`，
+所以它建出来的目录会叫 `pytest-of-dell`——**名字是你的，权限是别人的**）。
+
+Windows 上「谁创建的目录默认只归谁」，于是会出现：你看着这个目录像是自己的，
+却写不进去，报 `[WinError 5] 拒绝访问`。2026-09 和 2026-10-03 各踩过一次，
+都是这个机制。
+
+### AI 跑测试时必须做的
+
+- **pytest 加 `-p no:cacheprovider`**——不要生成 `.pytest_cache`
+- **临时目录用 `--basetemp=<仓库>\.pytest_tmp`**（这个目录 .gitignore 已经屏蔽）——不要写进 `%TEMP%`，
+  那里会留下删不掉的 `pytest-of-dell`
+- 跑完检查工作区里新出现的 `__pycache__` / `.pytest_cache` / `.tmp_*`，清理掉；
+  只清本次跑出来的，别碰用户自己的
+
+```bash
+# 完整的写法
+.venv\Scripts\python.exe -m pytest -p no:cacheprovider --basetemp=.pytest_tmp tests
+```
+
+### 人看到 `[WinError 5]` 时怎么处理
+
+1. 报错里会带完整路径，先看是哪个目录
+2. 在自己的终端里跑 `icacls <那个目录>`，看有没有自己的账号
+3. 没有 → 那是 AI 或别的账号留下的，用**管理员** PowerShell 删掉再重跑
+4. README 的「排错：`[WinError 5] 拒绝访问`」那节有现成命令
+
+反过来也一样：AI 可能读不了你建的目录，跑测试时看到类似警告不用慌，
+那不是代码问题。
