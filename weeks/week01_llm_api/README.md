@@ -33,6 +33,27 @@
 
 学员做完练习和参数对比记录后，交给 AI 对答案、挑毛病。
 
+## 官方文档去哪看（Day 8 ~ Day 14）
+
+计划表里的「读官方 Quickstart」，指的是**你这家模型服务商的官方文档**，
+不是第三方教程。你的 `.env` 指向 DeepSeek，中文文档在这里：
+
+| 页面 | 地址 | 和哪天的课有关 |
+|---|---|---|
+| 首次调用 API（Quickstart） | https://api-docs.deepseek.com/zh-cn/ | Day 8：base_url、密钥、最小请求、system/user 角色 |
+| 创建对话补全 API | https://api-docs.deepseek.com/zh-cn/api/create-chat-completion | Day 8~12：`messages`、`role`、`temperature`、`max_tokens`、思考模式 |
+| 模型 & 价格 | https://api-docs.deepseek.com/zh-cn/quick_start/pricing | Day 9：估算花费 |
+| Token 用量计算 | https://api-docs.deepseek.com/zh-cn/quick_start/token_usage | Day 9：token 怎么数 |
+| 速率限制 | https://api-docs.deepseek.com/zh-cn/quick_start/rate_limit | Day 12：限流怎么处理 |
+| 错误码 | https://api-docs.deepseek.com/zh-cn/quick_start/error_codes | Day 12：断网、限流、超限怎么读 |
+
+为什么计划反复强调「以官方文档为准」：接口细节更新很快，第三方教程常常是旧的。
+Day 8 读前两页就够，读的时候留意 `temperature` 和 `max_tokens` 那两段——
+它们和你跑实验看到的现象直接相关。
+
+小提醒：模型名以官方文档为准（文档现在写的是 `deepseek-flash`）。`.env` 里
+若是旧名字也能跑，但既然来了文档，顺手对一下。
+
 ## 每日清单
 
 - [x] Day 8｜读官方 Quickstart，理解 system/user/assistant，temperature 对比实验
