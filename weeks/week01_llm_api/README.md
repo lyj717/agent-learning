@@ -70,7 +70,7 @@ Day 8 读前两页就够，读的时候留意 `temperature` 和 `max_tokens` 那
 ## 每日清单
 
 - [x] Day 8｜读官方 Quickstart，理解 system/user/assistant，temperature 对比实验
-- [ ] Day 9｜token 与成本，实现 `/cost` 命令
+- [x] Day 9｜token 与成本（交付：成本估算函数；`/cost` 命令 Day 10 接进 CLI）
 - [ ] Day 10｜多轮对话，实现 `/clear`
 - [ ] Day 11｜流式输出，打字机效果
 - [ ] Day 12｜上下文裁剪、失败重试、简易长期记忆

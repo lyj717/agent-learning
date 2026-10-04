@@ -42,9 +42,11 @@ def cost_of_call(
           单价一律从 price 里取——别在函数里写死是哪张表。
     """
     miss = prompt_tokens - cached_tokens
-    return (miss / 10 ** 6 * PRICE_IDLE["input_miss"]
-            + cached_tokens / 10 ** 6 * PRICE_IDLE["input_hit"]
-            + completion_tokens / 10 ** 6 * PRICE_IDLE["output"])
+    return (
+        miss / 10**6 * price["input_miss"]
+        + cached_tokens / 10**6 * price["input_hit"]
+        + completion_tokens / 10**6 * price["output"]
+    )
 
 
 def simulate_input_tokens(
@@ -91,12 +93,8 @@ def session_cost(
           第 3 题做完，你的 /cost 核心就齐了——Day 10 把它接进 CLI。
     """
     cost: float = 0.00
-    if price == PRICE_IDLE:
-        for index in range(len(input_per_turn)):
-            cost += cost_of_call(input_per_turn[index], output_per_turn[index])
-    if price == PRICE_PEAK:
-        for index in range(len(input_per_turn)):
-            cost += cost_of_call(input_per_turn[index], output_per_turn[index]) * 2
+    for index in range(len(input_per_turn)):
+        cost += cost_of_call(input_per_turn[index], output_per_turn[index], 0, price)
     return cost
 
 
