@@ -93,8 +93,8 @@ def session_cost(
           第 3 题做完，你的 /cost 核心就齐了——Day 10 把它接进 CLI。
     """
     cost: float = 0.00
-    for index in range(len(input_per_turn)):
-        cost += cost_of_call(input_per_turn[index], output_per_turn[index], 0, price)
+    for prompt_tokens, output_tokens in zip(input_per_turn, output_per_turn):
+        cost += cost_of_call(prompt_tokens, output_tokens, price=price)
     return cost
 
 
@@ -145,3 +145,4 @@ if __name__ == "__main__":
 # 4. 你要给用户做 /cost 命令，会显示哪些信息？（每次调用 / 本次会话累计 /
 #    下一次的预估，挑你觉得有用的说，并说明为什么）
 #   本次调用花费的token：将输入未命中,输入命中和输出的都打印出来；本次调用花费的钱
+#   用户需要知道这次调用花费了多少钱、花费在哪，还需要知道累计花费了多少
