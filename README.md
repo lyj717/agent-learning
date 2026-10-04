@@ -56,6 +56,7 @@ agent-learning/
 2. 更新简历里的一行内容
 3. 把踩过的坑写进 `FAILURES.md`
 4. 录一段 3 分钟讲解视频，回看并记下讲不清的地方
+5. 写本周的 `weeks/weekNN_主题/HANDOFF.md`——下周新开对话时从它读起
 
 ## 常用 Git 命令
 
