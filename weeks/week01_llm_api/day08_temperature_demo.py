@@ -11,10 +11,12 @@
     .venv\\Scripts\\python.exe weeks\\week01_llm_api\\day08_temperature_demo.py
     ... --times 5           每个温度跑几次（默认 5）
     ... --prompt "换个问题"  换一个要观察的 prompt
-    ... --max-tokens 512    限制每次最多生成多少 token（默认 512）
+    ... --max-tokens 1024   限制每次最多生成多少 token（默认 1024）
 
-为什么 max_tokens 默认给 512 而不是几十：当前接的是推理模型，它先想一段
+为什么 max_tokens 默认给 1024 而不是几十：当前接的是推理模型，它先想一段
 （reasoning_tokens），再给正式回答。额度给小了，思考就把额度用光、回答会是空的。
+注意：遇到开放式问题（比如「给我起个名字」）它可能一直想下去，1024 也未必够；
+可以继续调大，或者按官方文档用 thinking / reasoning_effort 控制思考强度。
 """
 
 import argparse
@@ -43,7 +45,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--times", type=int, default=5, help="每个温度跑几次")
     parser.add_argument("--prompt", default=DEFAULT_PROMPT, help="要观察的问题")
     parser.add_argument(
-        "--max-tokens", type=int, default=512, help="最多生成多少 token"
+        "--max-tokens", type=int, default=1024, help="最多生成多少 token"
     )
     return parser.parse_args(argv)
 

@@ -17,13 +17,11 @@ def build_conversation(
     system_prompt: str, turns: list[tuple[str, str]]
 ) -> list[dict[str, str]]:
     """第 1 题：把「人设 + 若干轮问答」拼成一个 messages 列表。
-
     要做的：
         1. 先放一条 {"role": "system", "content": system_prompt}
         2. 再按顺序把 turns 里每一轮拼进去
            turns 里每一项是一个 (用户问, 模型答) 的二元组
         3. 每一轮产出两条消息：先 user，后 assistant
-
     期望结果：
         build_conversation("只说一句话", [("你好", "你好呀。")])
         == [
@@ -31,38 +29,40 @@ def build_conversation(
             {"role": "user", "content": "你好"},
             {"role": "assistant", "content": "你好呀。"},
         ]
-
     提示：for question, answer in turns: 一次就把二元组拆开了；
           往列表里加东西用 append。
     """
-    raise NotImplementedError("第 1 题还没写")
+    conversation = [{"role": "system", "content": system_prompt}]
+    for question, answer in turns:
+        conversation.append({"role": "user", "content": question})
+        conversation.append({"role": "assistant", "content": answer})
+    return conversation
 
 
 def append_turn(
     messages: list[dict[str, str]], question: str, answer: str
 ) -> list[dict[str, str]]:
     """第 2 题：把新的一轮问答追加到已有 messages 末尾，返回新列表。
-
     要做的：
         1. 先复制一份传入的列表（别就地改别人的列表）
         2. 追加一条 user（question）和一条 assistant（answer）
         3. 返回复制并追加后的新列表
-
     期望结果：
         msgs = [{"role": "system", "content": "只说一句话"}]
         new = append_turn(msgs, "在吗", "在的")
         len(msgs) == 1     # 原来的列表没被动
         len(new) == 3
-
     提示：new = list(messages) 是浅拷贝，这里够用。
           这题就是 Day 10「多轮对话」的雏形。
     """
-    raise NotImplementedError("第 2 题还没写")
+    new = list(messages)
+    new.append({"role": "user", "content": question})
+    new.append({"role": "assistant", "content": answer})
+    return new
 
 
 def pick_temperature(task: str) -> float:
     """第 3 题：按任务类型挑一个合理的 temperature。
-
     要做的：
         1. task 会传进来 "抽取" / "工具调用" / "起名" / "写文案" / "闲聊" 之一
         2. 返回一个浮点数：
@@ -73,11 +73,14 @@ def pick_temperature(task: str) -> float:
     期望结果（这只是形状示例，具体值你自己定）：
         pick_temperature("抽取") <= 0.3
         pick_temperature("起名") >= 0.8
-
     提示：先按自己的判断填；跑完 day08_temperature_demo.py 之后，
           再回来看看要不要改——那时候你手里有真实数据了。
     """
-    raise NotImplementedError("第 3 题还没写")
+    if task in {"抽取", "工具调用"}:
+        return 0.15
+    if task in ["起名", "写文案", "闲聊"]:
+        return 1.00
+    return 0.60
 
 
 if __name__ == "__main__":
@@ -116,12 +119,15 @@ if __name__ == "__main__":
 # ============================================================
 #
 # 1. 同一个问题在 temperature=0 和 1.5 下各跑 5 次，分别得到几种不同答案？
-#    0 是：
-#    1.5 是：
+#    0 是：3
+#    1.5 是：5
 #    和你的预期一致吗？不一致的话，你觉得原因可能是什么？
-#
+#    不一致。原因：这个模型默认开着思考模式，而官方文档写明 temperature
+#    「思考模式下不生效」——所以设成 0 也不保证每次一样。
+#    （补充实验见 day08_参数对比记录.md 的观察 1。）
 # 2. 你要做一个「从简历里抽出姓名和电话」的功能，会选哪个温度？为什么？
-#
+#    0.2，抽取需要可复现，需要稳定输出
 # 3. 你要做一个「给新产品起 10 个名字」的功能，会选哪个温度？为什么？
-#
+#    1.2，这个功能需要发挥创意（在题目给的 0.8~1.2 区间里；越界就开始散了）
 # 4. 为什么 history 越长，每次请求越贵？（提示：想一想你每次到底发了什么出去）
+#     因为模型并不是有记忆，而是在收到新请求时让历史记录全部看一遍，token花费自然更多
