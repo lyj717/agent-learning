@@ -38,3 +38,24 @@
 - **原因**：小写 `any` 是内置函数（`any([True, False])` 里那个），大写的 `Any` 才是类型；而注解在运行时不做校验，写错也不会崩
 - **修复**：改成 `Any`，文件顶部的 `from typing import Any` 已经导入了
 - **学到**：注解不参与运行，「不报错」不等于「写对了」；写工具函数时这些注解会变成模型看到的参数 schema，写错会直接改变模型的行为
+
+### 2026-10-04｜temperature 填 0，同一个问题问 5 次照样得到 3 种答案
+
+- **现象**：prompt 一个字没改、`temperature=0.0` 跑 5 次，结果出现 3 种不同答案
+- **原因**：这个模型默认开着思考模式（`thinking: enabled`、`reasoning_effort: high`），而官方文档在 `temperature` 那行写着「思考模式下不生效」——真正带随机性的是那段看不见的思考，温度管不到它
+- **修复**：不再把「可复现」押在 temperature 上；要稳就自己缓存结果、对输出做校验
+- **学到**：参数的作用域要看官方文档，不能靠旧模型的直觉；「温度 0 就该一模一样」已经不成立了
+
+### 2026-10-05｜max_tokens 从 512 调到 1024，起名字还是空回答
+
+- **现象**：让模型起名字，10 次调用全部 `finish=length`，输出 1024 个 token 全是思考，正文一个字没有，钱照付
+- **原因**：`max_tokens` 限的是「思考 + 正文」的总量；思考把额度吃光，正文还没开始就被截断
+- **修复**：把 `max_tokens` 调大（官方说思考模式默认输出预算是 64K），或者用 `thinking` / `reasoning_effort` 控制思考强度
+- **学到**：推理模型的 token 账要把思考算进去；`finish_reason=length` 是判断依据，`content` 为空不一定代表请求失败
+
+### 2026-10-05｜PyCharm 报「未解析的引用 'Conversation'」，可 pytest 明明能跑
+
+- **现象**：测试文件里 `from conversation import Conversation` 被标红，命令行跑 `pytest` 一切正常
+- **原因**：让这个导入成立的是 `pytest.ini` 里的 `pythonpath = .`；pytest 会读这一行，PyCharm 的静态检查不读，它只认「源码根」
+- **修复**：右键 `chat_cli` 目录 → Mark Directory as → Sources Root（标记只存在 `.idea/`，换机器要重做一次）
+- **学到**：IDE 标红不等于运行错误；先跑一遍再下结论，别急着改代码
