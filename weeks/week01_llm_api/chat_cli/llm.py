@@ -10,6 +10,10 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+# 写 chat() 的时候，把下面这行的注释去掉——现在注释着，是因为 chat() 还没实现，
+# 没人用它，ruff 会报「导入了没用」（F401）
+# from openai import OpenAI
+
 # 这个文件在 weeks/week01_llm_api/chat_cli/ 里，往上三层才是仓库根目录
 ROOT = Path(__file__).resolve().parents[3]
 MIN_KEY_LEN = 20
@@ -38,11 +42,9 @@ def chat(
     temperature: float | None = None,
     max_tokens: int = DEFAULT_MAX_TOKENS,
 ) -> tuple[str, Any]:
-    """发一次请求（非流式），返回（回答文本, usage 用量对象）。
-
+    """发一次请求（非流式），返回（回答文本, usage 用量对象）
     要做的（把它写成 Week 00 那版的升级版，不是照抄）：
-        0. 先在文件顶部补一行 import：`from openai import OpenAI`
-           （原来那行我删了：chat() 没实现之前没人用它，ruff 会报「导入了没用」）
+        0. 先把文件顶部 `# from openai import OpenAI` 那行的注释去掉
         1. 建客户端：
                client = OpenAI(api_key=require_api_key(),
                                base_url=os.environ.get("LLM_BASE_URL"))
@@ -52,7 +54,6 @@ def chat(
         3. temperature 只有**不是 None** 的时候才放进字段里——不传就别带这个键
         4. 发请求：client.chat.completions.create(**字段)
         5. 返回（回答文本去掉首尾空白, response.usage）
-
     期望结果：
         text, usage = chat([{"role": "user", "content": "你好"}])
         text  是模型的回答字符串（不是对象、不是列表）
