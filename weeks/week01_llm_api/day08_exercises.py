@@ -1,36 +1,15 @@
-"""Day 8 练习：消息角色与参数感知（自己动手，别抄）。
+"""Day 8 练习：消息角色与参数感知。
 
-先跑完 day08_roles_demo.py，再来做这里的题：
-    .venv\\Scripts\\python.exe weeks\\week01_llm_api\\day08_exercises.py
-
-三个考点：
-  - messages 是一个列表，每条是 {"role": ..., "content": ...}
-  - 三种角色：system 设规矩、user 提问、assistant 模型的历史回答
-  - temperature 低=稳、高=散，不同任务选不同的值
-
-第 1、2、3 题是纯逻辑，离线就能做。做完再回答文件末尾的自测题。
-卡住就按 notes/卡住了怎么办.md 里的六招走，还不行再问我。
+跑法：.venv\\Scripts\\python.exe weeks\\week01_llm_api\\day08_exercises.py
 """
 
 
 def build_conversation(
     system_prompt: str, turns: list[tuple[str, str]]
 ) -> list[dict[str, str]]:
-    """第 1 题：把「人设 + 若干轮问答」拼成一个 messages 列表。
-    要做的：
-        1. 先放一条 {"role": "system", "content": system_prompt}
-        2. 再按顺序把 turns 里每一轮拼进去
-           turns 里每一项是一个 (用户问, 模型答) 的二元组
-        3. 每一轮产出两条消息：先 user，后 assistant
-    期望结果：
-        build_conversation("只说一句话", [("你好", "你好呀。")])
-        == [
-            {"role": "system", "content": "只说一句话"},
-            {"role": "user", "content": "你好"},
-            {"role": "assistant", "content": "你好呀。"},
-        ]
-    提示：for question, answer in turns: 一次就把二元组拆开了；
-          往列表里加东西用 append。
+    """把「人设 + turns 里的每轮问答」按顺序拼成一个 messages 列表。
+
+    每一轮产出两条消息：先 user，后 assistant。
     """
     conversation = [{"role": "system", "content": system_prompt}]
     for question, answer in turns:
@@ -42,18 +21,9 @@ def build_conversation(
 def append_turn(
     messages: list[dict[str, str]], question: str, answer: str
 ) -> list[dict[str, str]]:
-    """第 2 题：把新的一轮问答追加到已有 messages 末尾，返回新列表。
-    要做的：
-        1. 先复制一份传入的列表（别就地改别人的列表）
-        2. 追加一条 user（question）和一条 assistant（answer）
-        3. 返回复制并追加后的新列表
-    期望结果：
-        msgs = [{"role": "system", "content": "只说一句话"}]
-        new = append_turn(msgs, "在吗", "在的")
-        len(msgs) == 1     # 原来的列表没被动
-        len(new) == 3
-    提示：new = list(messages) 是浅拷贝，这里够用。
-          这题就是 Day 10「多轮对话」的雏形。
+    """不改原列表，返回「追加了一轮问答」的新列表。
+
+    这是多轮对话的雏形：每次往历史里加一轮。
     """
     new = list(messages)
     new.append({"role": "user", "content": question})
@@ -62,19 +32,9 @@ def append_turn(
 
 
 def pick_temperature(task: str) -> float:
-    """第 3 题：按任务类型挑一个合理的 temperature。
-    要做的：
-        1. task 会传进来 "抽取" / "工具调用" / "起名" / "写文案" / "闲聊" 之一
-        2. 返回一个浮点数：
-             需要稳定、可复现的任务 -> 0.0 ~ 0.3
-             需要多样、有创意的任务 -> 0.8 ~ 1.2
-        3. 传了别的值，给一个保守的默认温度
+    """按任务类型返回一个合适的 temperature。
 
-    期望结果（这只是形状示例，具体值你自己定）：
-        pick_temperature("抽取") <= 0.3
-        pick_temperature("起名") >= 0.8
-    提示：先按自己的判断填；跑完 day08_temperature_demo.py 之后，
-          再回来看看要不要改——那时候你手里有真实数据了。
+    需要稳、可复现的任务给低温；需要多样的任务给高温；认不出来的给保守值。
     """
     if task in {"抽取", "工具调用"}:
         return 0.15

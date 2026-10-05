@@ -1,15 +1,7 @@
-"""Day 9 练习：token 与成本（自己动手，别抄）。
+"""Day 9 练习：token 与成本。
 
-先跑完 day09_token_demo.py，再来做这里的题：
-    .venv\\Scripts\\python.exe weeks\\week01_llm_api\\day09_exercises.py
-
-三个考点：
-  - 一次调用的费用 = 输入 + 输出（含思考）分别乘单价
-  - 多轮对话的输入 token 会滚雪球（历史要重新发）
-  - 估算函数是 /cost 命令的地基
-
+跑法：.venv\\Scripts\\python.exe weeks\\week01_llm_api\\day09_exercises.py
 价格数据抄自官方价格页（2026-10-04，deepseek-flash，空闲时段）。
-卡住就按 notes/卡住了怎么办.md 里的六招走，还不行再问我。
 """
 
 # 单价：元 / 百万 token
@@ -23,23 +15,9 @@ def cost_of_call(
     cached_tokens: int = 0,
     price: dict[str, float] = PRICE_IDLE,
 ) -> float:
-    """第 1 题：算一次调用花多少钱（单位：元）。
-    要做的：
-        1. 没命中缓存的输入 = prompt_tokens - cached_tokens
-        2. 三部分分别算钱，再相加（单价是「元 / 百万 token」）：
-             未命中输入 × price["input_miss"]
-             命中缓存    × price["input_hit"]
-             输出        × price["output"]
-           注意：都要先除以 1_000_000
-        3. 返回合计（元）
-    期望结果（不传 price 时，默认用空闲价的 PRICE_IDLE）：
-        cost_of_call(1_000_000, 0) == 1.0
-        cost_of_call(0, 1_000_000) == 4.0
-        cost_of_call(1_000_000, 0, cached_tokens=1_000_000) == 0.02
-        cost_of_call(1_000_000, 0, price=PRICE_PEAK) == 2.0
-    提示：1_000_000 也可以写成 10 ** 6；
-          输出那一档最贵，别忘了 completion_tokens 里包含思考；
-          单价一律从 price 里取——别在函数里写死是哪张表。
+    """算一次调用花多少钱（元）。
+
+    输入（区分缓存命中）和输出各按 price 里的单价算。
     """
     miss = prompt_tokens - cached_tokens
     return (
@@ -52,17 +30,9 @@ def cost_of_call(
 def simulate_input_tokens(
     system_tokens: int, user_tokens: int, assistant_tokens: int, turns: int
 ) -> list[int]:
-    """第 2 题：算出每一轮请求发出去的输入 token 数。
-    要做的：
-        1. 维护一个变量 history，初始值是 system_tokens
-        2. 循环 turns 次，每次：
-             本轮输入 = history + user_tokens，把它记进结果列表
-             然后 history 变成 本轮输入 + assistant_tokens
-           （因为下一轮要把本轮的回答也一起带上）
-        3. 返回结果列表，长度是 turns
-    期望结果：
-        simulate_input_tokens(30, 10, 50, 3) == [40, 100, 160]
-    提示：这题就是「上下文越用越贵」的数学形式，别用公式硬推，用上一轮的结果算下一轮。
+    """算出每一轮请求发出去的输入 token 数。
+
+    历史每一轮都要重发，所以输入会一轮比一轮大。
     """
     history = system_tokens
     tokens: list[int] = []
@@ -76,21 +46,9 @@ def simulate_input_tokens(
 def session_cost(
     input_per_turn: list[int], output_per_turn: list[int], price: dict[str, float]
 ) -> float:
-    """第 3 题：算一整段会话的花费（元）。
-    要做的：
-        1. input_per_turn[i] 和 output_per_turn[i] 是第 i 轮的输入、输出 token 数
-        2. 每一轮的费用 = 未命中输入 × price["input_miss"] + 输出 × price["output"]
-           （都是「元 / 百万 token」，记得除以 1_000_000）
-        3. 把每一轮的费用累加，返回总额
-    期望结果：
-        session_cost([1_000_000], [0], PRICE_IDLE) == 1.0
-        session_cost([1_000_000], [1_000_000], PRICE_IDLE) == 5.0
-        session_cost([1_000_000], [0], PRICE_PEAK) == 2.0
-    提示：可以复用第 1 题的 cost_of_call；price 直接传 PRICE_IDLE 或 PRICE_PEAK。
-          传法就是 cost_of_call(..., price=price)，别再判断 price 等于哪张表——
-          那样换一张价目表（比如以后加个 pro 的价格）就会失效。
-          逐轮遍历时可以用 zip(input_per_turn, output_per_turn) 一次拿两个数。
-          第 3 题做完，你的 /cost 核心就齐了——Day 10 把它接进 CLI。
+    """算一整段会话的花费（元）。
+
+    逐轮用 price 里的单价累加。这就是 /cost 的核心。
     """
     cost: float = 0.00
     for prompt_tokens, output_tokens in zip(input_per_turn, output_per_turn):
