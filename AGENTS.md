@@ -210,6 +210,16 @@ Windows 上「谁创建的目录默认只归谁」，于是会出现：你看着
 反过来也一样：AI 可能读不了你建的目录，跑测试时看到类似警告不用慌，
 那不是代码问题。
 
+### AI 测「要输入中文」的命令行程序时
+
+**别用 PowerShell 管道把中文喂给子进程**：编码会在中间被搞坏，程序收到的是一串乱码，
+报出来的往往是 `UnicodeEncodeError: ... surrogates not allowed`（2026-10-05 用
+`"你好`n/exit" | python chat_cli.py` 测的时候踩到，10 次全失败，第一反应以为是程序坏了）。
+
+正确做法：用 Python 的 `subprocess.run(..., input="你好\n/exit\n", text=True,
+encoding="utf-8", env={**os.environ, "PYTHONIOENCODING": "utf-8"})` 驱动，
+输出直接拿到干净的字符串。
+
 ## 跨周交接
 
 - **一周一个对话**：每周开一个新的 Codex 会话，上下文不会越滚越长，回头也好找

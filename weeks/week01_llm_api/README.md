@@ -93,7 +93,7 @@ Day 8 读前两页就够，读的时候留意 `temperature` 和 `max_tokens` 那
 - [x] Day 8｜读官方 Quickstart，理解 system/user/assistant，temperature 对比实验
 - [x] Day 9｜token 与成本（交付：成本估算函数；`/cost` 命令 Day 10 接进 CLI）
 - [x] Day 10｜多轮对话，实现 `/clear`（`chat_cli` 能连续追问，答得出上一轮说过的名字）
-- [ ] Day 11｜流式输出，打字机效果
+- [x] Day 11｜流式输出，打字机效果（实测连续跑 10 次：10 成功 0 失败，每次 2.4~3.3 秒）
 - [ ] Day 12｜上下文裁剪、失败重试、简易长期记忆
 - [ ] Day 13｜整合 + README + 演示视频
 - [ ] Day 14｜复盘，回答三个面试问题

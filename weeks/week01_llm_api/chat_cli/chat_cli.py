@@ -11,8 +11,8 @@ import argparse
 import logging
 
 import cost
+import llm
 from conversation import Conversation
-from llm import chat
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -71,16 +71,24 @@ def main(argv: list[str] | None = None) -> int:
         if handle_command(line, conversation, usage_log):
             continue
         payload = conversation.messages() + [{"role": "user", "content": line}]
-        # TODO(Day 11)：把下面两行换成流式——边收边打，收完再存历史、记用量。
-        # 用 llm.stream_chat（说明在 llm.py 里），记得把顶部 `from llm import chat`
-        # 一并改成 stream_chat，否则 ruff 会报「导入了没用」
-        # TODO(Day 12)：这里要包 try/except——出错时记日志、别让程序崩，
-        # 也别把这条问句留在历史里（现在失败会直接把程序打断）
-        text, usage = chat(payload, model=args.model)
+        # TODO(Day 12)：把下面这一整段包进 try/except——断网、限流、超长输入都别崩，
+        # 失败时记日志，而且别把这条问句留在历史里（现在失败会直接甩 traceback）
+        # 同一件事里还要处理两样：
+        #   · Ctrl+C（KeyboardInterrupt）：现在会带着一整段 traceback 退出，
+        #     要改成打印一句「再见」再干净退出。注意它只在程序等着输入时立刻生效；
+        #     卡在网络读取那会儿，要等数据回来才响应（实测按下去 1.5 秒后才动）
+        #   · 超时：给客户端加 timeout，别无限等；另外 Ctrl+C 并不会取消服务端
+        #     正在进行的生成，已经产生的 token 照样计费
+        pieces = []
+        usage = []
         conversation.add_user(line)
-        conversation.add_assistant(text)
-        usage_log.append((usage.prompt_tokens, usage.completion_tokens))
-        print(text)
+        for piece in llm.stream_chat(payload, model=args.model, usage_box=usage):
+            print(piece, end="", flush=True)
+            pieces.append(piece)
+        print()
+        conversation.add_assistant("".join(pieces))
+        if usage:
+            usage_log.append((usage[0].prompt_tokens, usage[0].completion_tokens))
     return 0
 
 

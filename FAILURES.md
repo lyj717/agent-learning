@@ -66,3 +66,10 @@
 - **原因**：为了分别取到「返回的两个值」，把同一个调用写了三遍——`add_assistant(chat(...)[0])`、`usage = chat(...)[1]`、`print(chat(...)[0])`，于是每取一次就重新请求一次
 - **修复**：一次调用、接住整个元组再分发——`text, usage = chat(payload, model=args.model)`，后面 `add_assistant(text)`、`usage_log.append(...)`、`print(text)` 都用这一份
 - **学到**：`return a, b` 返回的是一个元组，解包接住就行，不用为了拿第二个值再调一次；远程调用是「有副作用、要花钱」的操作，一次业务动作只该调一次
+
+### 2026-10-05｜改成流式之后，最简用法一跑就崩：「可选参数」默认是 None，却直接当列表用
+
+- **现象**：不传 `usage_box` 调 `stream_chat`，正文全部打完、最后一块到达时才抛 `AttributeError: 'NoneType' object has no attribute 'append'`；另外收尾的空串被当成一块 yield 出去，回答后面还忘了换行，下一个提示符黏在同一行
+- **原因**：从非流式改成流式，等于换了一整套数据形状，有三处「必须跟着改」的地方漏了——usage 只在最后一块上有、`content` 可能是 `None` 或空串、`print(end="")` 之后得自己补一个换行
+- **修复**：`if usage_box is not None and chunk.usage is not None`、`if piece:`（挡掉空串）、循环结束后补一个 `print()`
+- **学到**：换调用方式（非流式 → 流式）比换参数动的地方多；交付前至少跑三种输入——不传可选参数、内容为空、正常一条，缺一种就会漏
