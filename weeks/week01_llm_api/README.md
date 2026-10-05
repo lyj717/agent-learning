@@ -57,6 +57,10 @@ cd weeks\week01_llm_api\chat_cli
 但 Week 01 的 CLI 骨架要到 Day 10 才搭。所以 Day 9 的交付物是**成本估算函数**
 （练习第 1、3 题），Day 10 把它搬进 `chat_cli/cost.py`，`/cost` 命令就自然有了。
 
+同样地，`main` 里的出错处理（`try/except`）本来是 Day 10 骨架里的一句提示，
+按计划表它是 **Day 12「上下文管理与容错」** 的内容，所以挪到 Day 12 一起做，
+`chat_cli.py` 里留了 `TODO(Day 12)` 的书签。
+
 ## 官方文档去哪看（Day 8 ~ Day 14）
 
 计划表里的「读官方 Quickstart」，指的是**你这家模型服务商的官方文档**，

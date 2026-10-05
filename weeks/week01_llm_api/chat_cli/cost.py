@@ -29,11 +29,7 @@ def session_cost(
     output_per_turn: list[int],
     price: dict[str, float] = PRICE_IDLE,
 ) -> float:
-    """算一整段会话的花费（元）：逐轮用 price 里的单价累加。
-
-    不传 price 就按**空闲时段价**算（和 cost_of_call 的默认一致）。
-    对外展示时要注明是按空闲价估的——高峰时段是它的两倍。
-    """
+    """算一整段会话的花费（元）：逐轮用 price 里的单价累加。"""
     cost: float = 0.00
     for prompt_tokens, output_tokens in zip(input_per_turn, output_per_turn):
         cost += cost_of_call(prompt_tokens, output_tokens, price=price)
