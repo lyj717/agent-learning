@@ -195,7 +195,7 @@ say(
 if LIVE:
     from openai import OpenAI, OpenAIError
 
-    section("--live：真流式打一次（每块都标了序号）")
+    section("--live：真流式打一次（看到的就是打字机效果）")
     load_dotenv(ROOT / ".env")
     client = OpenAI(
         api_key=os.environ["LLM_API_KEY"],
@@ -209,14 +209,19 @@ if LIVE:
             max_tokens=512,
             stream=True,
         )
-        say("  正文：", end="")
+        # 这里必须用原始的 print：say() 是「一行行打」的工具，接不住 end=""
+        print("  正文：", end="", flush=True)
         index = 0
+        thinking_chunks = 0
         usage = None
         for chunk in stream:
             index += 1
             if not chunk.choices:
                 continue
-            piece = chunk.choices[0].delta.content
+            delta = chunk.choices[0].delta
+            if getattr(delta, "reasoning_content", None):
+                thinking_chunks += 1
+            piece = delta.content
             if piece:
                 print(piece, end="", flush=True)
             if chunk.usage is not None:
@@ -224,8 +229,9 @@ if LIVE:
         print()
         say(
             "",
-            f"  一共 {index} 块；用量：{usage}",
-            "  （思考那几百块不打出来，所以你看不到它们——但它们确实在流里占着位置）",
+            f"  一共 {index} 块，其中 {thinking_chunks} 块是思考——"
+            "所以正文是过了一会儿才开始冒的",
+            f"  用量：{usage}",
         )
     except OpenAIError as error:
         # 只捕 SDK 自己的异常类型
