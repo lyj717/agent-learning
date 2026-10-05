@@ -34,7 +34,6 @@ def say(*lines: str) -> None:
 
 def estimate_tokens(text: str) -> int:
     """粗略估算 token 数：中文 0.6/字、英文 0.3/字符（官方换算比例）。
-
     只是估算——准数永远看响应里的 usage，Day 9 学过。
     """
     chinese = sum(1 for char in text if "\u4e00" <= char <= "\u9fff")

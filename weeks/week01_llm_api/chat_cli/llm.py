@@ -9,10 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-
-# 写 chat() 的时候，把下面这行的注释去掉——现在注释着，是因为 chat() 还没实现，
-# 没人用它，ruff 会报「导入了没用」（F401）
-# from openai import OpenAI
+from openai import OpenAI
 
 # 这个文件在 weeks/week01_llm_api/chat_cli/ 里，往上三层才是仓库根目录
 ROOT = Path(__file__).resolve().parents[3]
@@ -44,7 +41,6 @@ def chat(
 ) -> tuple[str, Any]:
     """发一次请求（非流式），返回（回答文本, usage 用量对象）
     要做的（把它写成 Week 00 那版的升级版，不是照抄）：
-        0. 先把文件顶部 `# from openai import OpenAI` 那行的注释去掉
         1. 建客户端：
                client = OpenAI(api_key=require_api_key(),
                                base_url=os.environ.get("LLM_BASE_URL"))
@@ -66,6 +62,13 @@ def chat(
         - 为什么 temperature 用「不传就不带」的写法：把用不用它的决定留给调用方，
           而且这个模型在思考模式下它本来也不生效（Day 8 实验验证过）
     """
-    raise NotImplementedError(
-        "把 Week 00 那版改写成「吃 messages、返回 (文本, usage)」的版本"
-    )
+    client = OpenAI(api_key=require_api_key(), base_url=os.environ.get("LLM_BASE_URL"))
+    fields = {
+        "model": model or os.environ.get("LLM_MODEL", "gpt-4o-mini"),
+        "messages": messages,
+        "max_tokens": max_tokens,
+    }
+    if temperature is not None:
+        fields["temperature"] = temperature
+    response = client.chat.completions.create(**fields)
+    return (response.choices[0].message.content or "").strip(), response.usage
