@@ -18,6 +18,8 @@
 | Day 9 | `day09_exercises.py` | **学员做** | 三题搭出一个迷你 `/cost` 核心：算一次调用、模拟多轮输入、算整段会话 |
 | Day 10 | `day10_messages_demo.py` | AI 搭・学员跑 | 多轮对话的原理：历史在谁手里、`/clear` 清的是什么、三个坑（离线，`--live` 验证「不带历史就失忆」） |
 | Day 10~ | `chat_cli/` | **学员写** | **本周交付物**：多轮聊天机器人。Day 10 要写 `conversation.py` 和 `chat_cli.py`，验收测试在 `chat_cli/tests/` |
+| Day 11 | `day11_streaming_demo.py` | AI 搭・学员跑 | 流式输出：增量块结构、为什么必须 `flush`、流断了怎么处理；含实测数据「127 块里前 98 块是思考」（离线，`--live` 真流式打一次） |
+| Day 11 | `chat_cli/llm.py` 的 `stream_chat()` | **学员写** | 边收边给，并把 usage 带回来；写完把 `chat_cli.py` 的 main 换成流式（那里留了 TODO） |
 
 跑法（在仓库根目录）：
 
@@ -49,6 +51,10 @@
 cd weeks\week01_llm_api\chat_cli
 ..\..\..\.venv\Scripts\python.exe -m pytest -v      # 14 个测试，写好之前是红的
 ..\..\..\.venv\Scripts\python.exe chat_cli.py       # 写完了就能连续聊天
+
+# Day 11：流式输出的原理（默认离线，不花钱）
+.venv\Scripts\python.exe weeks\week01_llm_api\day11_streaming_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\day11_streaming_demo.py --live   # 真流式打一次
 ```
 
 学员做完练习和参数对比记录后，交给 AI 对答案、挑毛病。

@@ -71,6 +71,9 @@ def main(argv: list[str] | None = None) -> int:
         if handle_command(line, conversation, usage_log):
             continue
         payload = conversation.messages() + [{"role": "user", "content": line}]
+        # TODO(Day 11)：把下面两行换成流式——边收边打，收完再存历史、记用量。
+        # 用 llm.stream_chat（说明在 llm.py 里），记得把顶部 `from llm import chat`
+        # 一并改成 stream_chat，否则 ruff 会报「导入了没用」
         # TODO(Day 12)：这里要包 try/except——出错时记日志、别让程序崩，
         # 也别把这条问句留在历史里（现在失败会直接把程序打断）
         text, usage = chat(payload, model=args.model)
