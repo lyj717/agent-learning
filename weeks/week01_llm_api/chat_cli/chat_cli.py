@@ -58,7 +58,7 @@ def handle_command(
     if line == "/clear":
         turn = conversation.turns()
         conversation.clear()
-        print(f"已清空历史，清掉了{turn}条")
+        print(f"已清空历史，清掉了 {turn} 轮对话")
         return True
     if line == "/cost":
         input_per_turn: list[int] = []
@@ -66,13 +66,17 @@ def handle_command(
         for input_token, output_token in usage_log:
             input_per_turn.append(input_token)
             output_per_turn.append(output_token)
-        print(
-            f"本次累计调用{len(usage_log)}次，"
-            f"预计花费{cost.session_cost(input_per_turn=input_per_turn, output_per_turn=output_per_turn)}元，"
-            f"（本次花费按空闲价估算，真实账单以服务商后台为准）"
+        total = cost.session_cost(
+            input_per_turn=input_per_turn, output_per_turn=output_per_turn
         )
+        print(
+            f"本次会话：{len(usage_log)} 次调用，"
+            f"输入 {sum(input_per_turn)} token，输出 {sum(output_per_turn)} token"
+        )
+        print(f"预计花费 {total:.6f} 元（按空闲价估算；真实账单以服务商后台为准）")
         return True
-    print(f"未知命令{line}")
+    print(f"未知命令：{line}")
+    print("可用命令：/clear、/cost、/exit")
     return True
 
 
@@ -101,12 +105,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     conversation = Conversation(args.system)
     usage_log = []
-    print("准备好了，输入 / 查看命令")
+    print("你好，想聊点什么？")
+    print("命令：/clear 清空对话、/cost 看花费、/exit 退出")
     while True:
         line = input("你> ").strip()
         if not line:
             continue
         if line in {"/exit", "/quit"}:
+            print("再见！")
             break
         if handle_command(line, conversation, usage_log):
             continue
