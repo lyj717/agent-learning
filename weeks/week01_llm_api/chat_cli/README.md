@@ -40,6 +40,19 @@ cd weeks\week01_llm_api\chat_cli
 
 测试是我（AI）写好的验收标准，红了就是还没写对。
 
+### PyCharm 报「未解析的引用」怎么办
+
+如果在 PyCharm 里看到 `from conversation import Conversation` 标红（未解析的引用），
+**那不是代码错**。`import conversation` 要求 chat_cli 在模块搜索路径上，命令行跑测试
+时是 `pytest.ini` 里那行 `pythonpath = .` 在起作用——但 PyCharm 的静态检查不看这一行，
+只认「源码根」，所以找不到模块名，就标红。
+
+修法：右键 `chat_cli` 目录 → `Mark Directory as` → `Sources Root`（目录会变蓝）。
+之后 `conversation`、`llm`、`cost` 都能被认出来。
+
+要留意的是：这个标记只存在 `.idea/` 里，而 `.idea/` 已被 `.gitignore` 屏蔽——
+换台机器要重新点一次。运行时（`pytest` 和 `python chat_cli.py`）不受影响。
+
 ## 这个目录里有什么
 
 ```
