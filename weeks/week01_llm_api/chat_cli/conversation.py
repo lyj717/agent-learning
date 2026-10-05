@@ -14,6 +14,8 @@
 
 
 class Conversation:
+    system: dict[str, str] | None
+
     def __init__(self, system_prompt: str | None = None) -> None:
         """建一段新对话。
         要做的：
@@ -22,13 +24,17 @@ class Conversation:
         提示：system 不放在历史列表里也行——只要你保证 messages() 每次都先给
               它、clear() 之后它还在。
         """
-        raise NotImplementedError("__init__ 还没写")
+        if system_prompt is None:
+            self.system = None
+        else:
+            self.system = {"role": "system", "content": system_prompt}
+        self.history: list[dict[str, str]] = []
 
     def add_user(self, text: str) -> None:
         """把用户说的这句话记进历史。
         要做的：往历史末尾追加 {"role": "user", "content": text}
         """
-        raise NotImplementedError("add_user 还没写")
+        self.history.append({"role": "user", "content": text})
 
     def add_assistant(self, text: str) -> None:
         """把模型刚给的这个回答记进历史。
@@ -36,7 +42,7 @@ class Conversation:
         提示：这一步最容易忘。忘了它，下一轮模型就不知道它自己刚说过什么，
               会答得前言不搭后语（串味）。
         """
-        raise NotImplementedError("add_assistant 还没写")
+        self.history.append({"role": "assistant", "content": text})
 
     def messages(self) -> list[dict[str, str]]:
         """返回这次要发给模型的完整 messages。
@@ -46,15 +52,20 @@ class Conversation:
         提示：返回**新列表**（用 copy 或者重新拼一个），别把内部列表直接交出去——
               调用方一改就串了。
         """
-        raise NotImplementedError("messages 还没写")
+        if self.system is not None:
+            messages = [self.system]
+            messages.extend(self.history)
+        else:
+            messages = self.history.copy()
+        return messages
 
     def clear(self) -> None:
         """清空对话历史，但保留 system 人设。
         期望结果：调用之后 messages() 里只剩那条 system（没 system 就是空列表）
         提示：人设是配置，不是对话内容，所以不清。
         """
-        raise NotImplementedError("clear 还没写")
+        self.history = []
 
     def turns(self) -> int:
         """已经聊了几轮——也就是历史里用户说过几句。"""
-        raise NotImplementedError("turns 还没写")
+        return sum(1 for m in self.history if m["role"] == "user")
