@@ -141,7 +141,6 @@ def test_retry_does_not_wait_for_hopeless_errors():
 
     with pytest.raises(openai.AuthenticationError):
         llm.retry(hopeless, attempts=3, base_delay=1.0, sleep=delays.append)
-
     assert calls["n"] == 1
     assert delays == []
 

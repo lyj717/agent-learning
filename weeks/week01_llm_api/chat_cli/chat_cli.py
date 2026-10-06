@@ -15,8 +15,6 @@ import llm
 from conversation import Conversation
 
 # 历史上限：超过这么多轮就把最早的对话丢掉（system 人设永远留着）。
-# 为什么要有：Day 9 算过——20 轮对话里发出去的输入 token 是内容本身的 9.9 倍，
-# 聊得越久每一轮越贵、越慢，最后还会撑爆上下文窗口。
 MAX_TURNS = 8
 
 
@@ -66,35 +64,41 @@ def main(argv: list[str] | None = None) -> int:
     usage_log = []
     print("你好，想聊点什么？")
     print("命令：/clear 清空对话、/cost 看花费、/exit 退出")
-    while True:
-        line = input("你> ").strip()
-        if not line:
-            continue
-        if line in {"/exit", "/quit"}:
-            print("再见！")
-            break
-        if handle_command(line, conversation, usage_log):
-            continue
-        payload = conversation.messages() + [{"role": "user", "content": line}]
-        # TODO(Day 12)：把这一整段改成「不会崩」的版本，四件事：
-        #   ① 用 try/except 包住：断网（APIConnectionError）、限流（RateLimitError）、
-        #      超长输入（BadRequestError/UnprocessableEntityError）都别让程序退出，
-        #      打印一句人话（「网络连不上，重试过了还是不行，请稍后再试」这种）
-        #   ② 失败时**别把这条问句留在历史里**——把 conversation.add_user(line)
-        #      挪到调用成功之后
-        #   ③ KeyboardInterrupt（Ctrl+C）：把整个 while 循环都包进 try，
-        #      这样不管在哪一步按都能打印「再见」再干净退出，别甩 traceback
-        #   ④ 每一轮结束后调一次 conversation.trim(MAX_TURNS)，别让历史无限长
-        pieces = []
-        usage = []
-        conversation.add_user(line)
-        for piece in llm.stream_chat(payload, model=args.model, usage_box=usage):
-            print(piece, end="", flush=True)
-            pieces.append(piece)
-        print()
-        conversation.add_assistant("".join(pieces))
-        if usage:
-            usage_log.append((usage[0].prompt_tokens, usage[0].completion_tokens))
+    try:
+        while True:
+            line = input("你> ").strip()
+            if not line:
+                continue
+            if line in {"/exit", "/quit"}:
+                print("再见！")
+                break
+            if handle_command(line, conversation, usage_log):
+                continue
+            payload = conversation.messages() + [{"role": "user", "content": line}]
+            try:
+                pieces = []
+                usage = []
+                for piece in llm.stream_chat(
+                    payload, model=args.model, usage_box=usage
+                ):
+                    print(piece, end="", flush=True)
+                    pieces.append(piece)
+                print()
+                conversation.add_user(line)
+                conversation.add_assistant("".join(pieces))
+                if usage:
+                    usage_log.append(
+                        (usage[0].prompt_tokens, usage[0].completion_tokens)
+                    )
+            except llm.RETRYABLE_ERRORS as error:
+                print(f"网络波动，请稍后再试：{type(error).__name__}")
+            except llm.REQUEST_ERRORS as error:
+                print(f"消息太长了，修改一下：{type(error).__name__}")
+            except llm.MODEL_ERRORS as error:
+                print(f"模型服务出错了：{type(error).__name__}")
+            conversation.trim(MAX_TURNS)
+    except KeyboardInterrupt:
+        print("再见！")
     return 0
 
 
