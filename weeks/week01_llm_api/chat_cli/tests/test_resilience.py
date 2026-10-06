@@ -47,7 +47,7 @@ def too_long_error() -> Exception:
 @pytest.mark.parametrize(
     "make_error", [connection_error, rate_limit_error, too_long_error]
 )
-def test_cli_survives_model_failures(monkeypatch, capsys, make_error):
+def test_cli_survives_model_failures(monkeypatch, capsys, tmp_path, make_error):
     """三种失败都不该让程序退出；而且失败的那条问句不能留在历史里。"""
     payloads: list[list[dict[str, str]]] = []
 
@@ -61,6 +61,9 @@ def test_cli_survives_model_failures(monkeypatch, capsys, make_error):
         if box is not None:
             box.append(SimpleNamespace(prompt_tokens=5, completion_tokens=5))
 
+    # 把记忆文件指到临时目录：不然本机 facts.json 里的内容会混进 system，
+    # 测试就跟着「你本地记过什么」变了——测试必须自足
+    monkeypatch.setattr(chat_cli, "FACTS_PATH", tmp_path / "facts.json")
     monkeypatch.setattr(llm, "stream_chat", flaky_stream)
     monkeypatch.setattr(sys, "stdin", io.StringIO("第一句会失败\n第二句\n/exit\n"))
 
@@ -77,7 +80,7 @@ def test_cli_survives_model_failures(monkeypatch, capsys, make_error):
     ], "第一句失败了，不该留在历史里被第二句带着一起发"
 
 
-def test_ctrl_c_exits_cleanly(monkeypatch, capsys):
+def test_ctrl_c_exits_cleanly(monkeypatch, capsys, tmp_path):
     """按 Ctrl+C（KeyboardInterrupt）要干净退出，别甩 traceback。"""
 
     def working_stream(messages, **kwargs):
@@ -94,6 +97,7 @@ def test_ctrl_c_exits_cleanly(monkeypatch, capsys):
             return "你好"
         raise KeyboardInterrupt
 
+    monkeypatch.setattr(chat_cli, "FACTS_PATH", tmp_path / "facts.json")
     monkeypatch.setattr(llm, "stream_chat", working_stream)
     monkeypatch.setattr("builtins.input", fake_input)
 

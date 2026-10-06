@@ -44,11 +44,12 @@ def test_compose_system_without_facts_returns_base():
 
 
 def test_compose_system_includes_facts():
-    """有事实时，人设和事实都要在拼出来的那段里。"""
+    """有事实时，人设和事实都要在，而且是「- 内容」这种清单格式。"""
     composed = memory.compose_system("人设", ["我叫刘小明"])
     assert composed is not None
     assert "人设" in composed
     assert "刘小明" in composed
+    assert "- 我叫刘小明" in composed
 
 
 def test_compose_system_without_base_still_works():
