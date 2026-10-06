@@ -10,13 +10,17 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
+import openai
 from dotenv import load_dotenv
 from openai import (
     APIConnectionError,
+    APIError,
     APITimeoutError,
+    BadRequestError,
     InternalServerError,
     OpenAI,
     RateLimitError,
+    UnprocessableEntityError,
 )
 
 # 这个文件在 weeks/week01_llm_api/chat_cli/ 里，往上三层才是仓库根目录
@@ -38,6 +42,14 @@ RETRYABLE_ERRORS = (
     InternalServerError,
 )
 
+# 请求本身有问题的错误：重试也没用，而且多半是「输入太长」。
+# 单独拎出来，是为了让上层能给一句更具体的提示，而不是笼统地说「出错了」
+REQUEST_ERRORS = (BadRequestError, UnprocessableEntityError)
+
+# 给上层兜底用的：openai 所有错误的基类。
+# 上层按这个顺序接：RETRYABLE_ERRORS → REQUEST_ERRORS → MODEL_ERRORS
+MODEL_ERRORS = (APIError,)
+
 
 def require_api_key(env_name: str = "LLM_API_KEY") -> str:
     """读出 API Key；读不到就抛异常，绝不返回一个假值。"""
@@ -52,29 +64,19 @@ def require_api_key(env_name: str = "LLM_API_KEY") -> str:
 
 
 def _make_client() -> OpenAI:
-    """建一个客户端，两个函数共用（原来 chat 和 stream_chat 各写了一遍）。
-
-    要做的：
-        OpenAI(api_key=require_api_key(),
-               base_url=os.environ.get("LLM_BASE_URL"),
-               timeout=TIMEOUT_SECONDS,
-               max_retries=0)
-
-    为什么这么配（两个参数都有原因，别省）：
-        · timeout：不设的话网络卡住会一直挂着，用户看不到反馈
-        · max_retries=0：openai 这个库**默认自己重试 2 次**。我们自己再包一层重试，
-          最坏就变成 3 × 3 = 9 次请求——演示第 3 节有实测：同一个连不上的地址，
-          默认客户端 7.6 秒才抛错，max_retries=0 只要 2.0 秒。
-          重试策略只该由一层说了算。
-    """
-    raise NotImplementedError("_make_client 还没写")
+    """建一个客户端，两个函数共用（原来 chat 和 stream_chat 各写了一遍）"""
+    return OpenAI(
+        api_key=require_api_key(),
+        base_url=os.environ.get("LLM_BASE_URL"),
+        timeout=TIMEOUT_SECONDS,
+        max_retries=0,
+    )
 
 
 def retry(
     make_request, *, attempts: int = 3, base_delay: float = 1.0, sleep=time.sleep
 ):
     """把「一次请求」包成「失败会自动重试」的版本，成功就把结果原样返回。
-
     要做的：
         1. 最多试 attempts 次
         2. 每次调用 make_request()；成功就直接 return 它的返回值
@@ -83,17 +85,25 @@ def retry(
              （指数退避；再加上一点随机抖动更专业，可选）
         4. 抛的是别的错误（401 / 400 / 404 之类）→ 立刻抛出去，别浪费次数
         5. attempts 次都失败 → 把最后一次的错误抛出去
-
     期望结果（tests/test_resilience.py 就是这么验的）：
         「前两次失败、第三次成功」的假请求 → 返回结果，sleep 被调用两次（1.0、2.0）
         「每次都抛 AuthenticationError」的假请求 → 只调用一次，sleep 一次都没调
-
     提示：
         · sleep 做成参数是为了能测：测试里传个假的 sleep，就不用真等 1+2 秒
         · make_request 是「没有参数的函数」，调用方用 lambda 把参数裹进去：
               response = retry(lambda: client.chat.completions.create(**fields))
     """
-    raise NotImplementedError("retry 还没写")
+    last_error = None
+    for attempt in range(1, attempts + 1):
+        try:
+            return make_request()
+        except RETRYABLE_ERRORS as error:
+            last_error = error
+            if attempt < attempts:
+                sleep(base_delay * (2 ** (attempt - 1)))
+        except openai.APIError:
+            raise
+    raise last_error
 
 
 def chat(
@@ -104,8 +114,7 @@ def chat(
     max_tokens: int = DEFAULT_MAX_TOKENS,
 ) -> tuple[str, Any]:
     """发一次请求（非流式），返回（回答文本, usage 用量对象）"""
-    # TODO(Day 12)：这一行换成 _make_client()——它会带上超时、并关掉 SDK 自己的重试
-    client = OpenAI(api_key=require_api_key(), base_url=os.environ.get("LLM_BASE_URL"))
+    client = _make_client()
     fields = {
         "model": model or os.environ.get("LLM_MODEL", "gpt-4o-mini"),
         "messages": messages,
@@ -113,9 +122,7 @@ def chat(
     }
     if temperature is not None:
         fields["temperature"] = temperature
-    # TODO(Day 12)：把这次调用包进 retry()，写法：
-    #     response = retry(lambda: client.chat.completions.create(**fields))
-    response = client.chat.completions.create(**fields)
+    response = retry(lambda: client.chat.completions.create(**fields))
     return (response.choices[0].message.content or "").strip(), response.usage
 
 
@@ -150,8 +157,7 @@ def stream_chat(
           函数往里塞，调用方在外面能拿到。生成器没法 return 第二个值
         - 打印是调用方的事，这个函数只管 yield，别在这里 print
     """
-    # TODO(Day 12)：同样换成 _make_client()
-    client = OpenAI(api_key=require_api_key(), base_url=os.environ.get("LLM_BASE_URL"))
+    client = _make_client()
     fields = {
         "model": model or os.environ.get("LLM_MODEL", "gpt-4o-mini"),
         "messages": messages,
@@ -160,12 +166,8 @@ def stream_chat(
     }
     if temperature is not None:
         fields["temperature"] = temperature
-    # TODO(Day 12)：把「拿流对象」这一步交给 retry 包起来，再遍历
-    # （连接失败发生在拿流这一步；一旦开始 yield 给用户了就不能重试，
-    #  否则会把半截答案重复输出一遍）：
-    #     stream = retry(lambda: client.chat.completions.create(**fields))
-    #     for chunk in stream:
-    for chunk in client.chat.completions.create(**fields):
+    stream = retry(lambda: client.chat.completions.create(**fields))
+    for chunk in stream:
         if not chunk.choices:
             continue
         delta = chunk.choices[0].delta

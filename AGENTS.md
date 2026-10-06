@@ -148,6 +148,12 @@ Week 01 头三天把这些习惯丢了，连着留了六个坑（代做交付物
     的要求：注释着他最方便，用到时取消注释就行）。反面例子（Day 10）：
     `chat_cli.py` 的 import 被删掉后只在 docstring 里留了句「开工前补上」，
     `llm.py` 干脆删了没留痕，学员两处都得自己猜。
+  - 再往深一层：**文档里提到的任何名字（模块、异常类、函数）都要说清怎么拿到**——
+    是上层自己 import，还是从 `llm.` 前缀取。反面例子（2026-10-06，Day 12）：
+    `chat_cli.py` 的 TODO 里写了 `APIConnectionError`、`RateLimitError`、
+    `BadRequestError` 这些名字，可 `chat_cli.py` 一个 openai 异常都没导入，
+    `llm.py` 也只导了其中 4 个——学员照着写，`llm.BadRequestError` 直接
+    AttributeError，只能停下来问。**写完看一眼：我提到的每个名字，学员伸手能拿到吗？**
   - 还有一条同类的：**必填参数要说清「该传什么值」**，或者干脆给它一个合理的默认值。
     反面例子（2026-10-05，Day 10）：`session_cost` 的 `price` 是必填，可说明里没讲
     `/cost` 该用空闲价还是高峰价，学员只能停下来问。判断标准很简单：**这个位置
