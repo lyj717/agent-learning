@@ -14,6 +14,11 @@ import cost
 import llm
 from conversation import Conversation
 
+# 历史上限：超过这么多轮就把最早的对话丢掉（system 人设永远留着）。
+# 为什么要有：Day 9 算过——20 轮对话里发出去的输入 token 是内容本身的 9.9 倍，
+# 聊得越久每一轮越贵、越慢，最后还会撑爆上下文窗口。
+MAX_TURNS = 8
+
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """定义并解析命令行参数。"""
@@ -71,14 +76,15 @@ def main(argv: list[str] | None = None) -> int:
         if handle_command(line, conversation, usage_log):
             continue
         payload = conversation.messages() + [{"role": "user", "content": line}]
-        # TODO(Day 12)：把下面这一整段包进 try/except——断网、限流、超长输入都别崩，
-        # 失败时记日志，而且别把这条问句留在历史里（现在失败会直接甩 traceback）
-        # 同一件事里还要处理两样：
-        #   · Ctrl+C（KeyboardInterrupt）：现在会带着一整段 traceback 退出，
-        #     要改成打印一句「再见」再干净退出。注意它只在程序等着输入时立刻生效；
-        #     卡在网络读取那会儿，要等数据回来才响应（实测按下去 1.5 秒后才动）
-        #   · 超时：给客户端加 timeout，别无限等；另外 Ctrl+C 并不会取消服务端
-        #     正在进行的生成，已经产生的 token 照样计费
+        # TODO(Day 12)：把这一整段改成「不会崩」的版本，四件事：
+        #   ① 用 try/except 包住：断网（APIConnectionError）、限流（RateLimitError）、
+        #      超长输入（BadRequestError/UnprocessableEntityError）都别让程序退出，
+        #      打印一句人话（「网络连不上，重试过了还是不行，请稍后再试」这种）
+        #   ② 失败时**别把这条问句留在历史里**——把 conversation.add_user(line)
+        #      挪到调用成功之后
+        #   ③ KeyboardInterrupt（Ctrl+C）：把整个 while 循环都包进 try，
+        #      这样不管在哪一步按都能打印「再见」再干净退出，别甩 traceback
+        #   ④ 每一轮结束后调一次 conversation.trim(MAX_TURNS)，别让历史无限长
         pieces = []
         usage = []
         conversation.add_user(line)

@@ -20,6 +20,8 @@
 | Day 10~ | `chat_cli/` | **学员写** | **本周交付物**：多轮聊天机器人。Day 10 要写 `conversation.py` 和 `chat_cli.py`，验收测试在 `chat_cli/tests/` |
 | Day 11 | `day11_streaming_demo.py` | AI 搭・学员跑 | 流式输出：增量块结构、为什么必须 `flush`、流断了怎么处理；含实测数据「127 块里前 98 块是思考」（离线，`--live` 真流式打一次） |
 | Day 11 | `chat_cli/llm.py` 的 `stream_chat()` | **学员写** | 边收边给，并把 usage 带回来；写完把 `chat_cli.py` 的 main 换成流式（那里留了 TODO） |
+| Day 12 | `day12_resilience_demo.py` | AI 搭・学员跑 | 容错：哪类错误该重试、指数退避与抖动、超时、上下文裁剪；含实测「openai 默认自己重试 2 次，叠两层会变成 9 次请求」（**完全离线**：连的是本机死端口） |
+| Day 12 | `chat_cli` 的 `trim` / `_make_client` / `retry` | **学员写** | 裁剪最近 N 轮、带超时且关掉 SDK 重试的客户端、指数退避重试；验收测试 `tests/test_resilience.py` |
 
 跑法（在仓库根目录）：
 
@@ -55,6 +57,13 @@ cd weeks\week01_llm_api\chat_cli
 # Day 11：流式输出的原理（默认离线，不花钱）
 .venv\Scripts\python.exe weeks\week01_llm_api\day11_streaming_demo.py
 .venv\Scripts\python.exe weeks\week01_llm_api\day11_streaming_demo.py --live   # 真流式打一次
+
+# Day 12：裁剪与容错（完全离线——连的是本机死端口，不花钱）
+.venv\Scripts\python.exe weeks\week01_llm_api\day12_resilience_demo.py
+
+# Day 12 的验收：断网、限流、超长输入三种情况都不崩
+cd weeks\week01_llm_api\chat_cli
+..\..\..\.venv\Scripts\python.exe -m pytest -v tests\test_resilience.py
 ```
 
 学员做完练习和参数对比记录后，交给 AI 对答案、挑毛病。
@@ -66,6 +75,10 @@ cd weeks\week01_llm_api\chat_cli
 同样地，`main` 里的出错处理（`try/except`）本来是 Day 10 骨架里的一句提示，
 按计划表它是 **Day 12「上下文管理与容错」** 的内容，所以挪到 Day 12 一起做，
 `chat_cli.py` 里留了 `TODO(Day 12)` 的书签。
+
+Day 12 计划表里还有一条「把关键信息存到本地文件做简易长期记忆」。按计划表，Day 13
+的任务本来就是「补齐本周欠下的点」，所以这条挪到 Day 13——Day 12 收口在
+「裁剪 + 容错 + 三种情况不崩」这条验收标准上。
 
 ## 官方文档去哪看（Day 8 ~ Day 14）
 

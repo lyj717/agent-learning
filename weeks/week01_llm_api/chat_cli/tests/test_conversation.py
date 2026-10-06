@@ -51,3 +51,26 @@ def test_messages_returns_a_copy():
     handed_out = conversation.messages()
     handed_out.append({"role": "user", "content": "偷偷加一条"})
     assert conversation.messages() == [{"role": "user", "content": "你好"}]
+
+
+def test_trim_keeps_system_and_recent_turns():
+    """裁到最近 2 轮：system 留着，丢掉的条数报对。"""
+    conversation = Conversation("你只说一句话")
+    for number in range(1, 6):
+        conversation.add_user(f"问 {number}")
+        conversation.add_assistant(f"答 {number}")
+    dropped = conversation.trim(2)
+    assert dropped == 6
+    assert conversation.turns() == 2
+    messages = conversation.messages()
+    assert messages[0] == {"role": "system", "content": "你只说一句话"}
+    assert messages[1] == {"role": "user", "content": "问 4"}
+
+
+def test_trim_does_nothing_when_history_is_short():
+    """要留的轮数比现有的还多时，一条都不该丢。"""
+    conversation = Conversation()
+    conversation.add_user("你好")
+    conversation.add_assistant("你好呀")
+    assert conversation.trim(5) == 0
+    assert conversation.turns() == 1

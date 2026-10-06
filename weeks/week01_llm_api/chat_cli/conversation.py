@@ -42,3 +42,28 @@ class Conversation:
     def turns(self) -> int:
         """已经聊了几轮——也就是历史里用户说过几句。"""
         return sum(1 for m in self.history if m["role"] == "user")
+
+    def trim(self, keep_turns: int) -> int:
+        """只保留最近 keep_turns 轮对话，system 人设留着，返回丢掉了几条消息。
+
+        要做的：
+            1. 一条 user + 一条 assistant 算一轮，从最后往前数 keep_turns 轮
+            2. 更早的整个丢掉；system 不参与裁剪
+            3. 返回丢掉的消息条数（一条都没丢就是 0）
+
+        期望结果：
+            conv = Conversation("人设")，然后 add 5 轮问答（共 10 条历史）
+            conv.trim(2) == 6        # 只留最近 2 轮（4 条），丢掉 6 条
+            conv.turns() == 2
+            conv.messages()[0]["role"] == "system"      # 人设还在
+
+            conv2 = Conversation()，只聊了 1 轮
+            conv2.trim(5) == 0       # 要留的比现有的还多，什么都不该丢
+
+        提示：
+            · 先算「要保留的条数」= keep_turns * 2，再从列表尾部切
+            · keep_turns 比现有轮数大时不能切出负数，直接返回 0
+            · 历史里可能有「只有 user、没有 assistant」的残句（上一轮失败留下的），
+              所以别假设历史长度一定是偶数——想想你的策略怎么处理它
+        """
+        raise NotImplementedError("trim 还没写")
