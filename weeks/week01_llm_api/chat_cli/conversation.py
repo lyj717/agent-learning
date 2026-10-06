@@ -39,14 +39,29 @@ class Conversation:
         """清空对话历史，但保留 system 人设。"""
         self.history = []
 
+    def set_system(self, system_prompt: str | None) -> None:
+        """换掉 system 人设（比如加了一条新记忆之后）。
+
+        要做的：
+            1. system_prompt 是文字 → self.system 设成 {"role": "system", "content": ...}
+            2. system_prompt 是 None → self.system 设成 None（表示不要 system）
+
+        期望结果：
+            conv = Conversation("旧人设")
+            conv.set_system("新人设")
+            conv.messages()[0] == {"role": "system", "content": "新人设"}
+
+        提示：messages() 里是现拼 system 的，所以改完 self.system 下一轮就生效，
+              不用重启程序。
+        """
+        raise NotImplementedError("set_system 还没写")
+
     def turns(self) -> int:
         """已经聊了几轮——也就是历史里用户说过几句。"""
         return sum(1 for m in self.history if m["role"] == "user")
 
     def trim(self, keep_turns: int) -> int:
-        """只保留最近 keep_turns 轮对话，system 人设留着，返回丢掉了几条消息,
-        keep_turns为0时返回0，那是clear该干的
-        """
+        """只保留最近 keep_turns 轮对话，system 人设留着，返回丢掉了几条消息,keep_turns为0时返回0，那是clear该干的"""
         len_hist = len(self.history)
         reserved = keep_turns * 2
         len_del = len_hist - reserved

@@ -35,6 +35,9 @@ chroma/
 .chroma/
 outputs/
 
+# ---- 本地记忆：里面是用户的私人信息，绝不提交 ----
+weeks/week01_llm_api/chat_cli/facts.json
+
 # ---- 编辑器与系统 ----
 .vscode/*
 !.vscode/settings.json

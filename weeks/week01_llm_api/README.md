@@ -22,6 +22,9 @@
 | Day 11 | `chat_cli/llm.py` 的 `stream_chat()` | **学员写** | 边收边给，并把 usage 带回来；写完把 `chat_cli.py` 的 main 换成流式（那里留了 TODO） |
 | Day 12 | `day12_resilience_demo.py` | AI 搭・学员跑 | 容错：哪类错误该重试、指数退避与抖动、超时、上下文裁剪；含实测「openai 默认自己重试 2 次，叠两层会变成 9 次请求」（**完全离线**：连的是本机死端口） |
 | Day 12 | `chat_cli` 的 `trim` / `_make_client` / `retry` | **学员写** | 裁剪最近 N 轮、带超时且关掉 SDK 重试的客户端、指数退避重试；验收测试 `tests/test_resilience.py` |
+| Day 13 | `day13_memory_demo.py` | AI 搭・学员跑 | 简易长期记忆：模型没有记忆、事实存 JSON、拼进 system；含「/clear 清得掉历史、清不掉记忆」（离线，`--live` 对比带/不带记忆） |
+| Day 13 | `chat_cli/memory.py` + `Conversation.set_system` | **学员写** | 事实的存/取/拼提示词 + 换人设；验收测试 `tests/test_memory.py` |
+| Day 13 | `chat_cli/README.md` 的架构说明 / 已知限制 / 视频提纲 | **学员填** | Day 13 的交付物，文件里留了引导问题 |
 
 跑法（在仓库根目录）：
 
@@ -64,6 +67,10 @@ cd weeks\week01_llm_api\chat_cli
 # Day 12 的验收：断网、限流、超长输入三种情况都不崩
 cd weeks\week01_llm_api\chat_cli
 ..\..\..\.venv\Scripts\python.exe -m pytest -v tests\test_resilience.py
+
+# Day 13：长期记忆（默认离线，不花钱）
+.venv\Scripts\python.exe weeks\week01_llm_api\day13_memory_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\day13_memory_demo.py --live   # 对比带/不带记忆
 ```
 
 学员做完练习和参数对比记录后，交给 AI 对答案、挑毛病。

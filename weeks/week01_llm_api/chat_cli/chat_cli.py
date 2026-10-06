@@ -9,13 +9,21 @@
 
 import argparse
 import logging
+from pathlib import Path
 
 import cost
 import llm
 from conversation import Conversation
 
+# 写下面那三处时，把这一行的注释去掉（现在注释着，是因为还没有代码用它）
+# import memory
+
 # 历史上限：超过这么多轮就把最早的对话丢掉（system 人设永远留着）。
 MAX_TURNS = 8
+
+# 长期记忆存在这个文件里（一行一条事实）。
+# **它必须在 .gitignore 里**：里面是用户的私人信息，不能跟着代码提交。
+FACTS_PATH = Path(__file__).resolve().parent / "facts.json"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -52,6 +60,10 @@ def handle_command(
         )
         print(f"预计花费 {total:.6f} 元（按空闲价估算；真实账单以服务商后台为准）")
         return True
+    # TODO(Day 13)：加一个 /remember <一句话> 分支：
+    #     · line 是光秃秃的 "/remember"（后面没内容）→ 提示用法，别存空串
+    #     · 把这句话存进 FACTS_PATH：memory.add_fact(FACTS_PATH, 那句话)
+    #     · 往下面的「可用命令」里也加上 /remember
     print(f"未知命令：{line}")
     print("可用命令：/clear、/cost、/exit")
     return True
@@ -74,6 +86,10 @@ def main(argv: list[str] | None = None) -> int:
                 break
             if handle_command(line, conversation, usage_log):
                 continue
+            # TODO(Day 13)：每轮请求之前把最新的记忆喂进去，这样 /remember 马上生效：
+            #     conversation.set_system(
+            #         memory.compose_system(args.system, memory.load_facts(FACTS_PATH)))
+            # （读的是本地小文件，每轮读一次没什么影响；以后真要优化再说）
             payload = conversation.messages() + [{"role": "user", "content": line}]
             try:
                 pieces = []
