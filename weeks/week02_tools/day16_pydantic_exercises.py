@@ -58,6 +58,10 @@ INJECTED_REPLY = (
 #     （提示：value.isdigit() and len(value) == 11 就够，不用正则；
 #      报错用 raise ValueError("你的话")，那句话会被原样回填给模型）
 #
+# 看不懂这两行装饰器（@field_validator + @classmethod）？
+# 先跑 day16_validator_decorator_demo.py——专门为这两行做了 5 个实验，
+# 只改一个地方、跑一次、看结果怎么变。
+#
 # 期望结果（对着主程序里那四条脏数据看）：
 #   · {"name": ""}                 -> name 变成 None，校验通过
 #   · phone="138-0013-8000"        -> 校验失败，报错里带上你自己写的话

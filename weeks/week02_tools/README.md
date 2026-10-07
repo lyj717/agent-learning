@@ -15,6 +15,7 @@
 | Day 15 | `day15_抽取成功率记录.md` | **学员填** | Day 15 交付物：10 条的逐条结果 + 两个成功率 + 你的结论 |
 | — | `llm_client.py` | AI 搭 | 共用的请求层：建客户端 + 发一次 JSON 模式请求（`chat_json` 会把原始文本和 `finish_reason` 一起给你）。Day 15 里这段是写在练习里的，从 Day 16 起收进这个文件 |
 | Day 16 | `day16_pydantic_demo.py` | AI 搭・学员跑 | Pydantic 校验：空串归一、格式校验、报错怎么读；「校验失败 → 把错误回填 → 模型改对」的完整回合（离线，`--live` 真跑一轮对照） |
+| Day 16 | `day16_validator_decorator_demo.py` | AI 搭・学员跑 | 加餐：`@field_validator` + `@classmethod` 到底干嘛用——5 个小实验（不加装饰器 / 不加 classmethod / before vs after / 装饰器展开 / 一器多字段），完全离线 |
 | Day 16 | `day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次（留了空，会大声报 `NotImplementedError`） |
 | Day 16 | `day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
 
@@ -40,6 +41,9 @@
 # Day 16 练习：前两题离线喂脏数据；第三题是真抽三条难抽文本
 .venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_exercises.py
 .venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_exercises.py --live
+
+# Day 16 加餐：那两个装饰器到底是干嘛的（完全离线）
+.venv\Scripts\python.exe weeks\week02_tools\day16_validator_decorator_demo.py
 ```
 
 学员做完练习和记录后，交给 AI 对答案、挑毛病。
