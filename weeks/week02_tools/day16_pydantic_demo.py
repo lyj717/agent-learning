@@ -157,6 +157,10 @@ for label, raw in DIRTY_CASES:
         person = PersonExtract.model_validate_json(raw)
         print(f"  校验通过：{person.model_dump()}")
     except ValidationError as error:
+        # error.errors() 是这题的原料：一个 list，每个元素是 dict，
+        # 形如 {'type': 'value_error', 'loc': ('phone',), 'msg': 'Value error, ...',
+        #       'input': '138-0013-8000', 'url': 'https://errors.pydantic.dev/...'}
+        print(f"  原始报错结构：{error.errors()}")
         print("  校验失败：")
         for item in error.errors():
             where = ".".join(str(part) for part in item["loc"]) or "整体"
