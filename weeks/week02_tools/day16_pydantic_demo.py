@@ -205,6 +205,33 @@ except ValidationError as error:
     print(errors_to_hint(error))
 
 print(
+    "\n  这行里最容易被卡住的是把 loc 拼成字段路径那一句。逐段拆开看：\n"
+    "\n"
+    '      ".".join(str(part) for part in item["loc"]) or "整体"\n'
+    "\n"
+    '    for part in item["loc"]   part 只是个临时变量名，自己起的——每次循环\n'
+    "                              从 loc 里取出一个元素交给它，叫 p、piece 都行\n"
+    "    str(part)                 把它转成字符串（为什么必须转，见下面实测）\n"
+    '    ".".join(...)             用点把它们串起来，得到 arguments.top_k 这种路径\n'
+    '    or "整体"                  loc 是空元组时 join 出来是空字符串（假值），兜成「整体」'
+)
+
+print("\n  实测四种 loc：")
+for loc in [("phone",), ("arguments", "top_k"), ("items", 0, "name"), ()]:
+    pieces = ".".join(str(part) for part in loc)
+    print(f"    {loc!r:<28} -> {pieces!r:<22} -> {pieces or '整体'!r}")
+
+print("\n  要是偷懒不写 str(part) 会怎样（拿带下标的 loc 试）：")
+try:
+    ".".join(part for part in ("items", 0, "name"))
+except TypeError as error:
+    print(f"    TypeError: {error}")
+print(
+    "  因为 loc 里的元素不全是字符串——嵌套结构里会带下标（整数）。\n"
+    "  join 只收字符串，所以每个元素都得先 str() 一下。"
+)
+
+print(
     "\n  上面只有一条错。可是 error.errors() 是个**列表**——一次出现好几条错时，"
     "\n  拼成一段文字的必要性就看得出来了："
 )
