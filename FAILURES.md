@@ -122,3 +122,24 @@
 - **原因**：测试跑了真实代码路径，而那条路径会读本机的 `FACTS_PATH`；测试没有把外部状态隔离
 - **修复**：`monkeypatch.setattr(chat_cli, "FACTS_PATH", tmp_path / "facts.json")`，把文件指到临时目录
 - **学到**：**测试必须自足**——凡是会读本地文件、环境变量、当前时间的地方，要么注入参数，要么在测试里替换掉；不然「昨天还绿今天就红」会让人怀疑人生
+
+### 2026-10-07｜开了 JSON 模式，服务商却回 400 拒收整条请求
+
+- **现象**：请求里带了 `response_format={"type": "json_object"}`，但 system 和 user 里都没提过「json」两个字，接口直接报 `BadRequestError: 400 - Prompt must contain the word 'json' in some form to use 'response_format' of type 'json_object'`，一次都没生成
+- **原因**：JSON 模式在这家服务商这里是**契约式**的——你开这个开关，就必须在提示词里明确要 JSON。文档提过「要同时要求模型输出 JSON」，但没讲清不写会直接 400；我原以为最多是输出不稳定
+- **修复**：system 里写死「只输出 JSON」并列出字段名与类型，一句话同时满足两个要求
+- **学到**：接口的「开关」与「提示词」可能是绑定的；文档里那句轻描淡写的「你必须同时……」往往就是硬性校验，别当建议听
+
+### 2026-10-07｜JSON 模式把 max_tokens 调小，返回的 content 是空串，`json.loads` 报 char 0
+
+- **现象**：同一段文本、同一个提示词，`max_tokens=150` 与 `200` 时 `finish_reason=length`、`content` 是空字符串，`json.loads('')` 报 `JSONDecodeError: Expecting value (char 0)`；调到 `240` 就正常返回 JSON
+- **原因**：思考 token 和正文共用 `max_tokens` 的额度（`completion_tokens=150` 全是思考），额度在思考阶段就用光了，正文一个字都没开始写。这和 2026-10-05 那条「起名字得到空回答」是同一个机制，只是这次被 `json.loads` 抢先暴露成了「JSON 解析失败」
+- **修复**：看到 `finish_reason=length` 就不解析、直接加额度重试；把判断顺序定成「先看 finish_reason，再解析」
+- **学到**：报错信息会骗人——`char 0` 的 JSON 解析失败，根因可能是「根本没有内容」；错误类型（JSON 格式错）和错误原因（输出被截断）经常隔着一层
+
+### 2026-10-07｜ruff 拦下「列表里拼接字符串」，和沙箱里 .git 只读
+
+- **现象**：写材料时在列表元素里用两段相邻字符串拼一句话，`ruff check` 报 `ISC004 Unparenthesized implicit string concatenation in collection`（它怀疑你漏了逗号，两段字符串本该是两个元素）；另外 AI 在沙箱里跑 `git add` / `git commit` 报 `Unable to create .../.git/index.lock: Permission denied`
+- **原因**：ISC004 是「显式拼接要加括号」的规则——不加括号时，人看不出你是有意把两段接起来还是少打了逗号；git 那半是我这边沙箱把 `.git` 挂成只读，和仓库内容无关
+- **修复**：把相邻的两段字符串包进一层括号 `("前半句" "后半句")`，意图就明确了；git 命令申请写权限后再跑
+- **学到**：这类「防歧义」规则，防的就是写代码的人自己手滑；而环境权限类报错要先分清「谁在写、写到哪」，别急着去改代码
