@@ -39,7 +39,7 @@ agent-learning/
 完成一项就把 `[ ]` 改成 `[x]`。
 
 - [x] Week 00｜Python 补齐 + 环境配置
-- [ ] Week 01｜LLM 基础与 API（交付：流式 CLI 聊天机器人）
+- [x] Week 01｜LLM 基础与 API（交付：流式 CLI 聊天机器人 —— `chat_cli/` 多轮 + 流式 + `/cost` + `/clear` + `/remember`，30 条测试全绿；3 分钟演示视频还没录）
 - [ ] Week 02｜结构化输出与工具调用（交付：多工具信息抽取器）
 - [ ] Week 03｜Agent 核心循环，手写不用框架（交付：ReAct Agent）
 - [ ] Week 04｜框架与记忆（交付：LangGraph 重写版）
