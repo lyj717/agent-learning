@@ -148,3 +148,79 @@ print(
   两种都能跑，你的交付物照最简写法来就行；差别写进「现象与原因」里更值钱：
   **校验规则写得松，脏数据就进来了；写得紧，正常数据可能被误伤**——这是取舍。"""
 )
+
+
+# ============================================================
+section("7. 那么：isdigit + len 和 fullmatch 到底一样吗")
+# ============================================================
+
+
+def by_isdigit(value: str) -> bool:
+    """写法一：先问「是不是全是数字」，再问「长度是不是 11」。"""
+    return value.isdigit() and len(value) == 11
+
+
+def by_fullmatch(value: str) -> bool:
+    """写法二：用一个模式同时说清「几个」和「什么字符」。"""
+    return re.fullmatch(r"\d{11}", value) is not None
+
+
+COMPARE = [
+    ("13800138000", "ASCII 11 位"),
+    ("138-0013-8000", "带横线"),
+    ("1380013800", "只有 10 位"),
+    ("１３８００１３８０００", "全角 11 位"),
+    ("١٣٨٠٠١٣٨٠٠٠", "阿拉伯-印度 11 位"),
+    ("१२३४५६७८९०१", "天城文 11 位"),
+    ("²²²²²²²²²²²", "上标 2 连写 11 个"),
+]
+
+print(f"  {'样例':<18}{'isdigit+len':<14}{'fullmatch':<12}两边")
+for value, label in COMPARE:
+    first, second = by_isdigit(value), by_fullmatch(value)
+    verdict = "一致" if first == second else "❌ 不一致"
+    print(f"  {label:<18}{first!s:<14}{second!s:<12}{verdict}")
+
+print(
+    r"""
+  绝大多数情况一致——都是「11 个十进制数字」就过，其余都拦。
+  分歧出现在最后一行，上标 2。下面三行是现跑的证据："""
+)
+
+print(f"    '²'.isdigit()              -> {('²').isdigit()}")
+print(f"    re.fullmatch(r'\\d', '²')   -> {re.fullmatch(r'\d', '²')}")
+try:
+    int("²")
+except ValueError as error:
+    print(f"    int('²')                   -> ValueError: {error}")
+
+print(
+    r"""
+  所以严格说：isdigit 的「数字」是个更大的集合（十进制数字 + 上标/下标这类），
+  \d 的「数字」只包含十进制数字。要判断「能不能当整数用」，isdigit 都不够格——
+  真正靠谱的是 try: int(value)。
+
+  另外两处小差别：
+    · fullmatch 返回的是 Match 对象（真值），不是 True/False；写 if 里没差别，
+      但要记进变量、再拿去做别的判断时，写法一更干净。
+    · 传进来的如果不是字符串（比如模型给了数字 18600001111），
+      写法一抛 AttributeError，写法二抛 TypeError——都不是你以为的「校验失败」，
+      所以在这些写法之前，先让 Pydantic 把类型管住。
+  后一条也现跑一遍（故意传个不是字符串的东西进去）："""
+)
+
+number = 18600001111
+try:
+    by_isdigit(number)  # type: ignore[arg-type]
+except AttributeError as error:
+    print(f"    isdigit 写法   -> AttributeError: {error}")
+try:
+    by_fullmatch(number)  # type: ignore[arg-type]
+except TypeError as error:
+    print(f"    fullmatch 写法 -> TypeError: {error}")
+
+print(
+    r"""
+  结论：对「手机号必须是 11 位 ASCII 数字」这个需求，两种写法效果一样；
+  但别把「isdigit 就是数字」当成普遍真理，它和正则的 \d 不是同一套标准。"""
+)
