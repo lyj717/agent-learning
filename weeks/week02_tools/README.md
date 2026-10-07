@@ -4,6 +4,64 @@
 
 **交付物**：会调用 3 个工具的结构化信息抽取器（含错误自纠）。
 
+分工还是老规矩：**演示和讲解由 AI 搭好，实验、记录、练习题由学员自己完成。**
+
+## 本周材料
+
+| 天 | 材料 | 谁做 | 是什么 |
+|---|---|---|---|
+| Day 15 | `day15_structured_output_demo.py` | AI 搭・学员跑 | 结构化输出：JSON 模式管什么、不管什么；含 3 个真实踩过的坑（离线，`--live` 真跑 3 次对照） |
+| Day 15 | `day15_structured_output_exercises.py` | **学员做** | 三题：拼提示词 → 安全解析 → 串起来真抽 10 条（留了空，会大声报 `NotImplementedError`） |
+| Day 15 | `day15_抽取成功率记录.md` | **学员填** | Day 15 交付物：10 条的逐条结果 + 两个成功率 + 你的结论 |
+
+跑法（在仓库根目录）：
+
+```bash
+# Day 15 讲解（默认离线，不花钱；里面的返回数据是真实抓下来的）
+.venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_demo.py
+
+# 真想亲眼看差别（要网络，跑 3 次）
+.venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_demo.py --live
+
+# Day 15 练习：前两题离线自测；第三题是 10 条真实抽取
+.venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_exercises.py --live
+```
+
+学员做完练习和记录后，交给 AI 对答案、挑毛病。
+
+## 官方文档去哪看（Day 15 ~ Day 21）
+
+计划表里的「读官方文档」，指的是**你这家模型服务商的文档**，不是第三方教程。
+你的 `.env` 指向 DeepSeek，整周只用得到这一页：
+<https://api-docs.deepseek.com/zh-cn/api/create-chat-completion>
+
+| 哪一节 | 和哪天的课有关 | 读的时候盯什么 |
+|---|---|---|
+| `response_format` | Day 15、Day 16 | JSON 模式怎么开；文档明确要求**同时**在 system 或 user 里写要 JSON，否则模型可能一直吐空白直到把 `max_tokens` 用光；`finish_reason=length` 时 JSON 会被截断 |
+| `tools` | Day 17 ~ Day 19 | 工具怎么描述成一段 JSON schema；模型返回的不是答案，而是「请你执行这个函数」 |
+| `tool_choice` | Day 18 | 怎么强制或禁止模型用工具（`auto` / `none` / 指定某个工具） |
+| 函数定义里的 `strict` | Day 16、Day 19 | Beta 能力：保证输出严格符合你给的 schema——它是「JSON 模式」的加强版 |
+| `finish_reason` | Day 15 ~ Day 19 | `stop` / `length` / `tool_calls` 各代表什么；`tool_calls` 就是 Agent 循环的起点 |
+
+读法建议：Day 15 只需要看 `response_format` 一节，5 分钟够。
+写完提取器再回头看 `strict`，你会发现它解决的正是你踩到的坑。
+
+## 每日清单
+
+- [ ] Day 15｜结构化输出，从杂乱文本抽 JSON，统计成功率
+- [ ] Day 16｜Pydantic 校验与失败重试
+- [ ] Day 17｜第一个工具（计算器），跑通最小闭环，画流程图
+- [ ] Day 18｜多工具与工具选择，记录选错工具的案例
+- [ ] Day 19｜错误回填让模型自纠，加最大重试次数
+- [ ] Day 20｜整合 + README + 演示视频
+- [ ] Day 21｜白板默画工具调用回合（限时 5 分钟）
+
+## 验收标准
+
+- [ ] 能不看笔记画出完整调用回合，说清每一步谁在执行
+- [ ] 能说出工具设计得好和差区别在哪
+
 ## 每日清单
 
 - [ ] Day 15｜结构化输出，从杂乱文本抽 JSON，统计成功率
