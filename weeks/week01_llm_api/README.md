@@ -25,6 +25,8 @@
 | Day 13 | `day13_memory_demo.py` | AI 搭・学员跑 | 简易长期记忆：模型没有记忆、事实存 JSON、拼进 system；含「/clear 清得掉历史、清不掉记忆」（离线，`--live` 对比带/不带记忆） |
 | Day 13 | `chat_cli/memory.py` + `Conversation.set_system` | **学员写** | 事实的存/取/拼提示词 + 换人设；验收测试 `tests/test_memory.py` |
 | Day 13 | `chat_cli/README.md` 的架构说明 / 已知限制 / 视频提纲 | **学员填** | Day 13 的交付物，文件里留了引导问题 |
+| Day 14 | `day14_复盘与面试问题.md` | **学员填** | Day 14 交付物：三条面试问题 + 本周复盘 + 下周预习结论 |
+| Day 14 | `HANDOFF.md` | AI 写 | 本周交接文档（五块：状态 / 能跑什么 / 环境 / 尾巴 / 下周目标），命令都实测过 |
 
 跑法（在仓库根目录）：
 
