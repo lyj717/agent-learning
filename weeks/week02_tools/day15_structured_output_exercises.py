@@ -92,6 +92,11 @@ EXPECTED = [
 
 def build_messages(text: str) -> list[dict[str, str]]:
     """第 1 题：把「要抽哪四个字段」写进提示词，拼成要发出去的 messages。"""
+    # 下面这两处「JSON」不能删：开了 JSON 模式，提示词里就必须出现 json 字样，
+    # 否则接口直接 400 拒收。第 4 问的复现实验就是删掉它跑一条——
+    # BadRequestError: Prompt must contain the word 'json' in some form to use
+    # 'response_format' of type 'json_object'.
+    # （request_id 7011cfdf-8011-402d-9f83-d68d28b60fb7，2026-10-07，学员实测）
     messages = [
         {"role": "system", "content": f"你是信息抽取助手，只输出 JSON。字段：{FIELDS}"},
         {"role": "user", "content": f"从下面这段话里抽取字段，输出 JSON：\n{text}"},
@@ -193,6 +198,6 @@ if __name__ == "__main__":
 # 4. 你这次 JSON 模式里提示词写的是什么？试着把「json」这个词删掉再跑一条，
 #    贴上报错原文，再解释为什么服务商要设这道关。
 #   你是信息抽取助手，只输出 JSON。字段：{FIELDS}
-#   BadRequestError: Error code: 400 - Prompt must contain the word 'json'",
-#   in some form to use 'response_format' of type 'json_object'.
-#   服务商必须确认用户是否真的需要输出json格式，而不是误触了json模式开关
+#   openai.BadRequestError: Error code: 400 - {'error': {'message': "Prompt must contain the word 'json' in some form to use 'response_format' of type 'json_object'. (request_id: 7011cfdf-8011-402d-9f83-d68d28b60fb7)", 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+#   推测：服务商必须确认用户是否真的需要输出json格式，而不是误触了json模式开关
+#   文档给的理由：不写的话模型可能一直输出空白直到 max_tokens 用尽
