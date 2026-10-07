@@ -10,8 +10,14 @@
 """
 
 import json
+import os
 import sys
 from pathlib import Path
+
+import openai
+from dotenv import load_dotenv
+
+max_tokens = 2048
 
 # 第 3 题读 .env 时要用到它（这个文件在 weeks/week02_tools/ 里，往上两层是仓库根目录）
 ROOT = Path(__file__).resolve().parents[2]
@@ -85,66 +91,42 @@ EXPECTED = [
 
 
 def build_messages(text: str) -> list[dict[str, str]]:
-    """第 1 题：把「要抽哪四个字段」写进提示词，拼成要发出去的 messages。
-
-    要做的：
-      · 返回一个长度 2 的列表：第一条 role 是 system，第二条是 user
-      · system 里写清字段名和类型（对着上面的 FIELDS 写）
-      · user 里放待抽取的 text
-      · 两条 content 里至少要出现一次「json」这个词
-        （Day 15 演示里的坑一：没这个词，服务商直接 400 拒收）
-
-    期望结果：len(build_messages("随便一句话")) == 2，
-             两条 content 拼起来含 "json"，且四个字段名都提到了。
-    提示：照着 day15_structured_output_demo.py 第 4 节那个 payload 的 messages 写。
-    """
-    raise NotImplementedError("第 1 题还没写")
+    """第 1 题：把「要抽哪四个字段」写进提示词，拼成要发出去的 messages。"""
+    messages = [
+        {"role": "system", "content": f"你是信息抽取助手，只输出 JSON。字段：{FIELDS}"},
+        {"role": "user", "content": f"从下面这段话里抽取字段，输出 JSON：\n{text}"},
+    ]
+    return messages
 
 
 def parse_or_none(raw: str) -> dict | None:
-    """第 2 题：把模型返回的**文本**变成 dict；变不成就返回 None。
-
-    要做的：
-      · 用 json.loads 解析 raw
-      · 解析失败（空的、带围栏的、被截断的）→ 返回 None，**不要**让异常冒出去
-      · 解析成功但结果不是 dict（比如是个列表、是个字符串）→ 也返回 None
-
-    期望结果（对着主程序里那三条自测看）：
-      parse_or_none('{"name": "刘小明"}')  -> {'name': '刘小明'}
-      parse_or_none('')                    -> None
-      parse_or_none(带 ```json 围栏的文本)  -> None
-      parse_or_none('[1, 2]')              -> None
-    提示：json.JSONDecodeError 是 json.loads 解析失败时抛的异常；
-          「是不是 dict」用 isinstance(parsed, dict) 判断。
-    """
-    raise NotImplementedError("第 2 题还没写")
+    """第 2 题：把模型返回的**文本**变成 dict；变不成就返回 None。"""
+    try:
+        parsed = json.loads(raw)
+        if not isinstance(parsed, dict):
+            return None
+    except json.JSONDecodeError:
+        return None
+    return parsed
 
 
 def extract_fields(text: str) -> dict | None:
-    """第 3 题：串起来——真发一次请求，把 text 抽成 dict；失败就返回 None。
-
-    要做的：
-      · 用 build_messages(text) 拼请求
-      · 建 openai 客户端：密钥从仓库根目录的 .env 读，base_url 也读 .env，
-        并设 max_retries=0（Day 12 的坑：不然 SDK 会自己在背后重试）
-      · 请求里打开 JSON 模式（response_format）
-      · max_tokens 别太小——思考也要吃额度，Day 15 演示里 150 就一个字都吐不出来
-      · 把返回的文本交给 parse_or_none，把它的结果原样返回
-
-    期望结果：正常文本返回四字段 dict；模型返回空串时返回 None，程序不崩。
-              --live 跑 10 条，解析成功率应该 ≥ 0.8。
-    提示：下面几行 import 就是这题要用的，写完把注释去掉（放函数里、
-         放文件最上面都行，随你）：
-
-             # import os
-             # from dotenv import load_dotenv
-             # from openai import OpenAI
-
-         load_dotenv(ROOT / ".env") 读密钥，
-         os.environ["LLM_API_KEY"] / os.environ.get("LLM_BASE_URL") 取值，
-         os.environ.get("LLM_MODEL") 是模型名。
-    """
-    raise NotImplementedError("第 3 题还没写")
+    """第 3 题：串起来——真发一次请求，把 text 抽成 dict；失败就返回 None。"""
+    load_dotenv(ROOT / ".env")
+    model = os.environ.get("LLM_MODEL", "gpt-4o-mini")
+    client = openai.Client(
+        api_key=os.environ.get("LLM_API_KEY"),
+        base_url=os.environ.get("LLM_BASE_URL"),
+        max_retries=0,
+    )
+    fields = {
+        "model": model,
+        "messages": build_messages(text),
+        "max_tokens": max_tokens,
+        "response_format": {"type": "json_object"},
+    }
+    response = client.chat.completions.create(**fields)
+    return parse_or_none(response.choices[0].message.content)
 
 
 if __name__ == "__main__":
@@ -191,24 +173,26 @@ if __name__ == "__main__":
         print("  逐条对一遍上面两行「抽到 / 答案」：解析成功 ≠ 抽得对。")
         print("  两个数（解析成功率、字段正确率）都抄进交付物，并写下你的结论。")
 
-
 # ============================================================
 # 现象与原因（做完之后填，用自己的话）
 # ============================================================
 #
 # 1. 10 条里解析成功几条？失败的那几条，返回的到底是什么（空串？带了围栏？
 #    被截断了？）把 finish_reason 也写下来。
-#
+#   10条都成功了
 #
 # 2. 解析成功但字段抽错的，有哪几条？错在哪一类——把原文没有的信息编了出来
 #    （幻觉），还是该填 null 的地方填了别的东西？
-#
+#   一个不够细，一个把玩笑当成了岗位
+#   一个该填null的输出了空字符
 #
 # 3. 第 9 条（气象台那条）和别的条有什么不一样？你的提示词对付得了这种
 #    「压根不是个人信息」的输入吗？如果要改，你会改提示词还是改代码？
-#
-#
+#   第9条完全不是简历内容，表现还行，其他都对了，但是姓名输出了""而不是null
+#   我会改提示词，告诉模型什么内容不需要看
 # 4. 你这次 JSON 模式里提示词写的是什么？试着把「json」这个词删掉再跑一条，
 #    贴上报错原文，再解释为什么服务商要设这道关。
-#
-#
+#   你是信息抽取助手，只输出 JSON。字段：{FIELDS}
+#   BadRequestError: Error code: 400 - Prompt must contain the word 'json'",
+#   in some form to use 'response_format' of type 'json_object'.
+#   服务商必须确认用户是否真的需要输出json格式，而不是误触了json模式开关
