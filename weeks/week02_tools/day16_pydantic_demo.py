@@ -204,6 +204,25 @@ try:
 except ValidationError as error:
     print(errors_to_hint(error))
 
+print(
+    "\n  上面只有一条错。可是 error.errors() 是个**列表**——一次出现好几条错时，"
+    "\n  拼成一段文字的必要性就看得出来了："
+)
+
+# 这条数据一次踩两个坑：phone 不是 11 位数字，city 给的是数字不是字符串。
+multi_bad = '{"name": "王芳", "phone": "138-0013-8000", "city": 123, "job": null}'
+try:
+    PersonExtract.model_validate_json(multi_bad)
+except ValidationError as error:
+    print(f"\n    原始列表里有 {len(error.errors())} 条错：")
+    for item in error.errors():
+        where = ".".join(str(part) for part in item["loc"]) or "整体"
+        print(f"      type={item['type']}｜loc={item['loc']}｜{where}｜{item['msg']}")
+    print("\n    拼成一段话之后（这才是要发给模型的东西）：")
+    print(errors_to_hint(error))
+    print("\n    对比一下 str(error) 长什么样（Pydantic 的原始排版，给程序员看的）：")
+    print("     " + str(error).replace("\n", "\n     "))
+
 say(
     "",
     "  完整的重试回合（这才是今天真正的新东西）：",
