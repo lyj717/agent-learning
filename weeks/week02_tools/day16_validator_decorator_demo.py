@@ -169,6 +169,8 @@ class Multi(BaseModel):
     @field_validator("phone")
     @classmethod
     def phone_must_be_11_digits(cls, value):
+        # isdigit()：字符串里**每个字符都是数字**时返回 True，否则 False。
+        # 注意它对全角数字「１３８…」也返回 True，坑的细节见 day16_regex_demo.py 第 5 节
         if value is not None and not (value.isdigit() and len(value) == 11):
             raise ValueError(f"手机号必须是 11 位数字，收到 {value!r}")
         return value

@@ -110,6 +110,8 @@ for value, label in WEIRD:
     print(
         f"    re.fullmatch(r'\\d{{11}}', ...) -> {'通过（！）' if result else '拦下'}"
     )
+    # isdigit()：字符串里每个字符都是数字时返回 True，否则 False。
+    # 注意「数字」是按 Unicode 算的——全角数字也算，所以它和 \d 一样会被绕过
     print(f"    .isdigit() 怎么说：{value.isdigit()}")
     print(f"    字符编码里它算数字吗：{value[0].isdigit()}\n")
 

@@ -136,6 +136,8 @@ say(
 # 上面写的 0.3s、0.6s 会被它那两次盖过去（实测每次要 7.6 秒）
 client = OpenAI(api_key=FAKE_KEY, base_url=DEAD_BASE_URL, timeout=3, max_retries=0)
 attempts = 3
+# 计时用 time.perf_counter()（高精度单调计时器，两次相减就是耗时），
+# 它是什么、为什么比 time.time() 适合测耗时，见 day08_temperature_demo.py 里的注释
 start = time.perf_counter()
 last_error = None
 

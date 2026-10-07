@@ -58,6 +58,9 @@ def ask_once(
     max_tokens: int,
 ) -> tuple[str, str, object, float]:
     """发一次请求，返回（回答, 结束原因, 用量, 耗时秒数）。用非流式，要完整结果。"""
+    # time.perf_counter()：读一个高精度的单调计时器（单位是秒，起点无意义）。
+    # 测「这段代码跑了多久」就用它：它不受系统时间被改、时区、闰秒影响，
+    # 比 time.time() 准；两次调用相减就是耗时
     start = time.perf_counter()
     # chat.completions.create(...)：发一次请求。temperature 越高，同样的
     # 输入越可能得到不同的输出

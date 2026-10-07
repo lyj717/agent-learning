@@ -174,6 +174,8 @@ if __name__ == "__main__":
             person = PersonExtract.model_validate_json(raw)
             print(f"     校验通过：{person.model_dump()}")
         except ValidationError as error:
+            # error.errors()：把报错拆成结构化的一条条记录，
+            # 每条形如 {'type': 'value_error', 'loc': ('phone',), 'msg': '...', 'input': ...}
             item = error.errors()[0]
             where = ".".join(str(part) for part in item["loc"]) or "整体"
             print(f"     校验失败：{item['type']} @ {where}｜{item['msg']}")

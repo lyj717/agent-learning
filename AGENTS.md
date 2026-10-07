@@ -127,6 +127,16 @@ Week 01 头三天把这些习惯丢了，连着留了六个坑（代做交付物
    first_ten = list(itertools.islice(fibonacci(), 10))
    ```
 
+   交付前怎么自查（2026-10-07 补）：把这个包里用到的「模块.函数」列出来，
+   逐个问一句「他见过吗、旁边写了没」。命令：
+
+   ```bash
+   rg -o -g "*.py" "\b(re|json|os|sys|time|random|itertools|sqlite3)\.[a-zA-Z_]+" weeks/weekNN_主题 | Sort-Object -Unique
+   ```
+
+   对不上号的，要么补一行注释，要么照本例那样专门写个 `dayNN_xxx_demo.py`。
+   这条是被学员提醒过才补上的（`re.sub`、`.isdigit()`、`time.perf_counter` 都漏过）。
+
 说明文字直接用 `print` 打在屏幕上，让人跑一遍就读懂，不用对着源码猜。
 
 反面例子（2026-09-30 被指出过）：一上来就贴代码，让人从代码反推「这东西是干嘛的」。
