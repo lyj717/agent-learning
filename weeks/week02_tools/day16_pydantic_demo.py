@@ -96,7 +96,6 @@ class PersonExtract(BaseModel):
     @classmethod
     def blank_to_none(cls, value):
         """把空串、纯空白、"未知" 这类占位符统一成 None。
-
         field_validator 是 Pydantic 的钩子：在「校验某个字段」时插一段自己的代码。
         mode="before" 表示**在类型校验之前**执行——这一步必须抢在前面，
         因为 "" 本身是合法字符串，等到类型校验那一关它已经被当成正常值收下了。
@@ -112,10 +111,12 @@ class PersonExtract(BaseModel):
     @classmethod
     def phone_must_be_11_digits(cls, value):
         """电话要么是 None，要么是 11 位数字——其他一律报错。
-
         这里用 mode="after"（默认值）：等类型校验确定它是字符串之后再查格式。
         抛 ValueError 里的那句话，会原样出现在报错信息里，也会被我们回填给模型。
         """
+        # re.fullmatch(模式, 字符串)：整个字符串是不是**正好**符合这个模式，
+        # 符合返回 Match 对象、不符合返回 None；\d 是一个数字字符，{11} 是重复 11 次。
+        # 「整个」三个字是关键，和 re.search / re.match 的区别见 day16_regex_demo.py
         if value is not None and not re.fullmatch(r"\d{11}", value):
             raise ValueError(f"手机号必须是 11 位数字，收到 {value!r}")
         return value

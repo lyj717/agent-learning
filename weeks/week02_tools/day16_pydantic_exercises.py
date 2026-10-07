@@ -57,6 +57,8 @@ INJECTED_REPLY = (
 #   · phone_must_be_11_digits：电话要么是 None，要么是 11 位数字，否则报错
 #     （提示：value.isdigit() and len(value) == 11 就够，不用正则；
 #      报错用 raise ValueError("你的话")，那句话会被原样回填给模型）
+#     想用正则写也行：re.fullmatch(r"[0-9]{11}", value)（要 import re）——
+#     两种写法都挡不住全角数字「１３８…」，为什么会这样见 day16_regex_demo.py 第 5 节
 #
 # 看不懂这两行装饰器（@field_validator + @classmethod）？
 # 先跑 day16_validator_decorator_demo.py——专门为这两行做了 5 个实验，
