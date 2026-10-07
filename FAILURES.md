@@ -164,3 +164,17 @@
 - **原因**：`icacls .pytest_tmp` 显示它的权限只有 `NT AUTHORITY\SYSTEM` 和 `Administrators`——既不是学员的账号，也不是 AI 的沙箱账号，多半是某次从管理员权限的终端/PyCharm 里跑 pytest 时建下的。和 AGENTS 里说的「名字是你的、权限是别人的」是同一类问题，只是这次的建主是 SYSTEM
 - **修复**：换一个新的 basetemp 立刻就好——`pytest -p no:cacheprovider --basetemp=.pytest_tmp_ai tests` 跑出 9 passed；想清掉旧的那个，用**管理员** PowerShell 执行 README「排错」那节的 `Remove-Item`
 - **学到**：临时目录的权限跟着「谁建的」走，跟目录名无关；遇到 WinError 5 别去动代码，先看 `icacls` 判归属，再决定换目录还是清目录
+
+### 2026-10-07｜AI 新加了 llm_client.py，却没在练习里交代它是什么
+
+- **现象**：Day 16 练习的第 3 题 docstring 里写着「用 `make_client()`」「用 `chat_json(...)`」，但学员压根不知道这两个名字来自哪个文件、里面还有什么、为什么要用——他直接问「你都没告诉过我你写了 llm_client 文件，后面要做的事情我也看不懂」
+- **原因**：AI 把「共用的请求层」当成基础设施自己建了，只在 `weeks/week02_tools/README.md` 的材料表里留了一行；而学员读的是**练习文件本身**。这正是 AGENTS 里那条「文档里提到的任何名字，都要说清怎么拿到」的翻版——上次是 `llm.BadRequestError`，这次是整个模块
+- **修复**：把说明写进练习文件的头部 docstring：本目录有哪些文件、`llm_client.py` 是从 Week 01 的 `chat_cli/llm.py` 搬来的、三个函数各自干什么（含参数与返回值形状）、怎么 import、PyCharm 标红怎么办；第 3 题再补一段「先大白话说要干什么，再列 1~6 步」的流程
+- **学到**：**新加的脚手架文件，必须在学员会打开的那个文件里自我介绍**——写进 README 不算，写进另一个文件的注释也不算。判据：学员只看手上这个文件，能不能知道每个陌生名字从哪来
+
+### 2026-10-07｜AI 改学员文件时误删了他写的一行，`ruff --fix` 又删掉了一个 import
+
+- **现象**：改写第 3 题 docstring 时，顺手把学员已经写下的 `client = make_client()` 一起删掉了；随后跑 `ruff check --fix`，它把「导入了但还没用到」的 `chat_json` 从 import 行里删掉——学员写到第 3 步会直接 `NameError`
+- **原因**：两件事都是「用整块替换的方式改别人正在写的文件」导致的：替换块里带了学员的代码行、而 `--fix` 对「还没写到」的 import 一律当垃圾清理
+- **修复**：补回 `client = make_client()`，把 `chat_json` 加回 import 并在旁边写明「第 3 题第 3 步会用到，别对这个文件跑 ruff --fix」；改动后用 `git diff` 逐行确认没带走别的东西
+- **学到**：**改学员的文件要按「外科手术」标准**——替换块只包住自己写的字，改完必须看 diff；`ruff --fix` 这种自动清理工具别用在「写了一半」的文件上，它分不清「没用」和「还没用到」
