@@ -157,3 +157,10 @@
 - **原因**：装饰器从下往上套。正确顺序是「先包成类方法，再登记到字段上」，Pydantic 拿到的就是它认识的对象；反过来变成「先登记到裸函数，再包成类方法」，Pydantic 收集校验器时认不出来，**跳过它**，不抛任何异常。PyCharm 那句「此装饰器不会收到所预期的可调用对象；内置装饰器返回了特殊对象」说的正是这件事（虽然它标在了正确写法上，属于误报）
 - **修复**：顺序按文档写（`@field_validator(...)` 在外、`@classmethod` 在内）；改完必须喂一个空串看它有没有变成 `None`
 - **学到**：**「没报错」不等于「生效了」**——顺序类的错误经常走静默失效这条路，症状是脏数据一路流到下游才被发现；验证方式得是行为验证（喂输入、看输出），不是「有没有报错」
+
+### 2026-10-07｜`.pytest_tmp` 被 SYSTEM 建走，AI 再跑 pytest 就报 [WinError 5]
+
+- **现象**：AI 跑 `pytest --basetemp=.pytest_tmp` 时，pytest 在会话开始清空这个目录就报 `PermissionError: [WinError 5] 拒绝访问`，6 条用 `tmp_path` 的测试直接 error（另外 3 条照常通过）
+- **原因**：`icacls .pytest_tmp` 显示它的权限只有 `NT AUTHORITY\SYSTEM` 和 `Administrators`——既不是学员的账号，也不是 AI 的沙箱账号，多半是某次从管理员权限的终端/PyCharm 里跑 pytest 时建下的。和 AGENTS 里说的「名字是你的、权限是别人的」是同一类问题，只是这次的建主是 SYSTEM
+- **修复**：换一个新的 basetemp 立刻就好——`pytest -p no:cacheprovider --basetemp=.pytest_tmp_ai tests` 跑出 9 passed；想清掉旧的那个，用**管理员** PowerShell 执行 README「排错」那节的 `Remove-Item`
+- **学到**：临时目录的权限跟着「谁建的」走，跟目录名无关；遇到 WinError 5 别去动代码，先看 `icacls` 判归属，再决定换目录还是清目录
