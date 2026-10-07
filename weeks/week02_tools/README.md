@@ -13,6 +13,10 @@
 | Day 15 | `day15_structured_output_demo.py` | AI 搭・学员跑 | 结构化输出：JSON 模式管什么、不管什么；含 3 个真实踩过的坑（离线，`--live` 真跑 3 次对照） |
 | Day 15 | `day15_structured_output_exercises.py` | **学员做** | 三题：拼提示词 → 安全解析 → 串起来真抽 10 条（留了空，会大声报 `NotImplementedError`） |
 | Day 15 | `day15_抽取成功率记录.md` | **学员填** | Day 15 交付物：10 条的逐条结果 + 两个成功率 + 你的结论 |
+| — | `llm_client.py` | AI 搭 | 共用的请求层：建客户端 + 发一次 JSON 模式请求（`chat_json` 会把原始文本和 `finish_reason` 一起给你）。Day 15 里这段是写在练习里的，从 Day 16 起收进这个文件 |
+| Day 16 | `day16_pydantic_demo.py` | AI 搭・学员跑 | Pydantic 校验：空串归一、格式校验、报错怎么读；「校验失败 → 把错误回填 → 模型改对」的完整回合（离线，`--live` 真跑一轮对照） |
+| Day 16 | `day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次（留了空，会大声报 `NotImplementedError`） |
+| Day 16 | `day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
 
 跑法（在仓库根目录）：
 
@@ -26,6 +30,16 @@
 # Day 15 练习：前两题离线自测；第三题是 10 条真实抽取
 .venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_exercises.py
 .venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_exercises.py --live
+
+# Day 16 讲解（默认离线，不花钱；脏数据和报错都是真跑出来的）
+.venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_demo.py
+
+# 真想看「失败 → 回填 → 改对」的完整回合（要网络，2 次调用）
+.venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_demo.py --live
+
+# Day 16 练习：前两题离线喂脏数据；第三题是真抽三条难抽文本
+.venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_exercises.py --live
 ```
 
 学员做完练习和记录后，交给 AI 对答案、挑毛病。
@@ -50,7 +64,7 @@
 ## 每日清单
 
 - [x] Day 15｜结构化输出，从杂乱文本抽 JSON，统计成功率（实测 10 条：解析 10/10 = 100%、字段 7/10 = 70%；第 9 条另补跑 3 次，见 `day15_抽取成功率记录.md`）
-- [ ] Day 16｜Pydantic 校验与失败重试
+- [ ] Day 16｜Pydantic 校验与失败重试（把抽取结果用模型接收；脏数据不崩，失败自动重试一次）
 - [ ] Day 17｜第一个工具（计算器），跑通最小闭环，画流程图
 - [ ] Day 18｜多工具与工具选择，记录选错工具的案例
 - [ ] Day 19｜错误回填让模型自纠，加最大重试次数
