@@ -17,6 +17,7 @@
 | Day 16 | `day16_pydantic_demo.py` | AI 搭・学员跑 | Pydantic 校验：空串归一、格式校验、报错怎么读；「校验失败 → 把错误回填 → 模型改对」的完整回合（离线，`--live` 真跑一轮对照） |
 | Day 16 | `day16_validator_decorator_demo.py` | AI 搭・学员跑 | 加餐：`@field_validator` + `@classmethod` 到底干嘛用——5 个小实验（不加装饰器 / 不加 classmethod / before vs after / 装饰器展开 / 一器多字段），完全离线 |
 | Day 16 | `day16_regex_demo.py` | AI 搭・学员跑 | 加餐：`re.fullmatch` 是什么、`\d{11}` 怎么读、`search`/`match`/`fullmatch` 的区别，以及「全角数字能绕过 11 位数字校验」这个真坑，完全离线 |
+| Day 16 | `day16_model_validate_demo.py` | AI 搭・学员跑 | 加餐：`PersonExtract.model_validate_json(raw)` 到底做了什么——把黑盒拆成三步（解析 → 逐字段校验 → 造实例），每步都打印出来；含「字段缺失 / 多余字段」为什么不算错，完全离线 |
 | Day 16 | `day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次（留了空，会大声报 `NotImplementedError`） |
 | Day 16 | `day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
 
@@ -48,6 +49,9 @@
 
 # Day 16 加餐：re.fullmatch 和「11 位数字」怎么校验（完全离线）
 .venv\Scripts\python.exe weeks\week02_tools\day16_regex_demo.py
+
+# Day 16 加餐：model_validate_json 到底执行了哪些工作（完全离线）
+.venv\Scripts\python.exe weeks\week02_tools\day16_model_validate_demo.py
 ```
 
 学员做完练习和记录后，交给 AI 对答案、挑毛病。
