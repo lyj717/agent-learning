@@ -156,6 +156,84 @@ print(
 
 
 # ============================================================
+section("dump 到底是什么意思：把几个 dump 摆在一起看")
+# ============================================================
+
+# 这几个 import 放在这里而不是文件顶部，是为了让上面几节先讲完（纯演示顺序，没别的意思）
+from datetime import datetime, timedelta, timezone
+from enum import Enum
+
+
+class Level(str, Enum):
+    """职级。枚举：把「只能是这几个值」写进类型里。"""
+
+    junior = "初级"
+    senior = "高级"
+
+
+class Record(BaseModel):
+    """一条带时间的记录，专门用来暴露「Python 对象」和「JSON 文本」的区别。"""
+
+    name: str
+    created_at: datetime
+    level: Level
+
+
+# timezone(timedelta(hours=8))：东八区的固定偏移，用来给时间带上时区。
+#   timedelta(参数)：表示「一段时长」，timedelta(hours=8) 就是 8 小时；
+#   timezone(偏移)：把这段偏移做成时区对象。
+# 不写时区的话，datetime 是「裸的」，转成 JSON 只有 "2026-10-08T09:30:00"，
+# 读的人不知道是哪个地方的时间。
+# （也可以用 ZoneInfo("Asia/Shanghai")，但那要求装 tzdata 包，Windows 上默认没有——
+#   这里用固定偏移，够用且不用装东西。）
+CHINA_TZ = timezone(timedelta(hours=8))
+record = Record(
+    name="刘小明",
+    created_at=datetime(2026, 10, 8, 9, 30, tzinfo=CHINA_TZ),
+    level=Level.senior,
+)
+
+dumped = record.model_dump()
+dumped_types = {key: type(value).__name__ for key, value in dumped.items()}
+print(f"  record.model_dump()        -> {dumped}")
+print(f"  里面每个值是什么类型：{dumped_types}")
+print(
+    "  注意：created_at 还是 datetime 对象，level 还是枚举——**这是 Python 原生对象，不是 JSON**"
+)
+
+jsoned = record.model_dump(mode="json")
+jsoned_types = {key: type(value).__name__ for key, value in jsoned.items()}
+print(f"\n  record.model_dump(mode='json') -> {jsoned}")
+print(f"  里面每个值是什么类型：{jsoned_types}")
+print("  还是 dict，但里面的值都换成 JSON 能表达的形式了（datetime → ISO 字符串）")
+
+print(f"\n  record.model_dump_json()   -> {record.model_dump_json()}")
+print(f"  类型：{type(record.model_dump_json()).__name__}  ← 这一步才是文本")
+
+print("\n  那直接拿 model_dump() 的结果去喂 json.dumps 行不行？")
+try:
+    json.dumps(dumped)
+except TypeError as error:
+    print(f"      不行：TypeError: {error}")
+print("  因为 json.dumps 只认识基础类型（dict/str/int/float/bool/None/它们的列表），")
+print("  datetime 和枚举它不认识——要转文本就得用 model_dump_json()，或者 mode='json'。")
+
+print(
+    """\n  所以 dump 这个词的意思不是「转成 JSON」，而是「把内存里的对象**倒出来**」，
+  倒成什么，看名字/参数：
+
+      json.dump(对象, 文件)          倒进一个文件
+      json.dumps(对象)               倒成字符串（s = string）
+      model.model_dump()             倒成 **Python 原生对象**（dict、list、datetime 保持原样）
+      model.model_dump(mode="json")  倒成 Python 对象，但值已换成 JSON 能表达的
+      model.model_dump_json()        倒成 **JSON 文本**（一步到位）
+
+  对照着记：读进来是 validate（validate_json 吃文本、validate 吃 dict），
+            倒出去是 dump（dump_json 给文本、dump 给 Python 对象）。"""
+)
+
+
+# ============================================================
 section("一句话总结：这些名字是同一个东西的不同入口")
 # ============================================================
 

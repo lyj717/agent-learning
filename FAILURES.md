@@ -178,3 +178,10 @@
 - **原因**：两件事都是「用整块替换的方式改别人正在写的文件」导致的：替换块里带了学员的代码行、而 `--fix` 对「还没写到」的 import 一律当垃圾清理
 - **修复**：补回 `client = make_client()`，把 `chat_json` 加回 import 并在旁边写明「第 3 题第 3 步会用到，别对这个文件跑 ruff --fix」；改动后用 `git diff` 逐行确认没带走别的东西
 - **学到**：**改学员的文件要按「外科手术」标准**——替换块只包住自己写的字，改完必须看 diff；`ruff --fix` 这种自动清理工具别用在「写了一半」的文件上，它分不清「没用」和「还没用到」
+
+### 2026-10-08｜Windows 上用 `zoneinfo` 报 `ModuleNotFoundError: No module named 'tzdata'`
+
+- **现象**：演示里写 `datetime(..., tzinfo=ZoneInfo("Asia/Shanghai"))`，跑起来抛 `zoneinfo._common.ZoneInfoNotFoundError: 'No time zone found with key Asia/Shanghai'`，根因是它先去找 `tzdata` 包没找到；这个仓库的依赖里没有它
+- **原因**：Linux/macOS 上时区数据由系统提供，`zoneinfo` 直接读得到；**Windows 没有这套东西**，CPython 会退回去 import 第三方的 `tzdata` 包——没装就用不了。这和代码写错无关，是平台差异
+- **修复**：改用标准库自带的固定偏移：`CHINA_TZ = timezone(timedelta(hours=8))`，`datetime(..., tzinfo=CHINA_TZ)` 照样能输出 `+08:00`，不用装任何东西；确实需要夏令时规则时才去 `pip install tzdata`
+- **学到**：**「标准库」不等于「在 Windows 上一定能用」**——`zoneinfo` 就是典型；报 `ModuleNotFoundError` 时先看它要的那个模块是不是「数据包」而不是「你写的模块」，这类缺的往往不是依赖写错，而是平台自带的东西在 Windows 上要另装
