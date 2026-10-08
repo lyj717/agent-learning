@@ -7,20 +7,52 @@
     .venv\\Scripts\\python.exe weeks\\week02_tools\\day16_pydantic_exercises.py --live
 
 做完把结果抄进交付物：weeks/week02_tools/day16_脏数据处理记录.md
+
+今天要做的三件事（难度是递进的，前两件已经写完了）：
+    第 1 题  PersonExtract 的两处校验器 —— 空串归一成 None、电话必须是 11 位数字
+    第 2 题  errors_to_hint()      —— 把 Pydantic 的报错翻译成「给模型看的一句话」
+    第 3 题  extract_with_retry()  —— 把前两件串成一个循环：抽 → 校验 →
+                                      不过就把错误回填再抽一次（**这件还没写**）
+
+本目录里今天会用到的其它文件（AI 搭的，你只管用）：
+
+    llm_client.py       共用的请求层。**这是 Day 16 新加的文件**，
+                        里面是把 Week 01 你写的 chat_cli/llm.py 那套样板代码搬过来的，
+                        一共三个东西：
+                          · make_client()
+                              建一个 openai 客户端：密钥和 base_url 读仓库根目录的
+                              .env，带 60 秒超时，并关掉 SDK 自带的 2 次重试
+                              （Day 12 的坑：不关的话一次调用会悄悄变成好几次）。
+                              它的前身就是 chat_cli/llm.py 里的 _make_client——
+                              搬过来之后去掉了下划线，因为它现在要**给外面用**。
+                          · chat_json(messages, *, client=None, model=None,
+                                      max_tokens=2048) -> (原始文本, finish_reason)
+                              发一次请求，自动开 JSON 模式。注意它**只负责发**：
+                              不解析 JSON、不做校验——解析和校验是上层的事。
+                              第 3 题第 3 步就用它。
+                          · require_api_key()  读密钥，缺了就抛异常（make_client 内部用）
+
+                        怎么拿到它们：本文件顶部已经写好了
+                            from llm_client import chat_json, make_client
+                        （PyCharm 若标红说找不到 llm_client，是它没把本目录当源码根：
+                          右键 week02_tools → Mark Directory as → Sources Root。
+                          命令行运行不受影响。）
+
+    day16_pydantic_demo.py        讲解脚本：Pydantic 校验 + 失败重试（AI 搭，你跑）
+    day16_validator_decorator_demo.py  加餐：那两个装饰器干嘛用（5 个小实验）
+    day16_regex_demo.py           加餐：re.fullmatch 与「11 位数字」的坑
+    day16_脏数据处理记录.md        你的交付物（待填）
 """
 
 import json
 import sys
 from pathlib import Path
 
+# 第 3 题要到第 3 步才会用到 chat_json，现在还没写到那儿，所以 ruff 会提示它
+# 「未使用」——**别对这个练习文件跑 `ruff check --fix`**：它会把未使用的 import
+# 删掉，等你写到那儿就找不到这个名字了（我自己刚踩过一次）。
+from llm_client import chat_json, make_client
 from pydantic import BaseModel, Field, ValidationError, field_validator
-
-# 第 3 题要用 llm_client 里的这两个函数（就是昨天你写的建客户端 + 发 JSON 请求），
-# 写完把下面这行的注释去掉：
-# from llm_client import chat_json, make_client
-#
-# 顺带一提：PyCharm 万一给 llm_client 标红，右键 week02_tools 目录 →
-# Mark Directory as → Sources Root（运行不受影响，Week 01 踩过同一个坑）。
 
 ROOT = Path(__file__).resolve().parents[2]
 LIVE = "--live" in sys.argv
@@ -45,30 +77,16 @@ DIRTY_TEXTS = [
 INJECTED_REPLY = (
     '{"name": "王芳", "phone": "138-0013-8000", "city": "上海", "job": "销售"}'
 )
+hint = (
+    "name（姓名，字符串）、phone（手机号，字符串）、"
+    "city（城市，字符串）、job（岗位，字符串）"
+)
 
 
 # ============================================================
-# 第 1 题：给四个字段补上「什么算合格」的规矩
-#
-# 字段声明和说明都给你了（它不是什么新东西——Day 15 的 FIELDS 就是这四个），
-# 今天在这题里要写的只有下面两处 validator：
-#   · blank_to_none：把空串、纯空白、"未知"、"N/A"、"无" 这类占位符
-#     统一变成 None，而且必须在类型校验**之前**执行
-#   · phone_must_be_11_digits：电话要么是 None，要么是 11 位数字，否则报错
-#     （提示：value.isdigit() and len(value) == 11 就够，不用正则；
-#      报错用 raise ValueError("你的话")，那句话会被原样回填给模型）
-#     想用正则写也行：re.fullmatch(r"[0-9]{11}", value)（要 import re）——
-#     两种写法都挡不住全角数字「１３８…」，为什么会这样见 day16_regex_demo.py 第 5 节
-#
-# 看不懂这两行装饰器（@field_validator + @classmethod）？
-# 先跑 day16_validator_decorator_demo.py——专门为这两行做了 5 个实验，
-# 只改一个地方、跑一次、看结果怎么变。
-#
-# 期望结果（对着主程序里那四条脏数据看）：
-#   · {"name": ""}                 -> name 变成 None，校验通过
-#   · phone="138-0013-8000"        -> 校验失败，报错里带上你自己写的话
-#   · phone=18600001111（数字）    -> 校验失败，报 Input should be a valid string
-#   · '{"name": "李娜"'（坏 JSON） -> 校验失败，type 是 json_invalid
+# 两个 validator 的来龙去脉（@field_validator + @classmethod、before/after）
+# 见 day16_validator_decorator_demo.py；「11 位数字」为什么挡不住全角数字
+# 见 day16_regex_demo.py 第 5 节
 # ============================================================
 
 
@@ -86,65 +104,59 @@ class PersonExtract(BaseModel):
     @classmethod
     def blank_to_none(cls, value):
         """把空串和「未知」这类的占位符归一成 None（在类型校验之前跑）。"""
-        raise NotImplementedError("第 1 题：blank_to_none 还没写")
+        if isinstance(value, str):
+            text = value.strip()
+            if text in {"", "未知", "null", "N/A", "无"}:
+                return None
+            return text
+        return value
 
     @field_validator("phone")
     @classmethod
     def phone_must_be_11_digits(cls, value):
         """电话要么是 None，要么是 11 位数字；不合规就抛 ValueError。"""
-        raise NotImplementedError("第 1 题：phone_must_be_11_digits 还没写")
+        if value is not None and not (value.isdigit() and len(value) == 11):
+            raise ValueError("手机号必须是11位数字！")
+        return value
 
 
 def errors_to_hint(error: ValidationError) -> str:
-    """第 2 题：把 Pydantic 的报错，变成一句**给模型看**的话。
-
-    要做的：
-      · 用 `error.errors()` 拿结构化报错：每一项是一个 dict，
-        里面有 `type`（错在哪类）、`loc`（哪个字段）、`msg`（人话）、`input`（收到的值）
-      · 每一项拼成一行，含「字段路径 / 问题 / 收到的值」三件事
-      · loc 可能是空元组（整体 JSON 语法坏了），这时字段那一格写「整体」
-
-    期望结果：主程序会把两条真实报错喂给它，打印出来应该像：
-      - 字段 phone：Value error, 手机号必须是 11 位数字（收到的值：'138-0013-8000'）
-      - 字段 整体：Invalid JSON ...（收到的值：'{"name": "李娜"'）
-    提示：`".".join(str(part) for part in item["loc"]) or "整体"`——
-          空元组在布尔判断里是假值，所以这句能同时处理两种 loc。
-    """
-    raise NotImplementedError("第 2 题还没写")
+    """把 Pydantic 的报错整理成一句给模型看的话，一条错一行。"""
+    lines = []
+    for item in error.errors():
+        loc = ".".join(str(part) for part in item["loc"]) or "整体"
+        # 版式：横线后留空格、全角冒号分隔；值用 !r 显示——带引号才看得出首尾有没有空格
+        lines.append(f"- 字段 {loc}：{item['msg']}（收到的值：{item['input']!r}）")
+    return "\n".join(lines)
 
 
 def extract_with_retry(
     text: str, *, attempts: int = 2, first_reply: str | None = None
 ) -> PersonExtract | None:
-    """第 3 题：抽一次；值不合法就把错误回填给模型，再试一次。
-
-    要做的：
-      · 用 `make_client()` 建客户端（昨天那套样板代码，现在住在 llm_client 里）
-      · 拼 messages：system 里**必须**出现「json」字样 + 字段说明，
-        user 里放要抽的 text（没这个词，JSON 模式会被 400 拒收）
-      · 用 `chat_json(messages, client=client)` 发请求，它返回 `(原始文本, finish_reason)`
-      · 原始文本交给 `PersonExtract.model_validate_json(...)`：过了直接返回对象
-      · 没过（ValidationError）：
-          - 把**原始文本**当成 assistant 消息塞回对话（模型无状态，不塞它不知道改哪份）
-          - 追加一条 user 消息，里面放 `errors_to_hint(error)`，
-            并写明「请只输出修正后的 JSON，缺失字段填 null」
-          - 再发一次、再校验
-      · `attempts` 是总尝试次数（默认 2 = 第一次 + 重试一次）；
-        用完还是不过就返回 None，**不要**把异常抛给上层
-
-    `first_reply` 是留给**测重试分支**的口子：传了它，就跳过第一次真实请求，
-    直接把它当成「模型的第一次返回」。为什么需要这个口子——真实模型大部分时候
-    一次就对（实测三条全对），不注入脏数据，你写完可能一次重试都看不到。
-
-    期望结果：
-      · --live 跑 DIRTY_TEXTS 三条都不崩（可能一次就过，那就如实记下来）
-      · --live 里那次注入式验证（first_reply 是带横线的号码）**必定**走重试，
-        而且重试后应该能拿到合法结果
-      · 遇到改不了的，返回 None 而不是抛异常
-    提示：`attempts` 这个循环写成 `for _ in range(attempts):`，循环里 return，
-          循环外面 return None——这样「上限」是天然有的，不会死循环。
-    """
-    raise NotImplementedError("第 3 题还没写")
+    """抽一次；不合格就把错误回填给模型再试，试满 attempts 次仍不合格返回 None。"""
+    client = make_client()
+    messages = [
+        {"role": "system", "content": f"你是信息抽取助手，只输出 JSON。字段：{hint}"},
+        {"role": "user", "content": f"从下面这段话里抽取字段，输出 JSON：{text}"},
+    ]
+    for round_no in range(attempts):
+        if round_no == 0 and first_reply is not None:
+            raw = first_reply
+        else:
+            raw, _ = chat_json(messages, client=client)  # 其余圈真发请求
+        try:
+            return PersonExtract.model_validate_json(raw)
+        except ValidationError as error:
+            messages = [
+                *messages,
+                {"role": "assistant", "content": raw},
+                {
+                    "role": "user",
+                    "content": f"你刚才的输出没通过校验：\n{errors_to_hint(error)}\n"
+                    "请只输出修正后的 JSON，缺失的字段填 null。",
+                },
+            ]
+    return None
 
 
 # 主程序里的四条脏数据。故意用「字符串形式的 JSON」而不是 dict，
@@ -219,30 +231,3 @@ if __name__ == "__main__":
             print(f"     重试后拿到：{person.model_dump()}")
         print("     对照上面三条：真实模型一次就对，是「提示词写得不错」")
         print("     还是「这条本来就不难」？你可以在交付物里说说自己的判断。")
-
-
-# ============================================================
-# 现象与原因（做完之后填，用自己的话）
-# ============================================================
-#
-# 1. 四条脏数据，哪几条被拦下了、哪几条被「悄悄修好」了？被修好的那两条，
-#    分别是谁（哪个 validator）修的、在类型校验之前还是之后？
-#
-#
-# 2. 电话是数字 `18600001111` 那条，Pydantic 报的是哪一类错？为什么它不
-#    干脆帮你转成字符串（Week 00 见过这条边界）？
-#    ——想验证的话，把类型改成 `int | str | None` 再跑一遍，看行为怎么变。
-#
-#
-# 3. --live 那三条里，真正触发重试的有几条？一条都没有的话，说明什么——
-#    是提示词写得太好，还是「这几条本来就不难」？注入式那一次，第一次的假返回
-#    和重试后的返回差在哪？把两次文本都贴上来（这才是面试时能讲的现场）。
-#
-#
-# 4. 校验通过就等于抽得对吗？从 Day 15 的 10 条里挑一个「格式合法但内容可疑」
-#    的例子说明你的判断。
-#
-#
-# 5. 如果你把重试上限从 1 次加到 3 次，会发生什么？什么时候该停、该怎么停？
-#
-#

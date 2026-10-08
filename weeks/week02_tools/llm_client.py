@@ -62,14 +62,11 @@ def chat_json(
     max_tokens: int = DEFAULT_MAX_TOKENS,
 ) -> tuple[str, str]:
     """发一次请求（开了 JSON 模式），返回（原始文本, finish_reason）。
-
     messages 就是普通的消息列表：system 里必须出现「json」字样，
     否则服务商直接 400 拒收（Day 15 的坑一）。
-
     特意把**原始文本**原样返回，不在这里解析成 dict：
     解析失败、字段不对都属于「上层要处理的事」，
     而且报错时你想看到的正是那段原始文本。
-
     finish_reason 也一起给出来：它是 length 就说明输出被截断，
     这时候别去纠结 JSON 语法，先加额度（Day 15 的坑二）。
     """
