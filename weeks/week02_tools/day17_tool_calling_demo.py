@@ -308,6 +308,60 @@ say(
 )
 
 
+# ============================================================
+section("9. 附：`**` 到底干了什么（四种用法跑一遍）")
+# ============================================================
+
+
+def greet(name: str, greeting: str = "你好") -> str:
+    """打招呼。name 必填，greeting 有默认值。"""
+    return f"{greeting}，{name}！"
+
+
+arguments = {"name": "刘小明"}
+
+print("  手写关键字参数：greet(name='刘小明')        =", greet(name="刘小明"))
+print("  用 ** 拆 dict：greet(**{'name': '刘小明'}) =", greet(**arguments))
+print("  → 两者完全等价：`**字典` 就是把每个键值对摊成 `键=值`。")
+
+both = {"name": "刘小明", "greeting": "早上好"}
+print("  两个键也一样（默认值会被覆盖）：greet(**both) =", greet(**both))
+
+positional = ["刘小明", "早上好"]
+print("  对比 * （拆的是位置参数，按顺序对应）：greet(*列表) =", greet(*positional))
+
+say(
+    "",
+    "  同一个符号在「定义处」是反过来的用法，别混：",
+    "      def f(*args)     收「多出来的位置参数」，args 是 tuple",
+    "      def f(**kwargs)  收「多出来的关键字参数」，kwargs 是 dict",
+    "  调用处是「摊开」，定义处是「收拢」——方向相反，符号一样。",
+    "",
+    "  那键名对不上会怎样？这是模型填参数时最常见的错：",
+)
+
+# 真实场景里这份 dict 来自 json.loads(call.function.arguments)，
+# 所以这里也用变量装——顺便说明为什么必须用 `**`：键名是运行时才知道的
+BAD_ARGUMENTS = [
+    ("键名写错", {"nmae": "刘小明"}),  # 少打一个字母
+    ("少了必填键", {"greeting": "早上好"}),  # name 没给
+    ("多给一个键", {"name": "刘小明", "age": 30}),  # age 函数根本不收
+]
+for label, data in BAD_ARGUMENTS:
+    try:
+        greet(**data)
+    except TypeError as error:
+        print(f"    {label:<5} -> TypeError: {error}")
+
+say(
+    "",
+    "  三条报错指向同一件事：**dict 的键名必须和函数的参数名严丝合缝**。",
+    "  而模型填的键名来自你写的 `parameters.properties`——这就是那两份东西必须",
+    "  对齐的原因（参数名写错一个字，函数就收不到）。对不上时 `**` 当场抛 TypeError，",
+    "  比「悄悄传错参数」好得多；Day 19 会把这条错回填给模型让它自己改。",
+)
+
+
 if LIVE:
     section("--live：真跑一轮（第一次请求 + 回填 + 第二次请求）")
 
