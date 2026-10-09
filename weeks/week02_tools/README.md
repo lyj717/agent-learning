@@ -26,6 +26,7 @@
 | Day 17 | `day17_tool_choice_demo.py` | AI 搭・学员跑 | 加餐：**模型怎么知道该调哪个工具**——六轮实测（同问题只改工具名和描述），证明它靠名字+参数名+描述一起判断；第 5 节是 `tool_choice` 四种取值的实测（含「思考模式下 required 会 400」这条坑） |
 | Day 17 | `day17_parameters_demo.py` | AI 搭・学员跑 | 加餐：`parameters` 里到底写什么——JSON Schema 逐键讲解（properties / required / description / enum / 嵌套），含「写得细 vs 写得糊」的实测对比（糊的那份拿到空参数 `{}`） |
 | Day 18 | `day18_multi_tools_demo.py` | AI 搭・学员跑 | 多工具选择、工具粒度、SQLite 占位符，完全离线 |
+| Day 18 | `day18_sqlite_basics_demo.py` | AI 搭・学员跑 | SQLite 从零演示：内存数据库里建表、插入、查询、筛选、修改、删除；不碰练习库 |
 | Day 18 | `day18_seed_db.py` | AI 搭 | 重建六条订单的本地 SQLite 练习库；生成的 `.sqlite` 文件不提交 |
 | Day 18 | `tools.py` 中两个新函数、`day18_multi_tools_exercises.py` | **学员做** | 实现模拟天气与真实订单查询，再写三工具说明、分发和自动选择闭环；答案留空 |
 | Day 18 | `day18_工具选择记录.md` | **学员填** | 第一轮选择的真实记录，以及三次尝试找选错工具的案例；没观察到就如实记 |
@@ -84,6 +85,9 @@
 # Day 18：先看讲解；演示会生成可重复的 SQLite 练习库
 .venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_demo.py
 
+# 如果第 3 节 SQL 看不懂，先跑这份从零演示（只用内存数据库）
+.venv\Scripts\python.exe weeks\week02_tools\day18_sqlite_basics_demo.py
+
 # Day 18：先做 tools.py 里的两个函数，再做三工具说明、分发和闭环
 .venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_exercises.py
 .venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_exercises.py --live
@@ -96,6 +100,8 @@
 `day18_seed_db.py` 是**准备数据的代码**：`seed_db()` 建 `orders` 表并插入六条固定的假订单。演示和练习都已经调用它，正常学习时直接运行演示、练习即可，无须单独运行种子脚本。
 
 `day18_orders.sqlite` 是运行时**生成的数据库文件**，`query_orders(city)` 要从这里读数据。它不是 Python 源码，也不是要填写的交付物；`.gitignore` 会忽略它。每次运行演示或练习都会重建 `orders` 表，手动改过的订单会被覆盖。需要记录的观察和结论请写在 `day18_工具选择记录.md`。
+
+SQLite 刚入门时，先跑 `day18_sqlite_basics_demo.py` 的第 1～5 节。它用 `:memory:` 建临时库，从一张四行表开始逐步讲 `CREATE TABLE`、`INSERT`、`SELECT`、`WHERE` 和 `?`；第 6 节的 `UPDATE`、`DELETE` 是加餐。想查每个 Python 方法的准确用法，看 [Python 官方 sqlite3 教程](https://docs.python.org/3/library/sqlite3.html#tutorial)；特别看连接、`execute()`、`fetchall()` 和参数占位符，正好对应 Day 18 的订单查询。
 
 ## 官方文档去哪看（Day 15 ~ Day 21）
 
