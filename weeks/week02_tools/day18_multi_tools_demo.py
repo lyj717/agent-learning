@@ -1,7 +1,6 @@
 """Day 18 演示：每节先讲概念，再运行一段看得见结果的代码（完全离线）。"""
 
 import sqlite3
-from contextlib import closing
 
 from day18_seed_db import DB_PATH, seed_db
 
@@ -52,30 +51,49 @@ print(
 
 section("3. SQLite：用占位符查询本地订单")
 print(
-    """这是什么：day18_orders.sqlite 是本地数据库文件，orders 表就保存在里面。
-day18_seed_db.py 是准备练习数据的 Python 脚本，不是数据库；它负责建表、插入六条假订单。
-为什么：本地订单不是模型训练知识，必须由代码查；练习还需要每次都从同一份数据开始。
-场景：查六条演示订单中，杭州已支付订单的笔数和金额。"""
+    """这是什么：把数据库先当成一个表格文件。day18_orders.sqlite 是文件；
+里面的 orders 表有四列：id（编号）、city（城市）、amount（金额）、status（状态）。
+为什么：这些订单只存在本地文件里，模型不知道，得由 Python 去查。
+场景：从六行订单中找出「杭州、已支付」的行，再数笔数、加金额。
+day18_seed_db.py 只是帮你准备六行假数据；今天先不用读它的内部实现。"""
 )
-print("运行代码：调用 seed_db() 准备数据库，再查询")
 # seed_db()：删除并重建 orders 表，插入六条固定的假订单；没有入参，返回文件路径。
 # 演示和练习都会自动调用它，不需要提前手动运行；重跑会覆盖表里原有的订单。
 db_path = seed_db()
-print(f"  已重建数据库文件：{db_path.name}（重跑演示或练习都会重置六条订单）")
-print("运行代码：连接数据库，执行固定查询，再读取一行结果")
-# sqlite3.connect(路径)：打开 SQLite 文件。
-# closing(连接)：with 结束时关闭连接；sqlite3 自己的 with 不负责关闭。
-with closing(sqlite3.connect(DB_PATH)) as connection:
-    # execute(SQL, 参数元组)：把参数绑定到 SQL 里的 ?；不拼接不可信的城市名。
-    cursor = connection.execute(
-        "SELECT COUNT(*), COALESCE(SUM(amount), 0) "
-        "FROM orders WHERE city = ? AND status = 'paid'",
-        ("杭州",),
-    )
-    # fetchone()：取查询结果的第一行；此聚合查询恰好只返回一行。
-    count, total = cursor.fetchone()
-print(f"  杭州已支付订单：{count} 单，共 {total:g} 元")
-print("注意：('杭州',) 是单元素元组，逗号不能漏；? 绑定的是值，不是 SQL 代码。")
+print(f"第 0 步：seed_db() 已准备 {db_path.name}，里面固定有六行假订单。")
+# sqlite3.connect(路径)：打开这个数据库文件，返回连接对象。
+connection = sqlite3.connect(DB_PATH)
+
+print("第 1 步：先看整张表。SELECT 是选列，FROM 是指定表。")
+# execute(SQL)：让数据库运行查询；返回游标，游标里装着查询结果。
+cursor = connection.execute("SELECT city, amount, status FROM orders")
+# fetchall()：一次取出游标里的所有行；每行是按列顺序放值的 tuple。
+all_rows = cursor.fetchall()
+for row in all_rows:
+    print(f"  城市={row[0]}，金额={row[1]}，状态={row[2]}")
+
+print("第 2 步：只找杭州且已支付的行。WHERE 是筛选条件。")
+# ? 是值的占位符；第二个参数元组把「杭州」「paid」依次填进去。
+# 别用字符串拼接把模型给的 city 塞进 SQL。
+cursor = connection.execute(
+    "SELECT city, amount, status FROM orders WHERE city = ? AND status = ?",
+    ("杭州", "paid"),
+)
+matched_rows = cursor.fetchall()
+for row in matched_rows:
+    print(f"  {row[0]}：{row[1]} 元，{row[2]}")
+# close()：用完连接就关闭数据库文件。
+connection.close()
+
+print("第 3 步：用已经学过的 Python 算笔数和金额。")
+count = len(matched_rows)
+total = 0
+for row in matched_rows:
+    total += row[1]  # 第 2 列 amount 的索引是 1。
+print(f"  {count} 单，共 {total:g} 元")
+print(
+    "注意：没查到时 matched_rows 是空列表，count 和 total 都是 0；今天先不用学 SQL 的统计写法。"
+)
 
 
 section("4. tool_choice：这一轮允许模型怎样选择")

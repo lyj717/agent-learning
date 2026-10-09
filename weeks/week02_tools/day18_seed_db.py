@@ -6,7 +6,6 @@ seed_db() 会在同目录生成 day18_orders.sqlite，删除并重建 orders 表
 """
 
 import sqlite3
-from contextlib import closing
 from pathlib import Path
 
 DB_PATH = Path(__file__).with_name("day18_orders.sqlite")
@@ -24,27 +23,22 @@ ORDERS = [
 def seed_db() -> Path:
     """重建练习库；每次运行都得到相同的六条订单。"""
     # sqlite3.connect(路径)：连接数据库文件；不存在时创建。
-    # closing(连接)：离开 with 时关闭连接；sqlite3 自己的 with 只管提交/回滚。
-    with closing(sqlite3.connect(DB_PATH)) as connection:
-        # executescript(SQL)：一次执行多条固定的建表语句；这里只用于本地数据准备。
-        connection.executescript(
-            """
-            DROP TABLE IF EXISTS orders;
-            CREATE TABLE orders (
-                id INTEGER PRIMARY KEY,
-                city TEXT NOT NULL,
-                amount REAL NOT NULL,
-                status TEXT NOT NULL
-            );
-            """
-        )
-        # executemany(SQL, 参数行)：把每行参数分别绑定到 ?，批量插入练习数据。
-        connection.executemany(
+    connection = sqlite3.connect(DB_PATH)
+    # 这段只是每次把练习数据恢复到同一个起点，不是今天的查询练习。
+    connection.execute("DROP TABLE IF EXISTS orders")
+    connection.execute(
+        "CREATE TABLE orders ("
+        "id INTEGER PRIMARY KEY, city TEXT NOT NULL, "
+        "amount REAL NOT NULL, status TEXT NOT NULL)"
+    )
+    for order in ORDERS:
+        connection.execute(
             "INSERT INTO orders (id, city, amount, status) VALUES (?, ?, ?, ?)",
-            ORDERS,
+            order,
         )
-        # commit()：把插入真正写进文件；closing 只负责关闭，不会替你提交。
-        connection.commit()
+    # commit()：把插入写进文件；close()：关闭文件连接。
+    connection.commit()
+    connection.close()
     return DB_PATH
 
 

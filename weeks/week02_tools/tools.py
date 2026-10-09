@@ -70,12 +70,13 @@ def get_weather(city: str) -> dict:
 def query_orders(city: str) -> dict:
     """查 SQLite 中某城市的已支付订单。
 
-    要做的：连接 DB_PATH，查 orders 表中 city 等于入参且 status='paid'
-    的 COUNT(*) 与 COALESCE(SUM(amount), 0)，返回带 city、paid_count、
-    paid_total 的 dict；没有记录时返回 0 和 0，不要报错。
+    要做的：连接 DB_PATH，用 SELECT 和 WHERE 查 orders 表中 city 等于
+    入参且 status='paid' 的行；fetchall() 取出后用 len() 和 for 循环计算，
+    返回带 city、paid_count、paid_total 的 dict。没有记录时返回 0 和 0。
     期望结果：query_orders("杭州") 给出 2 单、200 元。
     提示：sqlite3 与 DB_PATH 的导入已在文件顶部注释，写时取消注释；
-    DB_PATH 来自 day18_seed_db。先运行 seed_db() 建表。SQL 用 ? 绑定 city，
-    不要把模型给的城市拼进 SQL 字符串。可参照 day18_multi_tools_demo.py 第 3 节。
+    DB_PATH 来自 day18_seed_db。练习主程序会先调用 seed_db() 建表。
+    SQL 用 ? 绑定 city，不要把模型给的城市拼进 SQL 字符串。连接用完要
+    close()；可参照 day18_multi_tools_demo.py 第 3 节一步一步写。
     """
     raise NotImplementedError("Day 18 订单工具还没写")
