@@ -7,6 +7,8 @@
     .venv\\Scripts\\python.exe weeks\\week02_tools\\day18_multi_tools_exercises.py --live
 
 今天的记录写在 day18_工具选择记录.md，本文件末尾不用再写一份「现象与原因」。
+本文件运行时会调用 seed_db()，重建 day18_orders.sqlite 里的六条假订单；
+这个数据库文件是练习数据，不是交付物，手改内容会在下次运行时被覆盖。
 """
 
 import sys
@@ -81,6 +83,7 @@ def ask_with_tools(question: str, *, max_rounds: int = 3) -> str:
 
 if __name__ == "__main__":
     print("=== 第 1 题：完成 tools.py 里的 get_weather 与 query_orders ===")
+    print("准备 SQLite 练习数据：重建 orders 表和六条假订单。")
     seed_db()
     for label, function, city in [
         ("模拟天气", get_weather, "杭州"),

@@ -1,4 +1,9 @@
-"""Day 18 练习数据：建立可重复生成的真实 SQLite 数据库。"""
+"""Day 18 练习数据准备脚本，不是数据库文件。
+
+seed_db() 会在同目录生成 day18_orders.sqlite，删除并重建 orders 表，
+插入六条固定的假订单。演示和练习会自动调用它；重复运行会覆盖表中旧数据。
+生成的 .sqlite 文件被 .gitignore 忽略，不是交付物。
+"""
 
 import sqlite3
 from contextlib import closing
@@ -45,6 +50,7 @@ def seed_db() -> Path:
 
 if __name__ == "__main__":
     print(f"已建立练习库：{seed_db()}")
+    print("注意：每次运行本脚本或 Day 18 演示、练习，都会重建 orders 表。")
     print(
         "orders 表：6 条订单；paid：杭州 2 单 / 200 元，上海 2 单 / 230 元，北京 1 单 / 90 元"
     )
