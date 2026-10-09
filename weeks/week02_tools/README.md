@@ -25,6 +25,10 @@
 | Day 17 | `day17_工具调用流程图.md` | **学员填** | Day 17 交付物：把这次工具的完整回合画成流程图，标清每一步谁在执行 |
 | Day 17 | `day17_tool_choice_demo.py` | AI 搭・学员跑 | 加餐：**模型怎么知道该调哪个工具**——六轮实测（同问题只改工具名和描述），证明它靠名字+参数名+描述一起判断；第 5 节是 `tool_choice` 四种取值的实测（含「思考模式下 required 会 400」这条坑） |
 | Day 17 | `day17_parameters_demo.py` | AI 搭・学员跑 | 加餐：`parameters` 里到底写什么——JSON Schema 逐键讲解（properties / required / description / enum / 嵌套），含「写得细 vs 写得糊」的实测对比（糊的那份拿到空参数 `{}`） |
+| Day 18 | `day18_multi_tools_demo.py` | AI 搭・学员跑 | 多工具选择、工具粒度、SQLite 占位符，完全离线 |
+| Day 18 | `day18_seed_db.py` | AI 搭 | 重建六条订单的本地 SQLite 练习库；生成的 `.sqlite` 文件不提交 |
+| Day 18 | `tools.py` 中两个新函数、`day18_multi_tools_exercises.py` | **学员做** | 实现模拟天气与真实订单查询，再写三工具说明、分发和自动选择闭环；答案留空 |
+| Day 18 | `day18_工具选择记录.md` | **学员填** | 第一轮选择的真实记录，以及三次尝试找选错工具的案例；没观察到就如实记 |
 | Day 16 | `day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次（留了空，会大声报 `NotImplementedError`） |
 | Day 16 | `day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
 
@@ -76,6 +80,13 @@
 # Day 17 加餐：模型怎么选工具（离线看机制；--live 跑六轮实测）
 .venv\Scripts\python.exe weeks\week02_tools\day17_tool_choice_demo.py
 .venv\Scripts\python.exe weeks\week02_tools\day17_tool_choice_demo.py --live
+
+# Day 18：先看讲解；演示会生成可重复的 SQLite 练习库
+.venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_demo.py
+
+# Day 18：先做 tools.py 里的两个函数，再做三工具说明、分发和闭环
+.venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_exercises.py --live
 ```
 
 学员做完练习和记录后，交给 AI 对答案、挑毛病。
@@ -102,7 +113,7 @@
 - [x] Day 15｜结构化输出，从杂乱文本抽 JSON，统计成功率（实测 10 条：解析 10/10 = 100%、字段 7/10 = 70%；第 9 条另补跑 3 次，见 `day15_抽取成功率记录.md`）
 - [x] Day 16｜Pydantic 校验与失败重试（把抽取结果用模型接收；四条脏数据不崩，失败自动回填重试一次——注入式验证实测走通；三条真实文本一次通过）
 - [x] Day 17｜第一个工具（计算器），跑通最小闭环，画流程图（实测两条问题各走 2 步 / 1 步；流程图见 `day17_工具调用流程图.md`）
-- [ ] Day 18｜多工具与工具选择，记录选错工具的案例
+- [ ] Day 18｜多工具与工具选择，记录选错工具的案例（脚手架已备好，等学员完成）
 - [ ] Day 19｜错误回填让模型自纠，加最大重试次数
 - [ ] Day 20｜整合 + README + 演示视频
 - [ ] Day 21｜白板默画工具调用回合（限时 5 分钟）
