@@ -240,6 +240,74 @@ say(
 )
 
 
+# ============================================================
+section("8. 附：模型给的 name，是怎么变成「真正被执行的函数」的")
+# ============================================================
+
+say(
+    "  模型只给你一个字符串：'calculator'。要把它变成「调用 calculator(...)」，",
+    "  Python 里没有自动的魔法——**是你自己建一张表，然后查表**：",
+    "",
+)
+
+# 名字 → 函数 的对照表。这就是「工具箱」在代码里的样子：一个 dict。
+# 表里放的是函数对象本身（不带括号），不是调用结果。
+TOOL_TABLE = {"calculator": calculator}
+
+name = "calculator"
+arguments = {"expression": "347 * 28"}
+
+# dict.get(name)：查到了给函数，查不到给 None（比 TOOL_TABLE[name] 安全，
+# 后者查不到会抛 KeyError）
+function = TOOL_TABLE.get(name)
+print(f"  查表：TOOL_TABLE.get({name!r}) -> {function}")
+
+# function(**arguments)：** 是把 dict **拆成关键字参数**，
+# 等价于 function(expression="347 * 28")。注意 arguments 是 dict 才行。
+print(f"  调用：function(**{arguments}) -> {function(**arguments)}")
+print(
+    f"  等价于手写：calculator(expression='347 * 28') -> {calculator(expression='347 * 28')}"
+)
+
+say(
+    "",
+    "  三个要点：",
+    "   ① 表里的值放**函数对象**（`calculator`），不是调用结果（`calculator()`）；",
+    "   ② `**arguments` 是「把 dict 拆成关键字参数」，所以 dict 的键要和函数的参数名对上",
+    "      （模型填的键名来自你写的 parameters，这就是两份东西必须对齐的原因）；",
+    "   ③ 查不到就抛错，别让它悄悄过去：",
+    "",
+)
+
+try:
+    TOOL_TABLE["get_weather"]  # 不存在的名字
+except KeyError as error:
+    print(f"      TOOL_TABLE['get_weather'] -> KeyError: {error}")
+print(
+    "      所以练习第 2 题里用 .get() 查、查到 None 就 raise ValueError——"
+    "\n      这条错误以后要回填给模型（Day 19）。"
+)
+
+say(
+    "",
+    "  为什么不用 eval(name) 去「动态执行」？",
+    "    name 是**模型给的字符串**，属于不可信输入。eval 会把它当代码跑，",
+    "    模型哪天说一句 name=\"__import__('os').system('...')\"，你的机器就照做。",
+    "    查表的写法天然安全：名字不在表里，就什么都执行不了——白名单，不是黑名单。",
+    "",
+    "  Day 18 会往表里加两个工具（查天气、查数据库）。表变长以后，",
+    "  与其手写三行，不如从模块里自动收集：",
+    "",
+    "      import tools                                    # 或者 from tools import ...",
+    "      TOOL_TABLE = {",
+    "          name: getattr(tools, name)                  # getattr(对象, 名字)：按名字取属性",
+    '          for name in ("calculator", "get_weather", "query_sales")',
+    "      }",
+    "      # 注意：名字清单还是得你自己列——不能拿模型给的 name 直接 getattr，",
+    "      # 那等于把白名单又变回了黑名单。",
+)
+
+
 if LIVE:
     section("--live：真跑一轮（第一次请求 + 回填 + 第二次请求）")
 
