@@ -19,6 +19,10 @@
 | Day 16 | `day16_regex_demo.py` | AI 搭・学员跑 | 加餐：`re.fullmatch` 是什么、`\d{11}` 怎么读、`search`/`match`/`fullmatch` 的区别，以及「全角数字能绕过 11 位数字校验」这个真坑，完全离线 |
 | Day 16 | `day16_model_validate_demo.py` | AI 搭・学员跑 | 加餐：`PersonExtract.model_validate_json(raw)` 到底做了什么——把黑盒拆成三步（解析 → 逐字段校验 → 造实例），每步都打印出来；含「字段缺失 / 多余字段」为什么不算错，完全离线 |
 | Day 16 | `day16_retry_probe.py` | AI 搭・学员跑 | 工具：**零成本**验证「重试有没有真的重发请求」——把 `chat_json` 换成假函数，数它被调用了几次。写完第 3 题后跑它自测，不用花一分钱 |
+| Day 17 | `day17_tool_calling_demo.py` | AI 搭・学员跑 | 工具调用：模型不自己算，它「点单」你来「上菜」——五步闭环、真实两轮返回、七个坑（含「JSON 模式不能和 tools 混用」的实测），离线可跑，`--live` 真跑一轮 |
+| Day 17 | `tools.py` | AI 搭 | 工具箱：里面是**真能执行**的函数。今天只有 `calculator()`（ast 安全求值，不用 eval）；Day 18 往里加查天气、查 SQLite |
+| Day 17 | `day17_tool_calling_exercises.py` | **学员做** | 三题：写工具说明（JSON Schema）→ 执行模型点的那一单 → 把完整闭环串起来 |
+| Day 17 | `day17_工具调用流程图.md` | **学员填** | Day 17 交付物：把这次工具的完整回合画成流程图，标清每一步谁在执行 |
 | Day 16 | `day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次（留了空，会大声报 `NotImplementedError`） |
 | Day 16 | `day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
 
@@ -56,6 +60,16 @@
 
 # Day 16 自测：重试到底有没有重发请求（零成本，不发真实网络请求）
 .venv\Scripts\python.exe weeks\week02_tools\day16_retry_probe.py
+
+# Day 17 讲解：工具调用（默认离线；里面的返回是真跑抓下来的）
+.venv\Scripts\python.exe weeks\week02_tools\day17_tool_calling_demo.py
+
+# 真想看一轮完整回合（要网络，2 次请求）
+.venv\Scripts\python.exe weeks\week02_tools\day17_tool_calling_demo.py --live
+
+# Day 17 练习：第 1、2 题离线自测；第 3 题真问模型两个问题
+.venv\Scripts\python.exe weeks\week02_tools\day17_tool_calling_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\day17_tool_calling_exercises.py --live
 ```
 
 学员做完练习和记录后，交给 AI 对答案、挑毛病。

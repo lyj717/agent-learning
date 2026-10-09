@@ -16,6 +16,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from openai import OpenAI
+from openai.types.chat import ChatCompletionMessage
 
 # 这个文件在 weeks/week02_tools/ 里，往上两层是仓库根目录
 ROOT = Path(__file__).resolve().parents[2]
@@ -80,3 +81,34 @@ def chat_json(
     )
     choice = response.choices[0]
     return choice.message.content or "", choice.finish_reason or ""
+
+
+def chat_with_tools(
+    messages: list[dict],
+    tools: list[dict],
+    *,
+    client: OpenAI | None = None,
+    model: str | None = None,
+    max_tokens: int = DEFAULT_MAX_TOKENS,
+) -> ChatCompletionMessage:
+    """发一次请求（带上工具说明），把模型的**整个 message 对象**返回给你。
+
+    工具调用专用，和上面 chat_json 的区别值得记牢：
+      · chat_json 写死了 `response_format={"type": "json_object"}`——那是让**正文**
+        变成 JSON（Day 15 学的）。
+      · 工具调用要的是模型在 `tool_calls` 字段里「点单」，正文可以是空。
+      两个一起发会打架：实测（2026-10-09，deepseek-flash）不报错，但
+      finish_reason='stop'、tool_calls=None，正文里吐出一段带内部标记、
+      根本没法解析的残渣。所以工具调用这条路不用 JSON 模式。
+
+    拿到返回后：`message.tool_calls` 是空的 → 这就是最终回答，看 `message.content`；
+    不为空 → 它点了单，你要去执行（见练习第 2、3 题）。
+    """
+    client = client or make_client()
+    response = client.chat.completions.create(
+        model=model or os.environ.get("LLM_MODEL", "deepseek-flash"),
+        messages=messages,
+        tools=tools,
+        max_tokens=max_tokens,
+    )
+    return response.choices[0].message
