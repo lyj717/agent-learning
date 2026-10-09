@@ -234,3 +234,35 @@ print(
   · **同样的输入不保证同样的选择**：Day 8 那条「temperature=0 也复现不了」在这里同样成立，
     所以别靠一次运行下结论。"""
 )
+
+
+# ============================================================
+section("5. 你能插手的旋钮：tool_choice（实测四种取值）")
+# ============================================================
+
+print(
+    """  前面六轮都是「它自己决定」。如果你想插手，API 给了 `tool_choice` 这个参数：
+
+      auto（默认，有工具时）  它自己决定：可以不点、点一个、点多个
+      none                   这一轮禁止点工具，只能给文字回答
+      required               必须点，不许只回文字
+      {"type": "function", "function": {"name": "calculator"}}   强制只用这一个
+
+  文档还写了一条本地限制：**思考模式下不支持 required 和「指定具体工具」**。
+  2026-10-09 实测（deepseek-flash，默认开思考模式）：
+
+      tool_choice="required"           → 400 BadRequestError：
+                                          Thinking mode does not support this tool_choice
+      tool_choice={"type":"function",  → 同样的 400
+                   "function":{"name":"calculator"}}
+      tool_choice="none" / "auto"      → 正常，不点工具（那轮问的是「你好呀」）
+
+  绕法：先把思考模式关掉，再传 required。实测（同一句问候语）：
+
+      thinking={"type": "disabled"} + tool_choice="required"
+        → finish_reason='tool_calls'，它点了 calculator，
+          参数是它自己编的 {"expression": "1"}
+
+  最后那行很值得看：**「必须用工具」这种硬要求，会逼它编一个假参数出来交差**。
+  所以 required 只在「确定这一轮就该调工具」时才用，别当默认。"""
+)

@@ -92,7 +92,6 @@ def chat_with_tools(
     max_tokens: int = DEFAULT_MAX_TOKENS,
 ) -> ChatCompletionMessage:
     """发一次请求（带上工具说明），把模型的**整个 message 对象**返回给你。
-
     工具调用专用，和上面 chat_json 的区别值得记牢：
       · chat_json 写死了 `response_format={"type": "json_object"}`——那是让**正文**
         变成 JSON（Day 15 学的）。
@@ -100,7 +99,6 @@ def chat_with_tools(
       两个一起发会打架：实测（2026-10-09，deepseek-flash）不报错，但
       finish_reason='stop'、tool_calls=None，正文里吐出一段带内部标记、
       根本没法解析的残渣。所以工具调用这条路不用 JSON 模式。
-
     拿到返回后：`message.tool_calls` 是空的 → 这就是最终回答，看 `message.content`；
     不为空 → 它点了单，你要去执行（见练习第 2、3 题）。
     """
