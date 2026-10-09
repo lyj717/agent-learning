@@ -362,6 +362,60 @@ say(
 )
 
 
+# ============================================================
+section("10. 附：`messages.append(message.model_dump(exclude_none=True))` 在干什么")
+# ============================================================
+
+print(
+    """  拆成三段读：`messages.append(  message  .model_dump(  exclude_none=True  )  )`
+
+    ① `message` —— chat_with_tools() 返回的那个对象（类型 ChatCompletionMessage）。
+       它**不是 dict**，是 OpenAI SDK 自己的 Pydantic 模型。
+    ② `.model_dump(exclude_none=True)` —— 把它转成 dict，并且**把值为 None 的键删掉**
+       （model_dump 是 Day 16 学的那个方法；OpenAI 的返回也是 Pydantic 模型，所以同样能用）
+    ③ `.append(...)` —— 把这份 dict 追加到 messages 里，成为对话历史的一条 assistant 消息
+
+  为什么要 ② 的 `exclude_none=True`？看实测（2026-10-09 抓的真实返回）："""
+)
+
+print(
+    """
+    不带 exclude_none：
+      {'content': '', 'refusal': None, 'role': 'assistant', 'annotations': None,
+       'audio': None, 'function_call': None,
+       'tool_calls': [...], 'reasoning_content': 'The user asks: 347 × 28. ...'}
+
+    带 exclude_none=True：
+      {'content': '', 'role': 'assistant',
+       'tool_calls': [...], 'reasoning_content': '...'}
+"""
+)
+
+print(
+    """  差的那些键（refusal / annotations / audio / function_call）全是 None——
+  它们是 SDK 按「OpenAI 全量规范」列出来的字段，这次请求压根没用上。
+  留着它们没意义，还多一层「服务端认不认这些键」的风险，所以干脆删掉。
+  （注意：`'content': ''` 是**空字符串**，不是 None，所以它留下来了。）"""
+)
+
+print(
+    """\n  那为什么非得把它 append 回去？因为下一轮你要发一条 `role: "tool"` 的消息，
+  而服务端要求它**必须**跟在一个带 tool_calls 的 assistant 消息后面。实测不带："""
+)
+
+print(
+    """      400 BadRequestError: Messages with role 'tool' must be a response to a
+      preceding message with 'tool_calls' (request_id: 59d84b34-...)
+"""
+)
+
+print(
+    """  这就是「原样放回」的全部意义：让 tool 消息有个「上文」可对。
+  模型那边是无状态的，它靠 `tool_calls[].id` 认出「这条结果是给我哪一次点单的」——
+  所以 assistant 那条里的 id 一个字都不能改。"""
+)
+
+
 if LIVE:
     section("--live：真跑一轮（第一次请求 + 回填 + 第二次请求）")
 
@@ -394,7 +448,11 @@ if LIVE:
         print(f"    json.loads 之后 = {args}")
         print(f"    本地执行 → {result}")
 
-        messages.append(choice.message.model_dump(exclude_none=True))
+        raw_dump = choice.message.model_dump()
+        clean_dump = choice.message.model_dump(exclude_none=True)
+        print(f"    model_dump() 的键：{sorted(raw_dump)}")
+        print(f"    exclude_none 之后：{sorted(clean_dump)}")
+        messages.append(clean_dump)
         messages.append(
             {"role": "tool", "tool_call_id": call.id, "content": str(result)}
         )
