@@ -42,101 +42,71 @@
 import json
 import sys
 
-# 下面这几个名字是写题时才用到的（现在写着会被 ruff 当成「导入了没用」）：
-#   第 2 题 execute_tool_call 里要用 calculator
-#   第 3 题 ask_with_tools 里要用 chat_with_tools 和 make_client
-# 写到哪一题，就把对应那行的 `#` 去掉：
-# from tools import calculator
-# from llm_client import chat_with_tools, make_client
-# （顺带提醒：**别对这个文件跑 `ruff check --fix`**——它会把「还没用到」的 import
-#   当垃圾删掉，你写到那儿就找不到名字了，Day 16 踩过一次。）
+from llm_client import chat_with_tools, make_client
+from tools import calculator
 
 LIVE = "--live" in sys.argv
 
+TOOL_TABLE = {"calculator": calculator}
+
 
 def build_tools() -> list[dict]:
-    """第 1 题：写「给模型看的工具说明」，也就是 tools 参数要传的那个列表。
-
-    要做的：
-      · 返回一个 list，里面**一个** dict，形状是官方那套：
-            {"type": "function",
-             "function": {"name": ..., "description": ..., "parameters": {...}}}
-      · name 就叫 "calculator"（要和 tools.py 里的函数名对上，你执行时靠它找函数）
-      · description 用一句话说清「它是干什么的、什么时候该用它」
-      · parameters 是一份 JSON Schema，形状：
-            {"type": "object",
-             "properties": {"expression": {"type": "string", "description": "..."}},
-             "required": ["expression"]}
-        注意 property 名 "expression" 要和 calculator 的参数名一致。
-
-    期望结果：主程序会把你这份说明打印出来（键名齐、description 是人话就行）；
-      判断对不对的硬标准——第 3 题真跑时，模型能照着它正确点单。
-    提示：演示脚本第 4 节打印过一份**能用的**说明，照那个形状写；
-      但别复制粘贴，Day 18 你要自己写第二、第三个工具的说明（那时没人给样板）。
-    """
-    raise NotImplementedError("第 1 题还没写")
+    """拼出 tools 参数：给模型看的工具说明（一份 JSON Schema）。"""
+    TOOLS = [
+        {
+            "type": "function",
+            "function": {
+                "name": "calculator",
+                "description": "计算一个数学算式，支持 + - * / 和括号。需要做算术时用它。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "expression": {
+                            "type": "string",
+                            "description": '要计算的算式，例如 "347 * 28" 或 "(12+34)/2"',
+                        }
+                    },
+                    "required": ["expression"],
+                },
+            },
+        }
+    ]
+    return TOOLS
 
 
 def execute_tool_call(name: str, arguments: str) -> str:
-    """第 2 题：执行模型点的那一单，返回「要回填给模型的字符串」。
-
-    参数就是模型返回的那两样：
-      name —— 工具名，例如 "calculator"
-      arguments —— **一段 JSON 文本**，例如 '{"expression": "347 * 28"}'
-
-    要做的：
-      · 先把 arguments 用 json.loads 变成 dict（它可能不是合法 JSON，别吞异常）
-      · 按 name 找到对应的函数执行：目前只有 calculator 一个
-      · 把结果返回成**字符串**（模型那边收的就是字符串，见演示第 6 节坑三）
-      · 遇到不认识的工具名，抛 ValueError，消息里写清是哪个名字
-
-    期望结果（主程序会离线跑这几条）：
-      execute_tool_call("calculator", '{"expression": "347 * 28"}')   -> "9716"
-      execute_tool_call("calculator", '{"expression": "(12+34)/2"}')  -> "23.0"
-      execute_tool_call("get_weather", "{}")                          -> ValueError
-    提示：算出来是 float，要 str() 一下；返回值是字符串 "9716" 而不是数字 9716。
-    """
-    raise NotImplementedError("第 2 题还没写")
+    """执行模型点的那一单（名字 + 参数 JSON 文本），返回要回填给模型的字符串。"""
+    # 这里**不**包 try/except：json.loads 遇到坏 JSON 会自己抛 JSONDecodeError，
+    # 让它照原样往上抛就行（「别吞异常」的意思就是这个）。写 `except X: raise` 属于空操作，
+    # ruff 的 TRY203 会把它挑出来。
+    text = json.loads(arguments)
+    function = TOOL_TABLE.get(name)
+    if function is None:
+        raise ValueError(f"没有这个工具!工具名为{name}")
+    return str(function(**text))
 
 
 def ask_with_tools(question: str, *, max_rounds: int = 3) -> str:
-    """第 3 题：完整闭环——问一句，需要工具就执行并回填，直到模型给出答复。
-
-    这一题是把前面两件事串成一个循环。用大白话说：
-
-        发请求（带上工具说明）
-            ↓
-        看 message.tool_calls
-            ↓
-        是空的 → 它就是最终回答，把 message.content 返回，结束
-            ↓ 不空（它点单了）
-        把 assistant 那条原样放回对话
-        逐个执行它点的工具，每条结果用 role="tool" 回填
-            ↓
-        回到第一步，再发一次（这时的输入里已经有工具结果了）
-
-    落到代码上：
-      1. client = make_client()
-      2. messages = [{"role": "user", "content": question}]
-      3. 循环 max_rounds 次：
-           message = chat_with_tools(messages, build_tools(), client=client)
-           if not message.tool_calls:            # 没点单，这就是答案
-               return message.content or ""
-           messages.append(message.model_dump(exclude_none=True))   # 原样放回
-           for call in message.tool_calls:
-               result = execute_tool_call(call.function.name, call.function.arguments)
-               messages.append({"role": "tool", "tool_call_id": call.id, "content": result})
-      4. 圈数用完还没答案 → 返回一句说明（别抛异常，也别死循环）
-
-    期望结果（--live 两条）：
-      · "帮我算一下 347 × 28 等于多少？" → 回答里出现 9716；
-        你能看到它先点单（finish_reason=tool_calls 或 tool_calls 非空），再给答复
-      · "你好，你是谁？" → 压根不需要工具，一轮就回答
-    提示：`message.model_dump(exclude_none=True)` 是把对象转成 dict（Day 16 学的
-      `model_dump`，OpenAI 的返回也是 Pydantic 模型）；少了 assistant 那条，
-      或者 tool_call_id 对不上，第二轮会 400。
-    """
-    raise NotImplementedError("第 3 题还没写")
+    """完整闭环：问一句，需要工具就执行并回填，直到模型给出答复。"""
+    client = make_client()
+    messages = [{"role": "user", "content": question}]
+    for round_no in range(1, max_rounds + 1):
+        message = chat_with_tools(messages, build_tools(), client=client)
+        if not message.tool_calls:
+            return message.content or ""
+        messages.append(message.model_dump(exclude_none=True))
+        for call in message.tool_calls:
+            result = execute_tool_call(call.function.name, call.function.arguments)
+            messages.append(
+                {"role": "tool", "tool_call_id": call.id, "content": result}
+            )
+            # 把这一轮的轨迹打出来（填交付物那张表要用）。缩进对齐上面的「我问 / 它答」，
+            # 每条信息自带标签——裸着 print 两个值，夹在输出里根本认不出哪个是哪个。
+            print(f"     [第 {round_no} 轮] 它点了 {call.function.name}")
+            print(f"        id        = {call.id}")
+            print(f"        arguments = {call.function.arguments}")
+            print(f"        → 本地执行 = {result}")
+    return "模型调用失败，请重试！"
 
 
 if __name__ == "__main__":
@@ -171,4 +141,6 @@ if __name__ == "__main__":
     else:
         for question in ["帮我算一下 347 × 28 等于多少？", "你好，你是谁？"]:
             print(f"\n  ── 我问：{question}")
-            print(f"     它答：{ask_with_tools(question)}")
+            # 答案可能是多行的；换行后也补上缩进，免得第二行顶到最左边、看着像另一段输出
+            answer = ask_with_tools(question)
+            print("     它答：" + answer.replace("\n", "\n           "))
