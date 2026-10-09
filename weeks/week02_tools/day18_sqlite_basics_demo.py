@@ -106,10 +106,12 @@ print(
 city = "杭州"
 status = "paid"
 filter_sql = "SELECT id, city, amount FROM orders WHERE city = ? AND status = ?"
-print("运行的 SQL：", filter_sql)
-print(f"传给两个 ? 的值：{(city, status)}")
+print("execute() 的第 1 个入参是固定 SQL：", filter_sql)
+print(f"execute() 的第 2 个入参是值元组：{(city, status)}")
+print("  元组第 1 个值「杭州」填 SQL 第 1 个 ?；第 2 个值「paid」填第 2 个 ?。")
 cursor = connection.execute(filter_sql, (city, status))
 matched_rows = cursor.fetchall()
+print(f"杭州查询的 fetchall()：{matched_rows}")
 for row in matched_rows:
     print(f"  筛中：{row}")
 count = len(matched_rows)
@@ -117,8 +119,18 @@ total = 0
 for row in matched_rows:
     total += row[2]  # 这次 SELECT 的第 3 列是 amount，所以用索引 2。
 print(f"Python 统计：{count} 单，共 {total:g} 元")
+
+print("再用同一条 SQL 查一个没有订单的城市，只换值元组：")
+missing_city = "深圳"
+missing_rows = connection.execute(filter_sql, (missing_city, status)).fetchall()
+missing_count = len(missing_rows)
+missing_total = 0
+for row in missing_rows:
+    missing_total += row[2]
+print(f"  深圳查询的 fetchall()：{missing_rows}")
+print(f"  统计：{missing_count} 单，共 {missing_total:g} 元")
 print(
-    "注意：把 city 当第二个参数传入，而不是拼进 SQL。没查到时 fetchall() 是空列表，笔数和金额都是 0。"
+    "注意：SQL 字符串一直没改；城市名作为值单独传入。查不到时结果是 []，所以循环一次也不执行。"
 )
 
 
