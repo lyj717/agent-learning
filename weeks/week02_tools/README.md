@@ -23,7 +23,8 @@
 | Day 17 | `tools.py` | AI 搭 | 工具箱：里面是**真能执行**的函数。今天只有 `calculator()`（ast 安全求值，不用 eval）；Day 18 往里加查天气、查 SQLite |
 | Day 17 | `day17_tool_calling_exercises.py` | **学员做** | 三题：写工具说明（JSON Schema）→ 执行模型点的那一单 → 把完整闭环串起来 |
 | Day 17 | `day17_工具调用流程图.md` | **学员填** | Day 17 交付物：把这次工具的完整回合画成流程图，标清每一步谁在执行 |
-| Day 17 | `day17_tool_choice_demo.py` | AI 搭・学员跑 | 加餐：**模型怎么知道该调哪个工具**——六轮实测（同问题只改工具名和描述），证明它靠名字+参数名+描述一起判断；含「描述一改，它就说自己没这个能力了」的证据 |
+| Day 17 | `day17_tool_choice_demo.py` | AI 搭・学员跑 | 加餐：**模型怎么知道该调哪个工具**——六轮实测（同问题只改工具名和描述），证明它靠名字+参数名+描述一起判断；第 5 节是 `tool_choice` 四种取值的实测（含「思考模式下 required 会 400」这条坑） |
+| Day 17 | `day17_parameters_demo.py` | AI 搭・学员跑 | 加餐：`parameters` 里到底写什么——JSON Schema 逐键讲解（properties / required / description / enum / 嵌套），含「写得细 vs 写得糊」的实测对比（糊的那份拿到空参数 `{}`） |
 | Day 16 | `day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次（留了空，会大声报 `NotImplementedError`） |
 | Day 16 | `day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
 
