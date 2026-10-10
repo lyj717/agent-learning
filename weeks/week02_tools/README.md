@@ -19,6 +19,8 @@
 | Day 16 | `day16_regex_demo.py` | AI 搭・学员跑 | 加餐：`re.fullmatch` 是什么、`\d{11}` 怎么读、`search`/`match`/`fullmatch` 的区别，以及「全角数字能绕过 11 位数字校验」这个真坑，完全离线 |
 | Day 16 | `day16_model_validate_demo.py` | AI 搭・学员跑 | 加餐：`PersonExtract.model_validate_json(raw)` 到底做了什么——把黑盒拆成三步（解析 → 逐字段校验 → 造实例），每步都打印出来；含「字段缺失 / 多余字段」为什么不算错，完全离线 |
 | Day 16 | `day16_retry_probe.py` | AI 搭・学员跑 | 工具：**零成本**验证「重试有没有真的重发请求」——把 `chat_json` 换成假函数，数它被调用了几次。写完第 3 题后跑它自测，不用花一分钱 |
+| Day 16 | `day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次 |
+| Day 16 | `day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
 | Day 17 | `day17_tool_calling_demo.py` | AI 搭・学员跑 | 工具调用：模型不自己算，它「点单」你来「上菜」——五步闭环、真实两轮返回、七个坑（含「JSON 模式不能和 tools 混用」的实测），离线可跑，`--live` 真跑一轮 |
 | Day 17 | `tools.py` | AI 搭 | 工具箱：里面是**真能执行**的函数。今天只有 `calculator()`（ast 安全求值，不用 eval）；Day 18 往里加查天气、查 SQLite |
 | Day 17 | `day17_tool_calling_exercises.py` | **学员做** | 三题：写工具说明（JSON Schema）→ 执行模型点的那一单 → 把完整闭环串起来 |
@@ -30,8 +32,10 @@
 | Day 18 | `day18_seed_db.py` | AI 搭 | 重建六条订单的本地 SQLite 练习库；生成的 `.sqlite` 文件不提交 |
 | Day 18 | `tools.py` 中两个新函数、`day18_multi_tools_exercises.py` | **学员做** | 已实现模拟天气与 SQLite 订单查询、三工具说明、分发和自动选择闭环 |
 | Day 18 | `day18_工具选择记录.md` | **学员填** | 第一轮选择的真实记录，以及模糊问法引发多余工具调用的对照案例 |
-| Day 16 | `day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次（留了空，会大声报 `NotImplementedError`） |
-| Day 16 | `day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
+| Day 19 | `day19_error_recovery_demo.py` | AI 搭・学员跑 | 完全离线：真实本地异常、错误回填、改参数示意、最大轮数和不可修复错误 |
+| Day 19 | `day19_error_recovery_exercises.py` | **学员做** | 两题：把本地异常变成 tool 结果；在有上限的循环里回填并观察真实模型 |
+| Day 19 | `day19_error_recovery_probe.py` | AI 搭・学员跑 | 零成本检查：失败后继续、调用 ID 配对、同轮多个工具、轮数上限 |
+| Day 19 | 根目录 `FAILURES.md` | **学员填** | 记录今天真实遇到的故障、原因、修复和学到的东西；不要把离线演示冒充实测 |
 
 跑法（在仓库根目录）：
 
@@ -91,6 +95,14 @@
 # Day 18：先做 tools.py 里的两个函数，再做三工具说明、分发和闭环
 .venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_exercises.py
 .venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_exercises.py --live
+
+# Day 19：先看离线讲解，再做两题；完成后用假模型检查消息回填
+.venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_probe.py
+
+# Day 19：最后才运行真实模型，并把真实故障写进根目录 FAILURES.md
+.venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_exercises.py --live
 ```
 
 学员做完练习和记录后，交给 AI 对答案、挑毛病。
@@ -113,6 +125,7 @@ SQLite 刚入门时，先跑 `day18_sqlite_basics_demo.py` 的第 1～5 节。�
 |---|---|---|
 | `response_format` | Day 15、Day 16 | JSON 模式怎么开；文档明确要求**同时**在 system 或 user 里写要 JSON，否则模型可能一直吐空白直到把 `max_tokens` 用光；`finish_reason=length` 时 JSON 会被截断 |
 | `tools` | Day 17 ~ Day 19 | 工具怎么描述成一段 JSON schema；模型返回的不是答案，而是「请你执行这个函数」 |
+| `tool_calls[].id` 与 `tool` 消息的 `tool_call_id` | Day 19 | 工具成功或失败都要用同一个 ID 回填；见下方 Tool Calls 指南 |
 | `tool_choice` | Day 18 | 怎么强制或禁止模型用工具（`auto` / `none` / 指定某个工具） |
 | 函数定义里的 `strict` | Day 16、Day 19 | Beta 能力：保证输出严格符合你给的 schema——它是「JSON 模式」的加强版 |
 | `finish_reason` | Day 15 ~ Day 19 | `stop` / `length` / `tool_calls` 各代表什么；`tool_calls` 就是 Agent 循环的起点 |
@@ -120,13 +133,15 @@ SQLite 刚入门时，先跑 `day18_sqlite_basics_demo.py` 的第 1～5 节。�
 读法建议：Day 15 只需要看 `response_format` 一节，5 分钟够。
 写完提取器再回头看 `strict`，你会发现它解决的正是你踩到的坑。
 
+Day 19 另读 [DeepSeek Tool Calls 官方指南](https://api-docs.deepseek.com/zh-cn/guides/tool_calls/) 的「非思考模式／样例代码」：只看保存 assistant 点单、回填 `role: tool` 和 `tool_call_id` 的几行。再看上面 API 文档里 `tool_calls[].function.arguments` 的说明：模型给的参数可能不是有效 JSON，或带有未定义参数，所以本地执行仍要处理错误。`strict` 约束的是参数格式，不能保证计算器支持 `**`、城市一定在模拟表里；今天先不改成 strict 模式。
+
 ## 每日清单
 
 - [x] Day 15｜结构化输出，从杂乱文本抽 JSON，统计成功率（实测 10 条：解析 10/10 = 100%、字段 7/10 = 70%；第 9 条另补跑 3 次，见 `day15_抽取成功率记录.md`）
 - [x] Day 16｜Pydantic 校验与失败重试（把抽取结果用模型接收；四条脏数据不崩，失败自动回填重试一次——注入式验证实测走通；三条真实文本一次通过）
 - [x] Day 17｜第一个工具（计算器），跑通最小闭环，画流程图（实测两条问题各走 2 步 / 1 步；流程图见 `day17_工具调用流程图.md`）
 - [x] Day 18｜多工具与工具选择（天气、SQLite 和三工具闭环已跑通；记录了模糊问法多调用订单工具及改写后的对照）
-- [ ] Day 19｜错误回填让模型自纠，加最大重试次数
+- [ ] Day 19｜错误回填让模型自纠，加最大重试次数（演示、练习与离线自测已备好；等学员完成并在 FAILURES.md 记录真实故障）
 - [ ] Day 20｜整合 + README + 演示视频
 - [ ] Day 21｜白板默画工具调用回合（限时 5 分钟）
 
