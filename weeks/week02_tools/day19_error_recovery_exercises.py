@@ -1,65 +1,53 @@
-"""Day 19 练习：本地工具失败后，把错误回填给模型，让它在轮数上限内自纠。
+"""Day 19：本地工具失败后回填错误，并限制模型请求轮数。
 
-先跑离线演示，再做本文件：
-    .venv\\Scripts\\python.exe weeks\\week02_tools\\day19_error_recovery_demo.py
-    .venv\\Scripts\\python.exe weeks\\week02_tools\\day19_error_recovery_exercises.py
-完成两题后再加 --live（会发真实请求）：
-    .venv\\Scripts\\python.exe weeks\\week02_tools\\day19_error_recovery_exercises.py --live
-
-Day 18 已有三个工具和完整闭环。今天只增加「本地异常变成 tool 结果」及
-「达到最大请求轮数就停」。观察与结论请写进仓库根目录的 FAILURES.md，
-本文件末尾不用再写一份。模型是否真的改参数，以你运行时的轨迹为准。
+直接运行只调用本地工具；加 --live 会请求真实模型。
+学员的运行观察保存在文件末尾。
 """
 
 import sys
 
+from day18_multi_tools_exercises import build_tools, execute_tool_call
 from day18_seed_db import seed_db
-
-# 写第 1 题时取消下一行：execute_tool_call(工具名, JSON 参数字符串)
-# 来自 Day 18；成功返回字符串，失败时抛异常。
-# from day18_multi_tools_exercises import execute_tool_call
-
-# 写第 2 题时取消下面两行：build_tools() 返回三份工具说明；
-# make_client() 建客户端，chat_with_tools(messages, tools, client=...) 发一次模型请求。
-# from day18_multi_tools_exercises import build_tools
-# from llm_client import chat_with_tools, make_client
+from llm_client import chat_with_tools, make_client
 
 LIVE = "--live" in sys.argv
 
 
 def tool_result_or_error(name: str, arguments: str) -> str:
-    """第 1 题：本地工具成功就返回结果，失败就返回可回填的错误文字。
-
-    要做的：调用 Day 18 的 execute_tool_call(name, arguments)。只用 try/except
-    包住这次本地执行；成功时原样返回，异常时返回
-    `工具执行失败：异常类名: 异常内容`。不要在这里调用模型，也不要吞掉异常后返回空串。
-    期望结果：calculator 收到 `12 ** 2` 时得到以「工具执行失败：」开头的文字；
-    收到 `12 * 12` 时得到字符串 `144`。未知工具、坏 JSON 也应变成错误文字。
-    提示：`type(error).__name__` 是异常类名；`str(error)` 是具体原因。
-    为了覆盖本仓库三个本地工具可能抛出的错误，可以在**本函数内部**捕获
-    `Exception`；别把发模型请求的 `chat_with_tools` 也包进这个 try。
-    顶部已留好 execute_tool_call 的注释 import，写本题时取消注释。
-    """
-    raise NotImplementedError("第 1 题：还没把本地工具异常变成回填文字")
+    """执行本地工具；成功返回结果，失败返回可回填的错误文字。"""
+    try:
+        return execute_tool_call(name, arguments)
+    except Exception as error:  # noqa: BLE001  本地工具的不同异常都要回填给模型。
+        return f"工具执行失败：{type(error).__name__}: {error!s}"
 
 
 def ask_with_recovery(question: str, *, max_rounds: int = 3) -> str:
-    """第 2 题：在限定模型请求轮数内执行工具、回填结果或错误，并返回答复。
-
-    要做的：沿用 Day 18 的 ask_with_tools() 循环；这次每个 tool_call 用
-    tool_result_or_error(name, arguments) 取得结果，按原 call.id 回填。
-    每轮打印轮次、工具名、原始参数、调用 ID、本地结果或错误。若模型没有继续点
-    工具，就返回它的 content；循环用尽则明确返回「达到最大轮数」。
-    期望结果：第一轮工具报错后，第二轮仍能请求模型；模型给出新工具调用就继续
-    执行，给出最终答复就结束；一直点错时，最多请求 max_rounds 次。
-    提示：max_rounds 数的是**模型请求**，不是 tool_calls 个数。一轮有两个
-    tool_calls 时，要先保存整条 assistant 消息，再给两个 call 分别回填
-    `{"role": "tool", "tool_call_id": call.id, "content": result}`。
-    assistant 消息用 `message.model_dump(exclude_none=True)` 原样加入 messages。
-    make_client、chat_with_tools 和 build_tools 的注释 import 已在顶部，写本题时
-    取消注释。不要捕获 chat_with_tools 的网络/API 错误来冒充本地工具错误。
-    """
-    raise NotImplementedError("第 2 题：还没接上错误回填和轮数上限")
+    """请求模型、执行并回填工具结果，在轮数上限内返回最终答复。"""
+    istoolcall = False
+    client = make_client()
+    messages = [{"role": "user", "content": question}]
+    rounds = 0
+    for round_no in range(1, max_rounds + 1):
+        rounds = round_no
+        message = chat_with_tools(messages, build_tools(), client=client)
+        if not message.tool_calls:
+            if istoolcall is False:
+                print("本次未调用工具")
+            return message.content or ""
+        messages.append(message.model_dump(exclude_none=True))
+        for call in message.tool_calls:
+            istoolcall = True
+            result = tool_result_or_error(call.function.name, call.function.arguments)
+            messages.append(
+                {"role": "tool", "tool_call_id": call.id, "content": result}
+            )
+            print(f"     [第 {round_no} 轮] 它点了 {call.function.name}")
+            print(f"        id        = {call.id}")
+            print(f"        arguments = {call.function.arguments}")
+            print(f"        → 本地执行 = {result}")
+    if rounds == max_rounds:
+        return "达到最大轮数！"
+    return "模型调用失败，请重试！"
 
 
 if __name__ == "__main__":
@@ -77,7 +65,7 @@ if __name__ == "__main__":
 
     print("\n=== 第 2 题：错误回填与最大轮数 ===")
     if not LIVE:
-        print("第 2 题写完后加 --live；如首轮没报错，就如实记录并调整问法再试。")
+        print("离线模式不请求模型；加 --live 可观察真实工具调用。")
     else:
         question = (
             "请用 calculator 计算 12 ** 2，先把 expression 写成 12 ** 2。"
@@ -85,3 +73,31 @@ if __name__ == "__main__":
         )
         print(f"问题：{question}")
         print(f"最终答复：{ask_with_recovery(question)}")
+
+
+# 现象与原因（完成练习并运行后，由学员填写；不要照抄演示中的人为轨迹）
+#
+# 1. 第 1 题里，坏算式得到的错误文字是什么？好算式为什么返回 144？
+#    我的观察：工具执行失败：<class 'ValueError'>: 算式里出现了我不认识的东西：BinOp(left=Constant(value=12), op=Pow(), right=Constant(value=2))
+#    我的解释：好算式为12 * 12符合工具函数，因此能正确调用
+#
+# 2. 跑 day19_error_recovery_probe.py：一直点错且 max_rounds=2 时，
+#    模型请求了几次？为什么「请求轮数」与「工具调用次数」不能混为一谈？
+#    我的观察：模型请求了两次
+#    我的解释：模型一次请求可以不止调用一个工具，也可以不调用工具，两者次数不一定相同
+#
+# 3. 跑 --live：第一轮实际选了哪个工具、给了什么参数？工具有没有报错？
+#    如果报错，回填后模型下一轮怎么做、最终答复是什么？如果没报错，
+#    如实写「未观察到错误」和你尝试过的问法，不要补造自纠过程。
+#    第一轮：选了calculator，
+#    id = call_00_nWeJSJNsAjqfOrDAAC0g4885
+#    arguments = {"expression": "12 ** 2"}
+#   报错了，工具执行失败：<class 'ValueError'>: 算式里出现了我不认识的东西：BinOp(left=Constant(value=12), op=Pow(), right=Constant(value=2))
+#    第二轮：选了calculator
+#   id = call_00_aXi9Uu9fwZLWMctrTSzr4746
+#    arguments = {"expression": "12 * 12"}
+#   最终答复：计算完成：**12 × 12 = 144**。
+#   （首次调用时 `12 ** 2` 报错，因为该工具不支持幂运算符 `**`；按你的要求改成了等价的乘法 `12 * 12`，没有心算。）
+# 4. 若用户问「南京的模拟天气」，本地工具报不支持南京后，
+#    为什么不能擅自改成查询上海？你会怎样向用户说明？
+#    我的回答：擅自改成查询上海属于乱调用工具，应该向用户说明自己不支持这座城市的天气查询

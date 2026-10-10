@@ -33,9 +33,9 @@
 | Day 18 | `tools.py` 中两个新函数、`day18_multi_tools_exercises.py` | **学员做** | 已实现模拟天气与 SQLite 订单查询、三工具说明、分发和自动选择闭环 |
 | Day 18 | `day18_工具选择记录.md` | **学员填** | 第一轮选择的真实记录，以及模糊问法引发多余工具调用的对照案例 |
 | Day 19 | `day19_error_recovery_demo.py` | AI 搭・学员跑 | 完全离线：真实本地异常、错误回填、改参数示意、最大轮数和不可修复错误 |
-| Day 19 | `day19_error_recovery_exercises.py` | **学员做** | 两题：把本地异常变成 tool 结果；在有上限的循环里回填并观察真实模型 |
+| Day 19 | `day19_error_recovery_exercises.py` | **学员做** | 两题：把本地异常变成 tool 结果；在有上限的循环里回填并观察真实模型；末尾填写思考题 |
 | Day 19 | `day19_error_recovery_probe.py` | AI 搭・学员跑 | 零成本检查：失败后继续、调用 ID 配对、同轮多个工具、轮数上限 |
-| Day 19 | 根目录 `FAILURES.md` | **学员填** | 记录今天真实遇到的故障、原因、修复和学到的东西；不要把离线演示冒充实测 |
+| Day 19 | 根目录 `FAILURES.md` | **AI 收尾时写** | 根据今天可核对的报错和修复维护故障台账；学员的观察写在练习文件末尾 |
 
 跑法（在仓库根目录）：
 
@@ -101,11 +101,12 @@
 .venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_exercises.py
 .venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_probe.py
 
-# Day 19：最后才运行真实模型，并把真实故障写进根目录 FAILURES.md
+# Day 19：最后才运行真实模型；观察与思考题写在练习文件末尾
 .venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_exercises.py --live
 ```
 
-学员做完练习和记录后，交给 AI 对答案、挑毛病。
+学员做完练习和记录后，交给 AI 对答案、挑毛病。计划表把 Day 19 的 `FAILURES.md`
+写成交付物；按本仓库现行分工，它由 AI 在每日收尾时维护，学员只填练习末尾的思考题。
 
 ### Day 18 的两个数据库相关文件
 
@@ -141,7 +142,7 @@ Day 19 另读 [DeepSeek Tool Calls 官方指南](https://api-docs.deepseek.com/z
 - [x] Day 16｜Pydantic 校验与失败重试（把抽取结果用模型接收；四条脏数据不崩，失败自动回填重试一次——注入式验证实测走通；三条真实文本一次通过）
 - [x] Day 17｜第一个工具（计算器），跑通最小闭环，画流程图（实测两条问题各走 2 步 / 1 步；流程图见 `day17_工具调用流程图.md`）
 - [x] Day 18｜多工具与工具选择（天气、SQLite 和三工具闭环已跑通；记录了模糊问法多调用订单工具及改写后的对照）
-- [ ] Day 19｜错误回填让模型自纠，加最大重试次数（演示、练习与离线自测已备好；等学员完成并在 FAILURES.md 记录真实故障）
+- [x] Day 19｜错误回填让模型自纠，加最大重试次数（离线四组自测通过；真实模型把失败的 `12 ** 2` 改成 `12 * 12`，运行观察见练习末尾）
 - [ ] Day 20｜整合 + README + 演示视频
 - [ ] Day 21｜白板默画工具调用回合（限时 5 分钟）
 
