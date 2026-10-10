@@ -36,6 +36,9 @@
 | Day 19 | `day19_error_recovery_exercises.py` | **学员做** | 两题：把本地异常变成 tool 结果；在有上限的循环里回填并观察真实模型；末尾填写思考题 |
 | Day 19 | `day19_error_recovery_probe.py` | AI 搭・学员跑 | 零成本检查：失败后继续、调用 ID 配对、同轮多个工具、轮数上限 |
 | Day 19 | 根目录 `FAILURES.md` | **AI 收尾时写** | 根据今天可核对的报错和修复维护故障台账；学员的观察写在练习文件末尾 |
+| Day 20 | `day20_integration_demo.py` | AI 搭・学员跑 | 离线看懂抽取路径、工具路径和双模式命令行入口；每节都运行一小段代码 |
+| Day 20 | `info_toolbox/app.py` | **学员做** | 独立项目入口的三题：把抽取结果转成 JSON、接三工具闭环、按模式分流 |
+| Day 20 | `info_toolbox/README.md` 及 `day20_演示与面试素材.md` | **学员填** | 写运行方法与限制、真实演示轨迹和面试可讲素材；视频在面试复习时补录 |
 
 跑法（在仓库根目录）：
 
@@ -103,12 +106,25 @@
 
 # Day 19：最后才运行真实模型；观察与思考题写在练习文件末尾
 .venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_exercises.py --live
+
+# Day 20：先跑离线整合演示，再看项目入口的帮助
+.venv\Scripts\python.exe weeks\week02_tools\day20_integration_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\info_toolbox\app.py --help
+
+# Day 20：运行两个成品模式；这两条都会请求真实模型
+.venv\Scripts\python.exe weeks\week02_tools\info_toolbox\app.py extract "我叫李娜，在深圳做前端。"
+.venv\Scripts\python.exe weeks\week02_tools\info_toolbox\app.py ask "杭州有几笔已支付订单？"
 ```
 
 学员做完练习和记录后，交给 AI 对答案、挑毛病。计划表把 Day 19 的 `FAILURES.md`
 写成交付物；按本仓库现行分工，它由 AI 在每日收尾时维护，学员只填练习末尾的思考题。
 
-### Day 18 的两个数据库相关文件
+Day 20 的两个模式由命令行明确选择。`extract` 沿用 Day 16 的 JSON 抽取与校验；
+`ask` 沿用 Day 18 的三工具说明和 Day 19 的错误回填循环。两条路径都要真实模型请求，
+真实输出和项目说明已填写在 `info_toolbox/README.md` 及 `day20_演示与面试素材.md`。
+按学员安排，视频在面试复习时补录。项目版逻辑都放在 `info_toolbox/`，原来的每日练习文件保留作学习记录。
+
+## Day 18 的两个数据库相关文件
 
 `day18_seed_db.py` 是**准备数据的代码**：`seed_db()` 建 `orders` 表并插入六条固定的假订单。演示和练习都已经调用它，正常学习时直接运行演示、练习即可，无须单独运行种子脚本。
 
@@ -143,7 +159,7 @@ Day 19 另读 [DeepSeek Tool Calls 官方指南](https://api-docs.deepseek.com/z
 - [x] Day 17｜第一个工具（计算器），跑通最小闭环，画流程图（实测两条问题各走 2 步 / 1 步；流程图见 `day17_工具调用流程图.md`）
 - [x] Day 18｜多工具与工具选择（天气、SQLite 和三工具闭环已跑通；记录了模糊问法多调用订单工具及改写后的对照）
 - [x] Day 19｜错误回填让模型自纠，加最大重试次数（离线四组自测通过；真实模型把失败的 `12 ** 2` 改成 `12 * 12`，运行观察见练习末尾）
-- [ ] Day 20｜整合 + README + 演示视频
+- [x] Day 20｜整合项目、README、真实演示轨迹和面试素材（视频在面试复习时补录）
 - [ ] Day 21｜白板默画工具调用回合（限时 5 分钟）
 
 ## 验收标准
