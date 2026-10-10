@@ -6,10 +6,9 @@
 真跑（真的问模型两个问题，最多 4 次请求）：
     .venv\\Scripts\\python.exe weeks\\week02_tools\\day17_tool_calling_exercises.py --live
 
-**今天的交付物是一张流程图**（不是这个 .py）：weeks/week02_tools/day17_工具调用流程图.md
-——把这次调用的每一步画出来，标清谁在执行。
+工具调用流程图保存在 weeks/week02_tools/day17_工具调用流程图.md。
 
-今天要做的三件事（难度是递进的）：
+本文件已实现的三部分：
     第 1 题  build_tools()          —— 写「给模型看的工具说明」（JSON Schema）
     第 2 题  execute_tool_call()    —— 执行模型点的那一单，把结果变成字符串
     第 3 题  ask_with_tools()       —— 把前两件串成完整闭环，直到模型给答复
@@ -33,10 +32,10 @@
                         calculator(expression) -> float（支持 + - * / 和括号，
                         用 ast 安全求值，不用 eval）。Day 18 会往里加查天气和查数据库。
                         注意：**函数本身不是工具**——模型看不到你的代码，
-                        它只看得到第 1 题要写的那份说明。
+                        它只看得到 build_tools() 返回的工具说明。
 
     day17_tool_calling_demo.py   讲解脚本（AI 搭，你跑它 + --live 看真实回合）
-    day17_工具调用流程图.md        你的交付物（待填）
+    day17_工具调用流程图.md        学员的流程图记录
 """
 
 import json
@@ -124,8 +123,6 @@ if __name__ == "__main__":
     for name, arguments in cases:
         try:
             print(f"  {name}({arguments}) -> {execute_tool_call(name, arguments)!r}")
-        except NotImplementedError as error:
-            print(f"  {name}({arguments}) -> 还没写：{error}")
         except ValueError as error:
             print(f"  {name}({arguments}) -> ValueError: {error}")
     print('  预期：前两条给出 "9716" / "23.0"，第三条抛 ValueError（没有这个工具）')

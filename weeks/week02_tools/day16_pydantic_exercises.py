@@ -8,11 +8,11 @@
 
 做完把结果抄进交付物：weeks/week02_tools/day16_脏数据处理记录.md
 
-今天要做的三件事（难度是递进的，前两件已经写完了）：
+本文件已实现的三部分：
     第 1 题  PersonExtract 的两处校验器 —— 空串归一成 None、电话必须是 11 位数字
     第 2 题  errors_to_hint()      —— 把 Pydantic 的报错翻译成「给模型看的一句话」
     第 3 题  extract_with_retry()  —— 把前两件串成一个循环：抽 → 校验 →
-                                      不过就把错误回填再抽一次（**这件还没写**）
+                                      不过就把错误回填再抽一次
 
 本目录里今天会用到的其它文件（AI 搭的，你只管用）：
 
@@ -29,7 +29,7 @@
                                       max_tokens=2048) -> (原始文本, finish_reason)
                               发一次请求，自动开 JSON 模式。注意它**只负责发**：
                               不解析 JSON、不做校验——解析和校验是上层的事。
-                              第 3 题第 3 步就用它。
+                              extract_with_retry() 用它请求模型。
                           · require_api_key()  读密钥，缺了就抛异常（make_client 内部用）
 
                         怎么拿到它们：本文件顶部已经写好了
@@ -41,16 +41,13 @@
     day16_pydantic_demo.py        讲解脚本：Pydantic 校验 + 失败重试（AI 搭，你跑）
     day16_validator_decorator_demo.py  加餐：那两个装饰器干嘛用（5 个小实验）
     day16_regex_demo.py           加餐：re.fullmatch 与「11 位数字」的坑
-    day16_脏数据处理记录.md        你的交付物（待填）
+    day16_脏数据处理记录.md        学员的运行记录
 """
 
 import json
 import sys
 from pathlib import Path
 
-# 第 3 题要到第 3 步才会用到 chat_json，现在还没写到那儿，所以 ruff 会提示它
-# 「未使用」——**别对这个练习文件跑 `ruff check --fix`**：它会把未使用的 import
-# 删掉，等你写到那儿就找不到这个名字了（我自己刚踩过一次）。
 from llm_client import chat_json, make_client
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
@@ -191,8 +188,6 @@ if __name__ == "__main__":
             item = error.errors()[0]
             where = ".".join(str(part) for part in item["loc"]) or "整体"
             print(f"     校验失败：{item['type']} @ {where}｜{item['msg']}")
-        except NotImplementedError as error:
-            print(f"     还没写：{error}")
 
     print("\n=== 第 2 题：把报错变成给模型看的话 ===")
     for label, raw in DIRTY_CASES[1:]:
@@ -202,8 +197,6 @@ if __name__ == "__main__":
         except ValidationError as error:
             print(f"  ── {label}：")
             print(errors_to_hint(error))
-        except NotImplementedError as error:
-            print(f"  ── {label}：还没写：{error}")
 
     print("\n=== 第 3 题：真抽三条难抽的文本 ===")
     if not LIVE:

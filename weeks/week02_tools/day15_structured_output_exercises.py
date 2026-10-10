@@ -91,7 +91,7 @@ EXPECTED = [
 
 
 def build_messages(text: str) -> list[dict[str, str]]:
-    """第 1 题：把「要抽哪四个字段」写进提示词，拼成要发出去的 messages。"""
+    """把四个待抽取字段写进提示词，组成发给模型的消息。"""
     # 下面这两处「JSON」不能删：开了 JSON 模式，提示词里就必须出现 json 字样，
     # 否则接口直接 400 拒收。第 4 问的复现实验就是删掉它跑一条——
     # BadRequestError: Prompt must contain the word 'json' in some form to use
@@ -105,7 +105,7 @@ def build_messages(text: str) -> list[dict[str, str]]:
 
 
 def parse_or_none(raw: str) -> dict | None:
-    """第 2 题：把模型返回的**文本**变成 dict；变不成就返回 None。"""
+    """把模型返回的文本解析成字典；解析失败时返回 None。"""
     try:
         parsed = json.loads(raw)
         if not isinstance(parsed, dict):
@@ -116,7 +116,7 @@ def parse_or_none(raw: str) -> dict | None:
 
 
 def extract_fields(text: str) -> dict | None:
-    """第 3 题：串起来——真发一次请求，把 text 抽成 dict；失败就返回 None。"""
+    """请求模型从文本抽取字段，解析失败时返回 None。"""
     load_dotenv(ROOT / ".env")
     model = os.environ.get("LLM_MODEL", "gpt-4o-mini")
     client = openai.Client(
