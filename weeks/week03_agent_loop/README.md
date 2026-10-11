@@ -18,7 +18,7 @@ Day 27～28 由学员把这些部分整合成完整 Agent 并验收。Day 22 的
 | 天 | 本日重点 | 状态 |
 |---|---|---|
 | Day 22 | 离线最小循环、状态、轨迹、最终答案与步数上限 | 已完成：四组情境输出符合预期，错误回填与调用 ID 已核对 |
-| Day 23 | 输出协议与解析校验，接入真实模型 | 待开始 |
+| Day 23 | 输出协议与解析校验，接入真实模型 | 已完成：解析与校验练习、真实输出观察均验收 |
 | Day 24 | 本地文件检索与计算器，多步依赖 | 待开始 |
 | Day 25 | 隔离环境中的代码执行工具与权限边界 | 待开始 |
 | Day 26 | 超时、token / 成本预算、重复调用检测 | 待开始 |
@@ -58,6 +58,46 @@ ReAct 把推理与行动交替起来，让后续行动能根据外部结果调�
 - [x] 自己完成 `run_agent`，对照四组输出与非法上限检查。
 - [x] 在练习末尾填写观察题；数据来自练习的主程序输出。
 - [x] AI 实跑批改后清脚手架、检查、更新进度并本地提交。
+
+## Day 23：把模型正文变成可信的下一步
+
+今天在 `message.content` 中约定两种 JSON 对象：`action` 请求一个工具，
+`final` 给出最终答复。这是手写 Agent 的练习协议；Week 02 API 原生的
+`tool_calls` 是另一个字段，不能把两者混为一谈。JSON 模式只约束语法，
+程序还要先检查 `finish_reason`，再检查键、值的类型和工具白名单。
+
+先读 [DeepSeek JSON Output 指南](https://api-docs.deepseek.com/zh-cn/guides/json_mode/)
+里的「注意事项」和「样例代码」：重点看为什么提示词里要写 `json`、为什么要给
+`max_tokens` 留够额度，以及空正文该怎样看待。它对应本日演示的 `--live`
+请求和第一份练习。再看
+[Chat Completions API 的 finish_reason 字段](https://api-docs.deepseek.com/zh-cn/api/create-chat-completion)，
+只需弄清 `stop` 与 `length` 的差别。
+
+| 文件 | 用途 |
+|---|---|
+| `day23_protocol_demo.py` | 按「是什么／为什么／场景／代码／注意」讲两种决定、语法与协议的边界；`--live` 真请求一次模型 |
+| `day23_json_parse_exercises.py` | 小练习 A：检查结束原因、空正文、JSON 语法和最外层类型 |
+| `day23_decision_exercises.py` | 小练习 B：分别校验 `final` 和 `action` 的字段、类型、工具白名单 |
+
+在仓库根目录依次运行：
+
+```powershell
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day23_protocol_demo.py
+# 小练习 A：对照正文解析的六组输入
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day23_json_parse_exercises.py
+# 小练习 B：对照最终答复和工具行动
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day23_decision_exercises.py
+# 最后观察一次真实模型输出；需要根目录 .env 和网络
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day23_protocol_demo.py --live
+```
+
+两份练习及末尾观察已由学员完成；小练习 A 的 `json` 导入已启用。
+今天只练这些零件，Day 27～28 再由学员把它们接入完整循环。
+
+- [x] 完成小练习 A，能解释 `length` 和合法 JSON 列表为什么被拒绝。
+- [x] 完成小练习 B，能区分最终答复和工具行动，并拒绝未知工具。
+- [x] 自己运行 `--live`，记录真实输出与规则的对照。
+- [x] AI 实跑批改、清脚手架、检查并在验收后本地提交。
 
 ## 清单
 
