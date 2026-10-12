@@ -25,7 +25,7 @@ Day 23 的正文 JSON 是解析、类型校验的对照练习，不是完整 Age
 | Day 22 | 离线最小循环、状态、轨迹、最终答案与步数上限 | 已完成：四组情境输出符合预期，错误回填与调用 ID 已核对 |
 | Day 23 | 输出协议与解析校验，接入真实模型 | 已完成：解析与校验练习、真实输出观察均验收 |
 | Day 24 | 本地文件检索与计算器，多步依赖 | 已完成：多文件检索上限、工具回填和真实先查后算观察均验收 |
-| Day 25 | 隔离环境中的代码执行工具与权限边界 | 待开始 |
+| Day 25 | 受限代码执行工具与权限边界 | 已完成：语法白名单、应用授权和两份观察均验收 |
 | Day 26 | 超时、token / 成本预算、重复调用检测 | 待开始 |
 | Day 27 | 整合项目、验证日志与失败路径 | 待开始 |
 | Day 28 | 验收、白板复盘、交接 | 待开始 |
@@ -159,6 +159,69 @@ JSON 在这里承载工具参数和工具观察；模型最后仍可用自然语
 - [x] 完成练习 A，能对照出处并区分无命中与报错。
 - [x] 完成练习 B，检索列表与计算数字都能回填，原调用 ID 保持一致。
 - [x] 运行真实演示并填观察，指出算式中的数字分别来自哪里。
+- [x] AI 批改、清脚手架、检查并在验收后本地提交。
+
+## Day 25：谁有权让 Agent 执行代码
+
+Day 24 已有检索和计算器；今天增加第三种工具：接收多行数值代码，
+允许单变量赋值与最后一行四则运算。例子是先写 `unit_price = 18`、
+`quantity = 7`，再算 `unit_price * quantity`。演示中的代码由教具写好，
+真实模型调用留到周末整合时接入。
+
+**权限边界**：这台机器没有检测到 Docker、Podman 或 Wasmtime。
+教具用可信子进程运行一个**语法白名单解释器**，只允许数字、变量、赋值、
+负号和四则运算；`open`、`import`、属性访问、函数调用、循环都不执行。
+应用另外用 `allow_code` 决定能否调用工具，这个值不能由模型自己在参数里设置。
+每次子进程有新的变量字典，最多等待三秒。`python -I` 和子进程本身
+不撤销当前账号的文件或网络权限，因此这**不是通用 Python 的操作系统沙箱**。
+若以后要运行模型生成的任意 Python，必须另接真正隔离的运行环境；
+不能直接把代码字符串交给 `exec`、`eval` 或普通子进程。
+
+| 文件 | 用途 |
+|---|---|
+| `day25_code_demo.py` | 先看允许计算和语法树入门，再看拒绝文件调用、变量不跨调用保留及子进程入口 |
+| `day25_code_worker.py` | AI 提供的受限解释器；`check_tree` 查白名单，`eval_number` 只计算获准节点 |
+| `day25_syntax_exercises.py` | 小练习 A：从语法树找第一个不被允许的节点 |
+| `day25_permission_exercises.py` | 小练习 B：由应用授权；未授权时不执行工具，仍按原 ID 回填 |
+
+### 按这个顺序做
+
+1. 在 PyCharm 打开 `day25_code_demo.py`，直接右键运行。先顺着第 1～5 节
+   看输出，再读文件开头的 `main` 和后面的 `run_limited_code`。
+2. 按需打开 `day25_code_worker.py`，只看 `check_tree` 与 `eval_number`：
+   前者决定哪些语法能进入，后者计算它们；不用重写整份执行器。
+3. 练习 A 已完成：右键运行，对照 `None`、`Call`、
+   `Import`、`While`、`Constant` 和 `SyntaxError`，填文件末尾的观察。
+4. 练习 B 已完成：右键运行。
+   比较“应用未授权”与“已授权但代码被白名单拒绝”，填文件末尾的观察。
+
+仓库根目录的等价命令：
+
+```powershell
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day25_code_demo.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day25_syntax_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day25_permission_exercises.py
+```
+
+两份练习和末尾观察已由学员完成，函数题干已清理为一行说明。
+今天只用离线输入验证权限边界，不需要模型请求。Day 27～28 再把获准的
+代码工具接进学员写的完整 Agent 循环；若没有操作系统级隔离，就明确标作
+“受限数值代码工具”，不能声称已经支持安全执行任意 Python。
+
+官方文档只看与本课对应的部分：
+
+- [Python 3.13 `ast`](https://docs.python.org/3.13/library/ast.html)：
+  `ast.parse`、`ast.walk`，以及 `Call`、`Import`、`Assign` 等节点；
+  对照练习 A 的语法树检查。
+- [Python 3.13 `subprocess`](https://docs.python.org/3.13/library/subprocess.html)：
+  `subprocess.run` 的 `input`、`capture_output`、`timeout`；
+  对照演示的可信 worker 调用。
+- [Python 3.13 命令行参数](https://docs.python.org/3.13/using/cmdline.html)：
+  只看 `-I`；它限制 Python 的导入路径和环境配置，不能把它当成系统权限沙箱。
+
+- [x] 完成练习 A，能解释为什么 `Call` 和字符串常量要被拒绝。
+- [x] 完成练习 B，未授权时不调用 runner，且原 `tool_call_id` 不变。
+- [x] 填写两份练习末尾的运行观察，分清应用拒绝与执行器拒绝。
 - [x] AI 批改、清脚手架、检查并在验收后本地提交。
 
 ## 清单
