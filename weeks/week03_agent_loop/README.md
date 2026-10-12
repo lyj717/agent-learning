@@ -15,11 +15,16 @@ Week 02 的 Day 15～21 已验收，接续 `../week02_tools/HANDOFF.md`。
 Day 27～28 由学员把这些部分整合成完整 Agent 并验收。Day 22 的 `fake_chat`
 拆解后再写 `run_agent`，就是这一节奏的起点。
 
+**后续实现路线**：Day 24 起沿用 Week 02 的原生 `tool_calls`，手写循环与工具执行。
+Day 23 的正文 JSON 是解析、类型校验的对照练习，不是完整 Agent 必须采用的协议。
+其中检查工具名、参数类型的思想继续使用；`finish_reason` 要按原生接口分别处理
+`tool_calls` 与 `stop`，不能直接照搬 Day 23 的“只接受 stop”。
+
 | 天 | 本日重点 | 状态 |
 |---|---|---|
 | Day 22 | 离线最小循环、状态、轨迹、最终答案与步数上限 | 已完成：四组情境输出符合预期，错误回填与调用 ID 已核对 |
 | Day 23 | 输出协议与解析校验，接入真实模型 | 已完成：解析与校验练习、真实输出观察均验收 |
-| Day 24 | 本地文件检索与计算器，多步依赖 | 待开始 |
+| Day 24 | 本地文件检索与计算器，多步依赖 | 已完成：多文件检索上限、工具回填和真实先查后算观察均验收 |
 | Day 25 | 隔离环境中的代码执行工具与权限边界 | 待开始 |
 | Day 26 | 超时、token / 成本预算、重复调用检测 | 待开始 |
 | Day 27 | 整合项目、验证日志与失败路径 | 待开始 |
@@ -92,12 +97,69 @@ ReAct 把推理与行动交替起来，让后续行动能根据外部结果调�
 ```
 
 两份练习及末尾观察已由学员完成；小练习 A 的 `json` 导入已启用。
-今天只练这些零件，Day 27～28 再由学员把它们接入完整循环。
+今天练的是解析与校验；Day 27～28 整合原生工具调用时按其消息形状使用这些检查思想。
 
 - [x] 完成小练习 A，能解释 `length` 和合法 JSON 列表为什么被拒绝。
 - [x] 完成小练习 B，能区分最终答复和工具行动，并拒绝未知工具。
 - [x] 自己运行 `--live`，记录真实输出与规则的对照。
 - [x] AI 实跑批改、清脚手架、检查并在验收后本地提交。
+
+## Day 24：让计算参数来自查到的资料
+
+**今天新增的能力**：从本地文件取得问题中没有给出的信息，保留出处，
+让后一次工具调用使用前一次检索的观察。问题是“青禾笔记本买 7 本多少钱，
+单价来自哪里？”资料里的商品与价格全部为教学虚构数据。
+
+与前面几天的关系：Week 02 已会点工具和回填；Day 22 已会循环；
+Day 23 练了输入校验。今天增加文件检索和列表结果的 JSON 回填，
+继续使用 `message.tool_calls`，不重新写正文里的 `action/final`。
+JSON 在这里承载工具参数和工具观察；模型最后仍可用自然语言作答。
+
+| 文件 | 用途 |
+|---|---|
+| `day24_retrieval_demo.py` | 单文件检索、出处、列表回填、先查后算；`--live` 观察真实模型的原生工具调用 |
+| `day24_notes/products.txt`、`day24_notes/stock.txt` | 两份虚构商品资料；工具只在这个固定目录内查找 |
+| `day24_search_exercises.py` | 练习 A：复用演示的单文件匹配，自己写多文件搜索与结果总数上限 |
+| `day24_observation_exercises.py` | 练习 B：调用自己的检索或已有计算器，返回带原 ID 的 tool 消息 |
+
+### 按这个顺序做
+
+1. 在 PyCharm 打开演示，直接右键运行，先看第 1～3 节，再读 `find_in_text`。
+   今天只做逐行子串匹配；向量检索、同义词匹配留到后续 RAG 周。
+2. 完成练习 A，调用演示中的 `find_in_text`，再右键运行并填末尾两题。
+   不用重写逐行匹配；把它用于多个文件，并限制所有文件合计的结果数量。
+3. 回看演示第 2～3 节，并读 `demo_tool_message`，完成练习 B 后右键运行。两把工具已在主程序的
+   `tool_table` 接好；B 使用你在 A 写的检索，所以先完成 A。
+4. 在演示的运行配置 Parameters 里填 `--live` 并运行，依据真实输出填写 B 的观察。
+   重点对照检索参数、tool 观察、下一轮算式和最终引用；不要只看答案数字。
+
+命令行等价入口（在仓库根目录）：
+
+```powershell
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day24_retrieval_demo.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day24_search_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day24_observation_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\day24_retrieval_demo.py --live
+```
+
+两份练习和末尾观察已完成；函数题干已清理为一行说明。
+演示的检索只查 `products.txt`；练习 A 扩展到两份文件。演示的循环是 AI 教具，
+周末再由学员把自己的多文件检索、工具回填与循环整合。
+`--live` 最多请求四次，自动读取根目录 `.env`。它会打印每轮结束原因、
+工具名与参数、调用 ID、完整工具观察、最终答复，足够核对本日观察题。
+
+查资料时只读以下几处，不用通读：
+
+- [Python 3.13 pathlib](https://docs.python.org/zh-cn/3.13/library/pathlib.html)：
+  `Path.glob`、`Path.read_text` 和 `PurePath.name`，对应遍历文件、读中文、保存文件名。
+- [DeepSeek Tool Calls](https://api-docs.deepseek.com/zh-cn/guides/tool_calls/)：
+  「非思考模式」的样例及流程，复习 `tool_calls → 本地执行 → tool 回填 → 再请求`。
+  先后依赖体现在下一次请求能看见上一次工具观察。
+
+- [x] 完成练习 A，能对照出处并区分无命中与报错。
+- [x] 完成练习 B，检索列表与计算数字都能回填，原调用 ID 保持一致。
+- [x] 运行真实演示并填观察，指出算式中的数字分别来自哪里。
+- [x] AI 批改、清脚手架、检查并在验收后本地提交。
 
 ## 清单
 
