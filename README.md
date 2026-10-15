@@ -10,7 +10,7 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-10-15）**：[Week 03 的 Day 27](weeks/week03_agent_loop/README.md) 离线整合已验收：学员完成新资料检索、三工具主循环与失败路径观察。下一步 Day 28 做减少提示的独立变式；Day 26A 和 26B 后半的跨天复验仍待进行。
+**当前接续点（2026-10-15）**：[Week 03](weeks/week03_agent_loop/README.md) 已验收，交接见 [HANDOFF](weeks/week03_agent_loop/HANDOFF.md)。Day 28 用新商品完成离线变式与一次真实模型调用；下一步按 [Week 04](weeks/week04_frameworks/README.md) 的开工短检查推进。重复调用判据还需一次隔天复现，不作为 Week 04 开工门槛。
 
 详细计划见 `docs/` 目录：
 
@@ -44,7 +44,7 @@ agent-learning/
 - [x] Week 00｜Python 补齐 + 环境配置（跨机器运行、3 分钟讲解仍待确认，见该周 HANDOFF）
 - [x] Week 01｜LLM 基础与 API（交付：流式 CLI 聊天机器人 —— `chat_cli/` 多轮 + 流式 + `/cost` + `/clear` + `/remember`，30 条测试全绿；3 分钟演示视频还没录）
 - [x] Week 02｜结构化输出与工具调用（交付：双模式信息抽取与三工具问答项目；JD、简历和演示视频按学员安排后补）
-- [ ] Week 03｜Agent 核心循环，手写不用框架（交付：ReAct Agent）
+- [x] Week 03｜Agent 核心循环，手写不用框架（交付：ReAct Agent；重复判据的延迟复验待补）
 - [ ] Week 04｜框架与记忆（交付：LangGraph 重写版）
 - [ ] Week 05｜RAG 基础（交付：带引用的文档问答）
 - [ ] Week 06｜高级检索与评测（交付：检索指标报告）

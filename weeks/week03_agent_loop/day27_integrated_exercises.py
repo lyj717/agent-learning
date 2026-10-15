@@ -1,6 +1,7 @@
 """Day 27：用虚构商品资料和离线假模型运行完整 Agent 循环。"""
 
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 # 离线假模型与前几日完成的工具、停止判断。
@@ -48,8 +49,9 @@ def run_agent(
     call_limit_seconds: float = 1.0,
     repeat_limit: int = 2,
     allow_code: bool = False,
+    chat_fn: Callable[..., dict] = fake_chat,
 ) -> dict:
-    """运行离线 Agent 循环，返回答复、停止原因、消息、轨迹和累计用量。"""
+    """运行 Agent 循环，返回答复、停止原因、消息、轨迹和累计用量。"""
     if type(max_steps) != int or max_steps < 1:
         raise ValueError("最大步数必须是正整数！")
     messages: list[dict] = [{"role": "user", "content": question}]
@@ -72,7 +74,7 @@ def run_agent(
                 "usage": summarize_usage(usages, price=TEACHING_PRICE),
             }
         try:
-            message = fake_chat(
+            message = chat_fn(
                 messages, scenario=scenario, timeout_seconds=time_dict["next_timeout"]
             )
             usage = message["usage"]
