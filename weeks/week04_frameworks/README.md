@@ -9,8 +9,9 @@ Week 是阶段编号，按验收推进；默认每天 3~5 小时，较重单元�
 Week 03 的 Day 22～28 主线已验收，证据与限制见
 [交接文档](../week03_agent_loop/HANDOFF.md)。Day 29 的状态更新与固定边已验收：
 学员完成 A、B 和观察订正，AI 恢复反向实验后遗留的边并实跑检查。Day 30 的条件边
-已完成 A、B 和四道观察，下一步是 Day 31 的消息合并；Day 29、30 的关键机制仍须
-在完成后 2～3 天闭卷复验。
+已完成 A、B 和四道观察。Day 31 的消息合并、追加与同 ID 修订已验收；
+首次观察中的 ID 混淆经讲解后由学员订正，独立掌握留待跨天复验。Day 29～31 的关键机制
+仍须在完成后 2～3 天闭卷复验。
 
 Day 26B 重复判据的延迟复验仍待进行。它在 10 月 14 日完成，10 月 15 日 Day 28
 已做过一次新轨迹预测；同日再做不能记成隔天复验，安排在 **10 月 16～17 日或
@@ -25,7 +26,7 @@ JD、简历、视频沿用原先的延后安排。
 |---|---|---|
 | Day 29 | 状态更新与固定边：筛选资料后生成简报 | 2026-10-15 已验收；延迟复验待做 |
 | Day 30 | 条件边：根据模型结果走工具节点或结束，工具回到模型 | 2026-10-16 已验收；延迟复验待做 |
-| Day 31 | 消息合并：新增消息与按消息 ID 修改；对照原 tool_call_id 配对 | 待开始 |
+| Day 31 | 消息合并：新增消息与按消息 ID 修改；对照原 tool_call_id 配对 | 2026-10-16 已验收；延迟复验待做 |
 | 消化半日 | 闭卷画状态流转、定位顺序/合并错误，补实际缺口 | 待安排 |
 | Day 32 | 检查点：一种本地持久化方案、会话标识、重新启动后继续 | 待开始 |
 | Day 33 | 人工确认与恢复：确认前不执行，用执行次数检查重复生效 | 待开始 |
@@ -197,6 +198,72 @@ A 四组实跑一致；B 零、一次、两次查询分别执行 1、3、5 个�
 没有配置合并规则时，节点返回的整个新列表会替换旧列表；保留学员原答，不把批改写成
 学员当时的措辞。AI 清理题干后完成 Ruff 检查，仓库现有测试 `9 passed`。
 
+## Day 31：消息列表怎样追加和修订
+
+**今天只新增消息合并规则**。Day 30 的节点为保留历史，手动返回
+`state["messages"] + [新消息]`；现在在状态类型的 `messages` 字段上配置
+`add_messages`，节点只返回本轮的一条消息。新消息 `id` 会追加，已有 `id` 会按原位置
+替换；普通字段仍按 Day 29 学过的方式整份替换。`tool_call_id` 用于配对点单与工具观察，
+不决定消息合并。演示和练习都用固定教学数据，不请求真实模型或网络。
+
+| 文件 | 用途 |
+|---|---|
+| `day31_messages_demo.py` | 同一条固定路线对照无合并规则时覆盖、有规则时追加及同消息 ID 修订 |
+| `day31_messages_exercises.py` | A 回填本地查询的一条 tool 消息；B 配消息规则并接两节点，末尾写观察 |
+
+按这个顺序做：
+
+1. 顺读演示的 `main → PlainState / MergedState → post_draft → revise_draft → build_demo_graph`，
+   再运行。先看第 4 节直接调用 `add_messages(left, right)` 的两次输出：新 ID 追加、
+   同 ID 在原位置修改。再看第 5 节图如何自动用它合并，比较最终消息数 **1 与 2**、
+   `revise` 进入时看到的消息 ID，找出变化发生在哪个字段。
+   `AIMessage`、`HumanMessage` 是消息对象，不会自己发模型请求；其属性用 `.type`、
+   `.id`、`.content` 读取，和 Day 30 的简化字典消息不同。
+2. 做练习 A 的 `record_tool_result`：只返回一条 `ToolMessage` 的更新。消息自身 `id`
+   从状态的 `observation_message_id` 取，`tool_call_id` 从最新 assistant 点单取。
+   默认运行两组；最后一组对照只是检验合并键，不代表一次真实调用正常返回两份结果。
+3. 做练习 B：按题干取消导入注释，给 `ReceiptState.messages` 加规则，连接
+   `START → record → confirm → END`。`confirm_receipt` 已提供；它应读到先新增的观察，
+   再用相同的消息 ID 修订内容。用 `--part b` 对照两组的消息条数、类型、ID 和内容。
+4. 在练习末尾填写四道“现象与原因”，完成后交给 AI 实跑批改。本日没有另一份记录 md。
+
+在仓库根目录运行：
+
+```powershell
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day31_messages_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day31_messages_exercises.py --part a
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day31_messages_exercises.py --part b
+```
+
+演示与已完成的 A、B 均可直接运行。
+官方文档只读 [Graph API 的 Working with messages in graph state](https://docs.langchain.com/oss/python/langgraph/graph-api#working-with-messages-in-graph-state)
+与 [`add_messages` API](https://reference.langchain.com/python/langgraph/graph/message/add_messages)：
+今天只看 `Annotated[..., add_messages]`、新消息追加及同消息 ID 更新。
+再看 [`ToolMessage` 的 `tool_call_id`](https://reference.langchain.com/python/langchain-core/messages/tool/ToolMessage)，
+对照 Day 30 的点单 ID 与观察 ID；删除消息留到确有需要时再学。Day 31 不做检查点、
+人工确认或完整 Agent 整合，做完后先安排半日消化与未完成的延迟复验。
+
+- [x] 学员依据演示说明普通列表覆盖、新消息追加与同消息 ID 修订的差别。
+- [x] A 两组返回一条 tool 观察，消息 ID 与调用 ID 来源正确，原输入未修改。
+- [x] B 两组保留 human、ai、tool 三条消息，同消息 ID 修订内容而不增加条数。
+- [x] 学员根据真实输出完成四道观察，并在讲解后订正 ID 混淆。
+- [x] AI 批改后清练习脚手架、做 Ruff 和故障台账，再做本地提交。
+
+### 2026-10-16 验收补充
+
+学员完成 A、B 和四道观察后，首次回答曾混淆消息自身 `id` 与调用 ID，且未说清
+`add_messages` 如何保留旧消息。AI 对照实跑输出讲解后，学员把第 1～3 题改为：
+合并按 `message.id`、点单和观察按调用 ID 配对；图在 `record` 返回一条 tool 消息后
+把它与已有的 human、ai 消息合并。第 4 题关于普通列表最终只剩一条 tool 消息的预测正确。
+第 3 题学员引了 `confirm` 读到三条和最终仍三条的输出，最终修订内容的证据见 AI 订正。
+这是讲解后的订正，独立掌握留待跨天闭卷复验。
+
+AI 实跑演示及 A、B：A 两组各返回一条 tool 消息，消息自身 ID 不同、调用 ID 相同，
+合并后为两条且原输入未改；B 两组最终均为 `human → ai → tool` 三条，tool 观察在
+同消息 ID 处修订，原输入未改。已将已完成题目的长题干清为单行 docstring，
+记录 `ToolMessage` 与列表形状不符的真实报错；Ruff 检查通过，仓库测试 `9 passed`，
+本次 pytest 临时目录已清理。
+
 ## 跨天复验安排
 
 - [ ] Day 26B 重复判据：按上面的时间窗口用新轨迹复现；AI 届时出题，尚未发生。
@@ -204,7 +271,7 @@ A 四组实跑一致；B 零、一次、两次查询分别执行 1、3、5 个�
   预测一个先读后写导致旧数据残留的结果；按实际完成日期安排，不机械绑定 Day 32。
 - [ ] Day 30 完成后 2～3 天：闭卷画出 model 条件选路、tool 返回 model 的路线，
   再判断一组“历史有点单、本轮已答复”的新输入；尚未发生。
-- [ ] Day 31 消息合并完成后 2～3 天：区分追加、同消息 ID 更新和工具调用 ID 配对。
+- [ ] Day 31 于 2026-10-16 完成；2～3 天后闭卷区分追加、同消息 ID 更新和工具调用 ID 配对。
 - [ ] Day 35 用新输入与恢复情境验收，不把 AI 验证教具记成学员通过。
 
 ## 必做顺序

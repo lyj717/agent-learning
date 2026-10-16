@@ -10,7 +10,7 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-10-16）**：[Week 03](weeks/week03_agent_loop/README.md) 已验收，交接见 [HANDOFF](weeks/week03_agent_loop/HANDOFF.md)。[Week 04 Day 29～30](weeks/week04_frameworks/README.md) 的状态更新、固定边与条件边已验收；下一步是 Day 31 的消息合并。Day 29、30 的关键机制仍须在完成后 2～3 天闭卷复验。重复调用判据还需一次隔天复现，安排在 10 月 16～17 日或下一次满足间隔的学习日。
+**当前接续点（2026-10-16）**：[Week 03](weeks/week03_agent_loop/README.md) 已验收，交接见 [HANDOFF](weeks/week03_agent_loop/HANDOFF.md)。[Week 04 Day 29～31](weeks/week04_frameworks/README.md) 的状态更新、固定边、条件边与消息合并已验收；接下来安排消化半日及跨天闭卷复验。Day 31 的 ID 区分在讲解后订正，独立掌握仍待复验。重复调用判据还需一次隔天复现，安排在 10 月 16～17 日或下一次满足间隔的学习日。
 
 详细计划见 `docs/` 目录：
 
