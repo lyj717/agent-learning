@@ -4,14 +4,15 @@
 
 Week 是阶段编号，按验收推进；默认每天 3~5 小时，较重单元可跨天。
 
-## 当前接续点（2026-10-16）
+## 当前接续点（2026-10-17）
 
 Week 03 的 Day 22～28 主线已验收，证据与限制见
 [交接文档](../week03_agent_loop/HANDOFF.md)。Day 29 的状态更新与固定边已验收：
 学员完成 A、B 和观察订正，AI 恢复反向实验后遗留的边并实跑检查。Day 30 的条件边
 已完成 A、B 和四道观察。Day 31 的消息合并、追加与同 ID 修订已验收；
 首次观察中的 ID 混淆经讲解后由学员订正，独立掌握留待跨天复验。Day 29～31 的关键机制
-仍须在完成后 2～3 天闭卷复验。
+仍须在完成后 2～3 天闭卷复验。Day 32 已把新概念拆成独立小演示；学员完成 A、B
+和四道观察，AI 用隔离数据库复跑通过。Day 32 的订正后理解也留待跨天复验。
 
 Day 26B 重复判据的延迟复验仍待进行。它在 10 月 14 日完成，10 月 15 日 Day 28
 已做过一次新轨迹预测；同日再做不能记成隔天复验，安排在 **10 月 16～17 日或
@@ -28,7 +29,7 @@ JD、简历、视频沿用原先的延后安排。
 | Day 30 | 条件边：根据模型结果走工具节点或结束，工具回到模型 | 2026-10-16 已验收；延迟复验待做 |
 | Day 31 | 消息合并：新增消息与按消息 ID 修改；对照原 tool_call_id 配对 | 2026-10-16 已验收；延迟复验待做 |
 | 消化半日 | 闭卷画状态流转、定位顺序/合并错误，补实际缺口 | 待安排 |
-| Day 32 | 检查点：一种本地持久化方案、会话标识、重新启动后继续 | 待开始 |
+| Day 32 | 检查点：一种本地持久化方案、会话标识、重新启动后继续 | 2026-10-17 已验收；跨天复验待做 |
 | Day 33 | 人工确认与恢复：确认前不执行，用执行次数检查重复生效 | 待开始 |
 | Day 34 | 学员整合：把 Day 27 的工具、停止规则接入框架版 | 待开始 |
 | Day 35 | 同题对比、恢复变式、口头解释与交接 | 待开始 |
@@ -264,6 +265,128 @@ AI 实跑演示及 A、B：A 两组各返回一条 tool 消息，消息自身 ID
 记录 `ToolMessage` 与列表形状不符的真实报错；Ruff 检查通过，仓库测试 `9 passed`，
 本次 pytest 临时目录已清理。
 
+## Day 32：程序关掉后，图怎样找到上一轮状态
+
+**今天的主要新机制是本地检查点**。此前演示把 SQL、运行配置、保存器和读取结果压在
+一份文件里，初学者需要边看边猜前置概念。现在每个新概念先用一份能单独运行的小演示
+讲清，再用最后一份整合演示看跨进程接续。练习仍只验收检查点的安装、读取和新旧会话
+输入；不要求手写 SQL。本课的“继续”是已结束会话接收新输入；运行中等待人工确认的恢复
+留给 Day 33。
+
+| 顺序 | 文件 | 只看这一件事 |
+|---|---|---|
+| 1 | `day32_sql_basics_demo.py` | 从零认识表与行、SQL 和 SQLite；先看全部三行，再筛选出一张工单最近的一行 |
+| 2 | `day32_config_demo.py` | 用普通 Python 字典拆开 `config`，分清状态内容与会话编号；这里还不运行图 |
+| 3 | `day32_invoke_demo.py` | 单独看 `graph.invoke(input, config)` 怎样运行图、两个参数与返回值；不装保存器 |
+| 4 | `day32_sqlite_saver_demo.py` | 对照没装与装了 `SqliteSaver` 的两次图调用，认识 `compile(checkpointer=saver)` |
+| 5 | `day32_state_snapshot_demo.py` | 写入前后读取 `StateSnapshot.values`，看 `get_state` 只读、不执行节点 |
+| 6 | `day32_checkpoint_demo.py` | 用文件保存检查点，在两个独立 Python 进程里看到 0 → 1 → 2 |
+| 可选 | `day32_checkpoint_view.py` | 在 PyCharm 运行，只读文件里该会话最新的状态，不增加次数 |
+| 练习 | `day32_checkpoint_exercises.py` | A 给工单图装保存器；B 判断新旧工单并提交本轮消息；末尾写观察 |
+
+按这个顺序读和做：
+
+1. 先顺读 SQL 演示源码，再运行看输出。三行教学数据存于 `:memory:` 临时表，不是
+   LangGraph 的内部表，也不会修改 `.sqlite` 文件。弄清 `execute` 把 SQL 交给数据库、
+   `fetchall` 读多行、`fetchone` 读一行或得到 `None`。
+2. 看 `config` 演示。`{"configurable": {"thread_id": "ticket-a"}}` 是运行配置，不是
+   节点处理的状态；`ticket-a` 和 `ticket-b` 在同一存储位置中选不同会话。脚本里的
+   `saved_by_thread` 是普通字典类比，明确不是框架内部实现。
+3. 单独看 `invoke` 演示。`graph` 是编译好的图，`graph.invoke(input, config)` 才真正
+   运行节点；第一个参数给本轮状态输入，第二个参数给运行配置，可省略。默认返回本轮
+   最终状态。本例不装保存器，因此即使用同一个 `thread_id`，三次都传 0 仍都得到 1。
+4. 看保存器演示。无保存器时，第二轮再次传 `turns=0`，得到 1、1；装了保存器后，
+   第二轮**只传新请求**，节点实际读到旧 `turns=1`，得到 1、2。`checkpointer` 是
+   `compile` 的参数名，传入的 `saver` 才是 `SqliteSaver` 对象；这里的数据库在内存里，
+   关闭程序后会消失。
+5. 看读取快照演示。新 `thread_id` 的 `get_state(config)` 会返回 `StateSnapshot` 对象，
+   在**本例必填字段还未写入时** `.values` 是 `{}`；运行一次 `invoke` 后，再读到
+   `request` 与 `turns=1`。重复 `get_state` 不会多执行节点。练习 B 的新工单也按
+   `.values` 是否为空判断；不要用“返回对象是不是 `None`”判断。
+6. 最后运行文件保存演示。第一条命令传 `turns=0`，让节点算到 1；第一个 Python 进程
+   结束后，第二条命令带 `--continue`，只传新 `request`，节点却从旧的 1 算到 2。
+   `DB_FILE` 固定文件位置，`CONFIG` 中的 `thread_id` 选其中的会话。若先前跑过首轮，
+   新的首轮仍显式传 0；第二轮才接续。PyCharm 第二次在运行配置的脚本参数里填
+   `--continue`；文件按脚本位置定位，不受工作目录影响。`.sqlite` 是数据库文件，
+   不要在 PyCharm 中把它当普通文本打开；可选的查看脚本会打印可理解的字段。
+7. 然后做练习 A、B。B 用 `ticket_id` 建 `config`，先读旧快照；新工单传 0 与一条
+   `HumanMessage`，旧工单只传本轮新消息。按输出复制第二次运行命令，并用另一新 ID
+   对照隔离。观察题由你根据自己的运行结果填写；AI 不预填。本日没有独立记录 md。
+
+在仓库根目录依次运行：
+
+```powershell
+# 五个独立概念：每次只读一份源码与对应输出
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_sql_basics_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_config_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_invoke_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_sqlite_saver_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_state_snapshot_demo.py
+
+# 整合演示：第一次从 0 开始；第二次在新的 Python 进程里接上旧次数
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_demo.py --continue
+
+# 可选：只读取刚保存的状态
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_view.py
+
+# 练习 A；B 的第二次 followup 命令从首次输出复制
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_exercises.py --part a
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_exercises.py --part b --phase first
+```
+
+环境已安装 `langgraph-checkpoint-sqlite==3.1.2`，并写入根 `requirements.txt`；换环境时按
+依赖清单安装。Day 32 的脚本完全离线，不需要 `.env`。演示与练习生成的 `*.sqlite` 文件在脚本
+旁边，已被 `.gitignore` 忽略；需要继续旧会话时不要删除对应文件。演示和练习里的客服
+信息是教学数据，不是学员的运行观察。
+
+官方文档先看 [`invoke` API](https://reference.langchain.com/python/langgraph/pregel/main/Pregel/invoke)
+的 `input`、`config` 两项与 Returns，其他选项暂不要求；再看
+[Checkpointers](https://docs.langchain.com/oss/python/langgraph/checkpointers)
+中的 **Threads、Get state、Checkpointer libraries**，看 `thread_id` 如何选会话、
+`get_state` 返回的状态快照、SQLite 为何需要单独安装；
+[Persistence](https://docs.langchain.com/oss/python/langgraph/persistence) 中只看开头与
+**Checkpointer vs. store** 对照，区分本课的线程状态与跨线程的长期记忆。
+
+- [x] 学员读完独立小演示，并通过两次独立运行的练习解释旧状态怎样接续。
+- [x] A 能把图状态写进本地检查点；B 同一工单两次运行得到 2 → 4 条消息、1 → 2 次回复。
+- [x] 换新工单 ID 能从零开始；学员据真实输出完成四道观察。
+- [x] AI 实跑批改后清练习脚手架、检查格式与故障台账，再做本地提交。
+
+### 2026-10-17 演示订正
+
+学员反馈原演示的参数解析、随机 ID、路径与快照细节太密集。AI 已改成固定文件与会话 ID、
+两条命令只对照 `turns` 的 0 → 1 → 2。简化时曾误用相对数据库路径；从脚本目录运行
+复现 `sqlite3.OperationalError: unable to open database file` 后，改为按脚本位置定位数据库。
+AI 用不同工作目录和两个独立进程复测通过；原学员 SQLite 文件未清理。练习与观察尚待学员完成。
+
+### 2026-10-17 再次教学订正
+
+学员指出：原演示虽能看到 `turns` 接续，却没有教 `config` 是什么、检查点是什么，
+更没有展示「没旧状态」怎么从 `get_state` 的结果判断；SQL 小演示的若干 Python 调用也未在
+输出中解释清楚。现已让检查点演示按「运行配置 → 未使用会话的空 `.values` → 已有会话的
+旧字段 → `invoke` 执行 → 再读新状态」顺序打印；SQL 演示逐条解释 Python 调用和 SQL
+语句，练习 B 题干补上必要的入参、返回形状。AI 用独立临时数据库分两个 Python 进程复测
+0 → 1 → 2，未把该结果写成学员观察。学员目前写了 A 的实现，B 和四道观察仍待完成。
+
+### 2026-10-17 分拆前置概念的订正
+
+学员再次指出，把几个新概念堆在原演示里，轻补几句话仍无法从零看懂。AI 现把 SQL、
+`config`、`SqliteSaver`、`StateSnapshot.values` 各写成独立可运行的小演示：SQL 先打印
+全部三行再筛选；保存器用未安装与已安装的两组输出对照；快照在写入前后读取。原演示收为
+最后的跨进程整合，不再承担所有概念的首次讲解。上面按新顺序列出命令。小演示与整合
+演示的试跑只验证 AI 教具，不代表学员已完成练习或观察。后来学员单独问到 `invoke` 的
+参数，AI 再在 `config` 与保存器演示之间增加一份不装保存器的 `invoke` 小演示。
+
+### 2026-10-17 Day 32 验收
+
+学员完成 A、B 和四道观察，并反馈分拆后的演示更容易理解。Q1 的旧状态恢复与 Q3 的
+两种 ID 均已由学员订正；Q1 把输入字典的 `messages` 键写成 `message`，属于一处待留意的
+笔误，学员原答保留。AI 将练习题干清为简短 docstring，并在隔离 SQLite 文件中分进程
+实跑：A 为 2 条消息、1 次回复；B 同工单从 2 条、1 次接到 4 条、2 次；新工单重新从
+2 条、1 次开始。仓库测试 9 项通过。下一次按跨天复验安排检查能否独立说出
+`thread_id`、消息 ID、`get_state` 与 `invoke` 的作用。
+
 ## 跨天复验安排
 
 - [ ] Day 26B 重复判据：按上面的时间窗口用新轨迹复现；AI 届时出题，尚未发生。
@@ -272,6 +395,7 @@ AI 实跑演示及 A、B：A 两组各返回一条 tool 消息，消息自身 ID
 - [ ] Day 30 完成后 2～3 天：闭卷画出 model 条件选路、tool 返回 model 的路线，
   再判断一组“历史有点单、本轮已答复”的新输入；尚未发生。
 - [ ] Day 31 于 2026-10-16 完成；2～3 天后闭卷区分追加、同消息 ID 更新和工具调用 ID 配对。
+- [ ] Day 32 于 2026-10-17 完成；2～3 天后闭卷区分 `thread_id` 与消息 ID，并预测同工单接续和新工单隔离。
 - [ ] Day 35 用新输入与恢复情境验收，不把 AI 验证教具记成学员通过。
 
 ## 必做顺序

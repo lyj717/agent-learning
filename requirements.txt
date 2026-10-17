@@ -19,6 +19,9 @@ rich>=13.9
 # Week 04 状态图；固定本课已验证的版本，后续升级时重新核对演示
 langgraph==1.2.15
 
+# Week 04 Day 32：把 LangGraph 检查点保存到本地 SQLite 文件
+langgraph-checkpoint-sqlite==3.1.2
+
 # ---- 开发工具 ----
 
 # 测试
