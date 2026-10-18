@@ -1,5 +1,13 @@
 # Week 01 交接文档
 
+2026-10-18 路径订正：演示与当天记录归入 `demos/dayNN/`，练习归入 `exercises/`；
+下方入口使用整理后的路径。
+
+本次 AI 路径检查：9 个入口分别从仓库根目录和脚本目录检查，共 18 次通过；
+temperature 实验和聊天项目仅检查 `--help`，Day 13 文件操作使用临时镜像。
+角色、token、多轮消息、流式与记忆这五份演示均运行 `--live`，共 10 次真实请求成功；
+临时文件已清理。这些是教具验证，不是新增学员实验记录。
+
 > 写给下一个对话的开场材料。一周一个对话，这份文件就是接续点。
 > 写于 2026-10-07（Day 14），下面「现在能跑什么」里的命令都实测过。
 
@@ -15,10 +23,10 @@ Week 01「LLM 基础与 API」走完 7 天（Day 8~14）。本周交付物是一
 
 | 产出 | 位置 |
 |---|---|
-| 6 份演示脚本（Day 8~13） | `weeks/week01_llm_api/day08_*.py` … `day13_*.py` |
+| 6 份演示脚本（Day 8~13） | `weeks/week01_llm_api/demos/day08/` … `demos/day13/` |
 | **本周交付物**：带长期记忆的聊天机器人 | `weeks/week01_llm_api/chat_cli/`（591 行代码 + 27 个测试函数） |
 | 一份笔记 | `notes/流式块解剖.md`——流式返回的每个字段干嘛用（含实测数据） |
-| Day 8 交付物：参数对比记录 | `weeks/week01_llm_api/day08_参数对比记录.md` |
+| Day 8 交付物：参数对比记录 | `weeks/week01_llm_api/demos/day08/day08_参数对比记录.md` |
 | 真实故障记录（本周 7 条） | `FAILURES.md` |
 | 本周提交 | 31 次（从 Week 00 交接之后算起） |
 
@@ -50,12 +58,12 @@ cd weeks\week01_llm_api\chat_cli
 
 # 3）六个演示脚本的离线路径（都不联网、不花钱）
 cd ..\..\..
-.venv\Scripts\python.exe weeks\week01_llm_api\day08_roles_demo.py
-.venv\Scripts\python.exe weeks\week01_llm_api\day09_token_demo.py
-.venv\Scripts\python.exe weeks\week01_llm_api\day10_messages_demo.py
-.venv\Scripts\python.exe weeks\week01_llm_api\day11_streaming_demo.py
-.venv\Scripts\python.exe weeks\week01_llm_api\day12_resilience_demo.py
-.venv\Scripts\python.exe weeks\week01_llm_api\day13_memory_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day08\day08_roles_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day09\day09_token_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day10\day10_messages_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day11\day11_streaming_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day12\day12_resilience_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day13\day13_memory_demo.py
 # 预期：六个都跑到最后一行、退出码 0（实测输出 110~144 行不等）
 
 # 4）仓库测试（9 条）与代码检查
@@ -69,10 +77,10 @@ cd ..\..\..
 
 ```bash
 # Day 8 的 temperature 对比实验（两个温度各 5 次）
-.venv\Scripts\python.exe weeks\week01_llm_api\day08_temperature_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day08\day08_temperature_demo.py
 
 # 任意演示加 --live 都会真调一次模型，例如：
-.venv\Scripts\python.exe weeks\week01_llm_api\day13_memory_demo.py --live
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day13\day13_memory_demo.py --live
 ```
 
 **本周那条关键验收**（Day 13 真跑过）：

@@ -4,55 +4,58 @@
 
 **交付物**：流式 CLI 聊天机器人。
 
+2026-10-18 目录整理：演示与当天记录放在 `demos/dayNN/`，练习集中在
+`exercises/`；完整项目 `chat_cli/` 保留原目录结构。下方命令已使用新路径。
+
 ## 本周材料
 
 分工：**演示和讲解由 AI 搭好，实验、记录、练习题由学员自己完成。**
 
 | 天 | 材料 | 谁做 | 是什么 |
 |---|---|---|---|
-| Day 8 | `day08_roles_demo.py` | AI 搭・学员跑 | system / user / assistant 三种角色讲解（离线，`--live` 才联网对照） |
-| Day 8 | `day08_temperature_demo.py` | AI 搭・学员跑 | 只负责跑出 temperature 对比的原始数据，不给结论 |
-| Day 8 | `day08_exercises.py` | **学员做** | 验证学习成果的题（留了空，会大声报 `NotImplementedError`） |
-| Day 8 | `day08_参数对比记录.md` | **学员填** | Day 8 交付物：自己跑、自己观察、自己下结论 |
-| Day 9 | `day09_token_demo.py` | AI 搭・学员跑 | token 与成本讲解：官方价格表、多轮滚雪球、思考 token 的账（离线可跑，`--live` 实测 usage） |
-| Day 9 | `day09_exercises.py` | **学员做** | 三题搭出一个迷你 `/cost` 核心：算一次调用、模拟多轮输入、算整段会话 |
-| Day 10 | `day10_messages_demo.py` | AI 搭・学员跑 | 多轮对话的原理：历史在谁手里、`/clear` 清的是什么、三个坑（离线，`--live` 验证「不带历史就失忆」） |
+| Day 8 | `demos/day08/day08_roles_demo.py` | AI 搭・学员跑 | system / user / assistant 三种角色讲解（离线，`--live` 才联网对照） |
+| Day 8 | `demos/day08/day08_temperature_demo.py` | AI 搭・学员跑 | 只负责跑出 temperature 对比的原始数据，不给结论 |
+| Day 8 | `exercises/day08_exercises.py` | **学员做** | 验证学习成果的题（留了空，会大声报 `NotImplementedError`） |
+| Day 8 | `demos/day08/day08_参数对比记录.md` | **学员填** | Day 8 交付物：自己跑、自己观察、自己下结论 |
+| Day 9 | `demos/day09/day09_token_demo.py` | AI 搭・学员跑 | token 与成本讲解：官方价格表、多轮滚雪球、思考 token 的账（离线可跑，`--live` 实测 usage） |
+| Day 9 | `exercises/day09_exercises.py` | **学员做** | 三题搭出一个迷你 `/cost` 核心：算一次调用、模拟多轮输入、算整段会话 |
+| Day 10 | `demos/day10/day10_messages_demo.py` | AI 搭・学员跑 | 多轮对话的原理：历史在谁手里、`/clear` 清的是什么、三个坑（离线，`--live` 验证「不带历史就失忆」） |
 | Day 10~ | `chat_cli/` | **学员写** | **本周交付物**：多轮聊天机器人。Day 10 要写 `conversation.py` 和 `chat_cli.py`，验收测试在 `chat_cli/tests/` |
-| Day 11 | `day11_streaming_demo.py` | AI 搭・学员跑 | 流式输出：增量块结构、为什么必须 `flush`、流断了怎么处理；含实测数据「127 块里前 98 块是思考」（离线，`--live` 真流式打一次） |
+| Day 11 | `demos/day11/day11_streaming_demo.py` | AI 搭・学员跑 | 流式输出：增量块结构、为什么必须 `flush`、流断了怎么处理；含实测数据「127 块里前 98 块是思考」（离线，`--live` 真流式打一次） |
 | Day 11 | `chat_cli/llm.py` 的 `stream_chat()` | **学员写** | 边收边给，并把 usage 带回来；写完把 `chat_cli.py` 的 main 换成流式（那里留了 TODO） |
-| Day 12 | `day12_resilience_demo.py` | AI 搭・学员跑 | 容错：哪类错误该重试、指数退避与抖动、超时、上下文裁剪；含实测「openai 默认自己重试 2 次，叠两层会变成 9 次请求」（**完全离线**：连的是本机死端口） |
+| Day 12 | `demos/day12/day12_resilience_demo.py` | AI 搭・学员跑 | 容错：哪类错误该重试、指数退避与抖动、超时、上下文裁剪；含实测「openai 默认自己重试 2 次，叠两层会变成 9 次请求」（**完全离线**：连的是本机死端口） |
 | Day 12 | `chat_cli` 的 `trim` / `_make_client` / `retry` | **学员写** | 裁剪最近 N 轮、带超时且关掉 SDK 重试的客户端、指数退避重试；验收测试 `tests/test_resilience.py` |
-| Day 13 | `day13_memory_demo.py` | AI 搭・学员跑 | 简易长期记忆：模型没有记忆、事实存 JSON、拼进 system；含「/clear 清得掉历史、清不掉记忆」（离线，`--live` 对比带/不带记忆） |
+| Day 13 | `demos/day13/day13_memory_demo.py` | AI 搭・学员跑 | 简易长期记忆：模型没有记忆、事实存 JSON、拼进 system；含「/clear 清得掉历史、清不掉记忆」（离线，`--live` 对比带/不带记忆） |
 | Day 13 | `chat_cli/memory.py` + `Conversation.set_system` | **学员写** | 事实的存/取/拼提示词 + 换人设；验收测试 `tests/test_memory.py` |
 | Day 13 | `chat_cli/README.md` 的架构说明 / 已知限制 / 视频提纲 | **学员填** | Day 13 的交付物，文件里留了引导问题 |
-| Day 14 | `day14_复盘与面试问题.md` | **学员填** | Day 14 交付物：三条面试问题 + 本周复盘 + 下周预习结论 |
+| Day 14 | `demos/day14/day14_复盘与面试问题.md` | **学员填** | Day 14 交付物：三条面试问题 + 本周复盘 + 下周预习结论 |
 | Day 14 | `HANDOFF.md` | AI 写 | 本周交接文档（五块：状态 / 能跑什么 / 环境 / 尾巴 / 下周目标），命令都实测过 |
 
 跑法（在仓库根目录）：
 
 ```bash
 # 角色讲解（默认不联网）
-.venv\Scripts\python.exe weeks\week01_llm_api\day08_roles_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day08\day08_roles_demo.py
 
 # 想真的调 3 次看差别（需要网络）
-.venv\Scripts\python.exe weeks\week01_llm_api\day08_roles_demo.py --live
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day08\day08_roles_demo.py --live
 
 # temperature 实验（需要网络，会消耗少量额度）
-.venv\Scripts\python.exe weeks\week01_llm_api\day08_temperature_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day08\day08_temperature_demo.py
 
 # 练习：自己写，跑通看输出对不对
-.venv\Scripts\python.exe weeks\week01_llm_api\day08_exercises.py
+.venv\Scripts\python.exe weeks\week01_llm_api\exercises\day08_exercises.py
 
 # Day 9：token 与成本的讲解（默认离线，不花钱）
-.venv\Scripts\python.exe weeks\week01_llm_api\day09_token_demo.py
-.venv\Scripts\python.exe weeks\week01_llm_api\day09_token_demo.py --live   # 真的发一次，看 usage
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day09\day09_token_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day09\day09_token_demo.py --live   # 真的发一次，看 usage
 
 # Day 9 练习：把成本估算函数写出来
-.venv\Scripts\python.exe weeks\week01_llm_api\day09_exercises.py
+.venv\Scripts\python.exe weeks\week01_llm_api\exercises\day09_exercises.py
 
 # Day 10：多轮对话的原理（默认离线，不花钱）
-.venv\Scripts\python.exe weeks\week01_llm_api\day10_messages_demo.py
-.venv\Scripts\python.exe weeks\week01_llm_api\day10_messages_demo.py --live   # 真聊两轮
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day10\day10_messages_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day10\day10_messages_demo.py --live   # 真聊两轮
 
 # Day 10 交付物：多轮聊天机器人（骨架留给你写）
 cd weeks\week01_llm_api\chat_cli
@@ -60,19 +63,19 @@ cd weeks\week01_llm_api\chat_cli
 ..\..\..\.venv\Scripts\python.exe chat_cli.py       # 写完了就能连续聊天
 
 # Day 11：流式输出的原理（默认离线，不花钱）
-.venv\Scripts\python.exe weeks\week01_llm_api\day11_streaming_demo.py
-.venv\Scripts\python.exe weeks\week01_llm_api\day11_streaming_demo.py --live   # 真流式打一次
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day11\day11_streaming_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day11\day11_streaming_demo.py --live   # 真流式打一次
 
 # Day 12：裁剪与容错（完全离线——连的是本机死端口，不花钱）
-.venv\Scripts\python.exe weeks\week01_llm_api\day12_resilience_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day12\day12_resilience_demo.py
 
 # Day 12 的验收：断网、限流、超长输入三种情况都不崩
 cd weeks\week01_llm_api\chat_cli
 ..\..\..\.venv\Scripts\python.exe -m pytest -v tests\test_resilience.py
 
 # Day 13：长期记忆（默认离线，不花钱）
-.venv\Scripts\python.exe weeks\week01_llm_api\day13_memory_demo.py
-.venv\Scripts\python.exe weeks\week01_llm_api\day13_memory_demo.py --live   # 对比带/不带记忆
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day13\day13_memory_demo.py
+.venv\Scripts\python.exe weeks\week01_llm_api\demos\day13\day13_memory_demo.py --live   # 对比带/不带记忆
 ```
 
 学员做完练习和参数对比记录后，交给 AI 对答案、挑毛病。

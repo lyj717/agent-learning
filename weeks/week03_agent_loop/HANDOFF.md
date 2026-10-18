@@ -2,24 +2,40 @@
 
 > 写给 Week 04 对话。开工先读根目录 `AGENTS.md`、本文件和 `weeks/week04_frameworks/README.md`。
 
+## 当前路径补充（2026-10-18）
+
+练习已集中在 `exercises/`，演示、fake model、worker、资料与验收记录按单元归入
+`demos/dayNN/`；下面的当前命令已同步。跨目录引用使用
+`weeks.week03_agent_loop.exercises...` 或 `weeks.week03_agent_loop.demos.dayNN...`，
+直接运行脚本时只把仓库根目录补入导入路径，不扫描或追加各天目录。
+
+整理后验证：21 个离线入口分别从仓库根目录和脚本目录启动，42 次均正常退出；
+Day 27 的 12 组停止原因及请求次数、Day 28 的 6 组变式、资料检索与两个 worker 通过。
+Day 27、Day 28 的全部函数 AST 与整理前一致；Ruff 检查和 38 个文件的格式检查通过。
+Day 23、24、28 的 `--live` 各运行一次并正常退出：请求次数分别为 1、3、3。
+Day 24 先检索、后算 `18*7`，最终答复为 126 元并引用 `products.txt` 第 2 行；
+Day 28 先检索、后算 `7*6`，最终答复为 42 元并引用 `catalog.txt:4`，入口自检通过。
+这是 AI 对迁移后教具的验证；下文 2026-10-15 的证据仍保留为当时的历史记录，
+学员验收记录未被本次输出替换。
+
 ## 一句话状态
 
-Day 22～28 的手写 Agent 主线已验收：学员在 `day27_integrated_exercises.py` 接起原生工具调用、三把工具、消息回填、轨迹、预算、时限与重复停止；Day 28 换“暮云贴纸”完成闭卷预测、六组离线变式和一次真实模型先查后算。学员的预测、运行记录与限制判断保存在 `day28_验收记录.md`；AI 没有代写这些答案。
+Day 22～28 的手写 Agent 主线已验收：学员在 `exercises/day27_integrated_exercises.py` 接起原生工具调用、三把工具、消息回填、轨迹、预算、时限与重复停止；Day 28 换“暮云贴纸”完成闭卷预测、六组离线变式和一次真实模型先查后算。学员的预测、运行记录与限制判断保存在 `demos/day28/day28_验收记录.md`；AI 没有代写这些答案。
 
 ## 现在能跑什么
 
 在仓库根目录运行，离线入口不需要密钥：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day27_integrated_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day27_integrated_exercises.py
 # 预期：12 组情境分别展示正常答复、工具错误、权限、预算、时限与重复停止。
 
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day28_variant_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day28_variant_exercises.py
 # 预期：预算复验为 530/70 token、cost_budget；重复复验为末尾 1/2 条；
 # 六组变式分别得到 final_answer、final_answer、final_answer、final_answer、max_steps、cost_budget。
 
 # 需要根目录 .env 和网络；明确传 --live 才发送真实请求。
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day28_live_check.py --live
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day28\day28_live_check.py --live
 # 学员当次记录：3 次请求，search_notes → calculator → 最终答复，42 元，catalog.txt:4。
 
 .venv\Scripts\python.exe -B -m pytest -p no:cacheprovider --basetemp=.pytest_tmp tests

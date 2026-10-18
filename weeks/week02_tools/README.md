@@ -4,112 +4,116 @@
 
 **交付物**：信息抽取与三工具问答双模式项目（`extract` / `ask`，含错误回填与轮数上限）。
 
+2026-10-18 目录整理：演示、探针及当天记录放在 `demos/dayNN/`，练习集中在
+`exercises/`；共用的请求层与工具箱放在 `demos/shared/`。Day 18 练习库位于
+`demos/day18/day18_orders.sqlite`，完整项目 `info_toolbox/` 保留原目录结构。
+
 分工还是老规矩：**演示和讲解由 AI 搭好，实验、记录、练习题由学员自己完成。**
 
 ## 本周材料
 
 | 天 | 材料 | 谁做 | 是什么 |
 |---|---|---|---|
-| Day 15 | `day15_structured_output_demo.py` | AI 搭・学员跑 | 结构化输出：JSON 模式管什么、不管什么；含 3 个真实踩过的坑（离线，`--live` 真跑 3 次对照） |
-| Day 15 | `day15_structured_output_exercises.py` | **学员做** | 三题：拼提示词 → 安全解析 → 串起来真抽 10 条（留了空，会大声报 `NotImplementedError`） |
-| Day 15 | `day15_抽取成功率记录.md` | **学员填** | Day 15 交付物：10 条的逐条结果 + 两个成功率 + 你的结论 |
-| — | `llm_client.py` | AI 搭 | 共用的请求层：建客户端 + 发一次 JSON 模式请求（`chat_json` 会把原始文本和 `finish_reason` 一起给你）。Day 15 里这段是写在练习里的，从 Day 16 起收进这个文件 |
-| Day 16 | `day16_pydantic_demo.py` | AI 搭・学员跑 | Pydantic 校验：空串归一、格式校验、报错怎么读；「校验失败 → 把错误回填 → 模型改对」的完整回合（离线，`--live` 真跑一轮对照） |
-| Day 16 | `day16_validator_decorator_demo.py` | AI 搭・学员跑 | 加餐：`@field_validator` + `@classmethod` 到底干嘛用——5 个小实验（不加装饰器 / 不加 classmethod / before vs after / 装饰器展开 / 一器多字段），完全离线 |
-| Day 16 | `day16_regex_demo.py` | AI 搭・学员跑 | 加餐：`re.fullmatch` 是什么、`\d{11}` 怎么读、`search`/`match`/`fullmatch` 的区别，以及「全角数字能绕过 11 位数字校验」这个真坑，完全离线 |
-| Day 16 | `day16_model_validate_demo.py` | AI 搭・学员跑 | 加餐：`PersonExtract.model_validate_json(raw)` 到底做了什么——把黑盒拆成三步（解析 → 逐字段校验 → 造实例），每步都打印出来；含「字段缺失 / 多余字段」为什么不算错，完全离线 |
-| Day 16 | `day16_retry_probe.py` | AI 搭・学员跑 | 工具：**零成本**验证「重试有没有真的重发请求」——把 `chat_json` 换成假函数，数它被调用了几次。写完第 3 题后跑它自测，不用花一分钱 |
-| Day 16 | `day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次 |
-| Day 16 | `day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
-| Day 17 | `day17_tool_calling_demo.py` | AI 搭・学员跑 | 工具调用：模型不自己算，它「点单」你来「上菜」——五步闭环、真实两轮返回、七个坑（含「JSON 模式不能和 tools 混用」的实测），离线可跑，`--live` 真跑一轮 |
-| Day 17 | `tools.py` | AI 搭 | 工具箱：里面是**真能执行**的函数。今天只有 `calculator()`（ast 安全求值，不用 eval）；Day 18 往里加查天气、查 SQLite |
-| Day 17 | `day17_tool_calling_exercises.py` | **学员做** | 三题：写工具说明（JSON Schema）→ 执行模型点的那一单 → 把完整闭环串起来 |
-| Day 17 | `day17_工具调用流程图.md` | **学员填** | Day 17 交付物：把这次工具的完整回合画成流程图，标清每一步谁在执行 |
-| Day 17 | `day17_tool_choice_demo.py` | AI 搭・学员跑 | 加餐：**模型怎么知道该调哪个工具**——六轮实测（同问题只改工具名和描述），证明它靠名字+参数名+描述一起判断；第 5 节是 `tool_choice` 四种取值的实测（含「思考模式下 required 会 400」这条坑） |
-| Day 17 | `day17_parameters_demo.py` | AI 搭・学员跑 | 加餐：`parameters` 里到底写什么——JSON Schema 逐键讲解（properties / required / description / enum / 嵌套），含「写得细 vs 写得糊」的实测对比（糊的那份拿到空参数 `{}`） |
-| Day 18 | `day18_multi_tools_demo.py` | AI 搭・学员跑 | 多工具选择、工具粒度、SQLite 占位符，完全离线 |
-| Day 18 | `day18_sqlite_basics_demo.py` | AI 搭・学员跑 | SQLite 从零演示：内存数据库里建表、插入、查询、筛选、修改、删除；不碰练习库 |
-| Day 18 | `day18_seed_db.py` | AI 搭 | 重建六条订单的本地 SQLite 练习库；生成的 `.sqlite` 文件不提交 |
-| Day 18 | `tools.py` 中两个新函数、`day18_multi_tools_exercises.py` | **学员做** | 已实现模拟天气与 SQLite 订单查询、三工具说明、分发和自动选择闭环 |
-| Day 18 | `day18_工具选择记录.md` | **学员填** | 第一轮选择的真实记录，以及模糊问法引发多余工具调用的对照案例 |
-| Day 19 | `day19_error_recovery_demo.py` | AI 搭・学员跑 | 完全离线：真实本地异常、错误回填、改参数示意、最大轮数和不可修复错误 |
-| Day 19 | `day19_error_recovery_exercises.py` | **学员做** | 两题：把本地异常变成 tool 结果；在有上限的循环里回填并观察真实模型；末尾填写思考题 |
-| Day 19 | `day19_error_recovery_probe.py` | AI 搭・学员跑 | 零成本检查：失败后继续、调用 ID 配对、同轮多个工具、轮数上限 |
+| Day 15 | `demos/day15/day15_structured_output_demo.py` | AI 搭・学员跑 | 结构化输出：JSON 模式管什么、不管什么；含 3 个真实踩过的坑（离线，`--live` 真跑 3 次对照） |
+| Day 15 | `exercises/day15_structured_output_exercises.py` | **学员做** | 三题：拼提示词 → 安全解析 → 串起来真抽 10 条（留了空，会大声报 `NotImplementedError`） |
+| Day 15 | `demos/day15/day15_抽取成功率记录.md` | **学员填** | Day 15 交付物：10 条的逐条结果 + 两个成功率 + 你的结论 |
+| — | `demos/shared/llm_client.py` | AI 搭 | 共用的请求层：建客户端 + 发一次 JSON 模式请求（`chat_json` 会把原始文本和 `finish_reason` 一起给你）。Day 15 里这段是写在练习里的，从 Day 16 起收进这个文件 |
+| Day 16 | `demos/day16/day16_pydantic_demo.py` | AI 搭・学员跑 | Pydantic 校验：空串归一、格式校验、报错怎么读；「校验失败 → 把错误回填 → 模型改对」的完整回合（离线，`--live` 真跑一轮对照） |
+| Day 16 | `demos/day16/day16_validator_decorator_demo.py` | AI 搭・学员跑 | 加餐：`@field_validator` + `@classmethod` 到底干嘛用——5 个小实验（不加装饰器 / 不加 classmethod / before vs after / 装饰器展开 / 一器多字段），完全离线 |
+| Day 16 | `demos/day16/day16_regex_demo.py` | AI 搭・学员跑 | 加餐：`re.fullmatch` 是什么、`\d{11}` 怎么读、`search`/`match`/`fullmatch` 的区别，以及「全角数字能绕过 11 位数字校验」这个真坑，完全离线 |
+| Day 16 | `demos/day16/day16_model_validate_demo.py` | AI 搭・学员跑 | 加餐：`PersonExtract.model_validate_json(raw)` 到底做了什么——把黑盒拆成三步（解析 → 逐字段校验 → 造实例），每步都打印出来；含「字段缺失 / 多余字段」为什么不算错，完全离线 |
+| Day 16 | `demos/day16/day16_retry_probe.py` | AI 搭・学员跑 | 工具：**零成本**验证「重试有没有真的重发请求」——把 `chat_json` 换成假函数，数它被调用了几次。写完第 3 题后跑它自测，不用花一分钱 |
+| Day 16 | `exercises/day16_pydantic_exercises.py` | **学员做** | 三题：把规矩写成模型 → 把报错变成给模型看的话 → 带重试地抽一次 |
+| Day 16 | `demos/day16/day16_脏数据处理记录.md` | **学员填** | Day 16 交付物：四条脏数据的处理结果 + 三条难抽文本的「第一次 vs 重试后」对照 + 你的结论 |
+| Day 17 | `demos/day17/day17_tool_calling_demo.py` | AI 搭・学员跑 | 工具调用：模型不自己算，它「点单」你来「上菜」——五步闭环、真实两轮返回、七个坑（含「JSON 模式不能和 tools 混用」的实测），离线可跑，`--live` 真跑一轮 |
+| Day 17 | `demos/shared/tools.py` | AI 搭 | 工具箱：里面是**真能执行**的函数。今天只有 `calculator()`（ast 安全求值，不用 eval）；Day 18 往里加查天气、查 SQLite |
+| Day 17 | `exercises/day17_tool_calling_exercises.py` | **学员做** | 三题：写工具说明（JSON Schema）→ 执行模型点的那一单 → 把完整闭环串起来 |
+| Day 17 | `demos/day17/day17_工具调用流程图.md` | **学员填** | Day 17 交付物：把这次工具的完整回合画成流程图，标清每一步谁在执行 |
+| Day 17 | `demos/day17/day17_tool_choice_demo.py` | AI 搭・学员跑 | 加餐：**模型怎么知道该调哪个工具**——六轮实测（同问题只改工具名和描述），证明它靠名字+参数名+描述一起判断；第 5 节是 `tool_choice` 四种取值的实测（含「思考模式下 required 会 400」这条坑） |
+| Day 17 | `demos/day17/day17_parameters_demo.py` | AI 搭・学员跑 | 加餐：`parameters` 里到底写什么——JSON Schema 逐键讲解（properties / required / description / enum / 嵌套），含「写得细 vs 写得糊」的实测对比（糊的那份拿到空参数 `{}`） |
+| Day 18 | `demos/day18/day18_multi_tools_demo.py` | AI 搭・学员跑 | 多工具选择、工具粒度、SQLite 占位符，完全离线 |
+| Day 18 | `demos/day18/day18_sqlite_basics_demo.py` | AI 搭・学员跑 | SQLite 从零演示：内存数据库里建表、插入、查询、筛选、修改、删除；不碰练习库 |
+| Day 18 | `demos/day18/day18_seed_db.py` | AI 搭 | 重建六条订单的本地 SQLite 练习库；生成的 `.sqlite` 文件不提交 |
+| Day 18 | `demos/shared/tools.py` 中两个新函数、`exercises/day18_multi_tools_exercises.py` | **学员做** | 已实现模拟天气与 SQLite 订单查询、三工具说明、分发和自动选择闭环 |
+| Day 18 | `demos/day18/day18_工具选择记录.md` | **学员填** | 第一轮选择的真实记录，以及模糊问法引发多余工具调用的对照案例 |
+| Day 19 | `demos/day19/day19_error_recovery_demo.py` | AI 搭・学员跑 | 完全离线：真实本地异常、错误回填、改参数示意、最大轮数和不可修复错误 |
+| Day 19 | `exercises/day19_error_recovery_exercises.py` | **学员做** | 两题：把本地异常变成 tool 结果；在有上限的循环里回填并观察真实模型；末尾填写思考题 |
+| Day 19 | `demos/day19/day19_error_recovery_probe.py` | AI 搭・学员跑 | 零成本检查：失败后继续、调用 ID 配对、同轮多个工具、轮数上限 |
 | Day 19 | 根目录 `FAILURES.md` | **AI 收尾时写** | 根据今天可核对的报错和修复维护故障台账；学员的观察写在练习文件末尾 |
-| Day 20 | `day20_integration_demo.py` | AI 搭・学员跑 | 离线看懂抽取路径、工具路径和双模式命令行入口；每节都运行一小段代码 |
+| Day 20 | `demos/day20/day20_integration_demo.py` | AI 搭・学员跑 | 离线看懂抽取路径、工具路径和双模式命令行入口；每节都运行一小段代码 |
 | Day 20 | `info_toolbox/app.py` | **学员做** | 独立项目入口的三题：把抽取结果转成 JSON、接三工具闭环、按模式分流 |
-| Day 20 | `info_toolbox/README.md` 及 `day20_演示与面试素材.md` | **学员填** | 写运行方法与限制、真实演示轨迹和面试可讲素材；视频在面试复习时补录 |
-| Day 21 | `day21_白板复盘.md` | **学员填** | 五分钟闭卷画工具调用回合、答口头题；JD 和简历按学员决定在项目结束后统一处理 |
+| Day 20 | `info_toolbox/README.md` 及 `demos/day20/day20_演示与面试素材.md` | **学员填** | 写运行方法与限制、真实演示轨迹和面试可讲素材；视频在面试复习时补录 |
+| Day 21 | `demos/day21/day21_白板复盘.md` | **学员填** | 五分钟闭卷画工具调用回合、答口头题；JD 和简历按学员决定在项目结束后统一处理 |
 
 跑法（在仓库根目录）：
 
 ```bash
 # Day 15 讲解（默认离线，不花钱；里面的返回数据是真实抓下来的）
-.venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day15\day15_structured_output_demo.py
 
 # 真想亲眼看差别（要网络，跑 3 次）
-.venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_demo.py --live
+.venv\Scripts\python.exe weeks\week02_tools\demos\day15\day15_structured_output_demo.py --live
 
 # Day 15 练习：前两题离线自测；第三题是 10 条真实抽取
-.venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_exercises.py
-.venv\Scripts\python.exe weeks\week02_tools\day15_structured_output_exercises.py --live
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day15_structured_output_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day15_structured_output_exercises.py --live
 
 # Day 16 讲解（默认离线，不花钱；脏数据和报错都是真跑出来的）
-.venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day16\day16_pydantic_demo.py
 
 # 真想看「失败 → 回填 → 改对」的完整回合（要网络，2 次调用）
-.venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_demo.py --live
+.venv\Scripts\python.exe weeks\week02_tools\demos\day16\day16_pydantic_demo.py --live
 
 # Day 16 练习：前两题离线喂脏数据；第三题是真抽三条难抽文本
-.venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_exercises.py
-.venv\Scripts\python.exe weeks\week02_tools\day16_pydantic_exercises.py --live
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day16_pydantic_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day16_pydantic_exercises.py --live
 
 # Day 16 加餐：那两个装饰器到底是干嘛的（完全离线）
-.venv\Scripts\python.exe weeks\week02_tools\day16_validator_decorator_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day16\day16_validator_decorator_demo.py
 
 # Day 16 加餐：re.fullmatch 和「11 位数字」怎么校验（完全离线）
-.venv\Scripts\python.exe weeks\week02_tools\day16_regex_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day16\day16_regex_demo.py
 
 # Day 16 加餐：model_validate_json 到底执行了哪些工作（完全离线）
-.venv\Scripts\python.exe weeks\week02_tools\day16_model_validate_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day16\day16_model_validate_demo.py
 
 # Day 16 自测：重试到底有没有重发请求（零成本，不发真实网络请求）
-.venv\Scripts\python.exe weeks\week02_tools\day16_retry_probe.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day16\day16_retry_probe.py
 
 # Day 17 讲解：工具调用（默认离线；里面的返回是真跑抓下来的）
-.venv\Scripts\python.exe weeks\week02_tools\day17_tool_calling_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day17\day17_tool_calling_demo.py
 
 # 真想看一轮完整回合（要网络，2 次请求）
-.venv\Scripts\python.exe weeks\week02_tools\day17_tool_calling_demo.py --live
+.venv\Scripts\python.exe weeks\week02_tools\demos\day17\day17_tool_calling_demo.py --live
 
 # Day 17 练习：第 1、2 题离线自测；第 3 题真问模型两个问题
-.venv\Scripts\python.exe weeks\week02_tools\day17_tool_calling_exercises.py
-.venv\Scripts\python.exe weeks\week02_tools\day17_tool_calling_exercises.py --live
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day17_tool_calling_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day17_tool_calling_exercises.py --live
 
 # Day 17 加餐：模型怎么选工具（离线看机制；--live 跑六轮实测）
-.venv\Scripts\python.exe weeks\week02_tools\day17_tool_choice_demo.py
-.venv\Scripts\python.exe weeks\week02_tools\day17_tool_choice_demo.py --live
+.venv\Scripts\python.exe weeks\week02_tools\demos\day17\day17_tool_choice_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day17\day17_tool_choice_demo.py --live
 
 # Day 18：先看讲解；演示会生成可重复的 SQLite 练习库
-.venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day18\day18_multi_tools_demo.py
 
 # 如果第 3 节 SQL 看不懂，先跑这份从零演示（只用内存数据库）
-.venv\Scripts\python.exe weeks\week02_tools\day18_sqlite_basics_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day18\day18_sqlite_basics_demo.py
 
 # Day 18：先做 tools.py 里的两个函数，再做三工具说明、分发和闭环
-.venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_exercises.py
-.venv\Scripts\python.exe weeks\week02_tools\day18_multi_tools_exercises.py --live
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day18_multi_tools_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day18_multi_tools_exercises.py --live
 
 # Day 19：先看离线讲解，再做两题；完成后用假模型检查消息回填
-.venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_demo.py
-.venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_exercises.py
-.venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_probe.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day19\day19_error_recovery_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day19_error_recovery_exercises.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day19\day19_error_recovery_probe.py
 
 # Day 19：最后才运行真实模型；观察与思考题写在练习文件末尾
-.venv\Scripts\python.exe weeks\week02_tools\day19_error_recovery_exercises.py --live
+.venv\Scripts\python.exe weeks\week02_tools\exercises\day19_error_recovery_exercises.py --live
 
 # Day 20：先跑离线整合演示，再看项目入口的帮助
-.venv\Scripts\python.exe weeks\week02_tools\day20_integration_demo.py
+.venv\Scripts\python.exe weeks\week02_tools\demos\day20\day20_integration_demo.py
 .venv\Scripts\python.exe weeks\week02_tools\info_toolbox\app.py --help
 
 # Day 20：运行两个成品模式；这两条都会请求真实模型
@@ -122,16 +126,16 @@
 
 Day 20 的两个模式由命令行明确选择。`extract` 沿用 Day 16 的 JSON 抽取与校验；
 `ask` 沿用 Day 18 的三工具说明和 Day 19 的错误回填循环。两条路径都要真实模型请求，
-真实输出和项目说明已填写在 `info_toolbox/README.md` 及 `day20_演示与面试素材.md`。
+真实输出和项目说明已填写在 `info_toolbox/README.md` 及 `demos/day20/day20_演示与面试素材.md`。
 按学员安排，视频在面试复习时补录。项目版逻辑都放在 `info_toolbox/`，原来的每日练习文件保留作学习记录。
 
 ## Day 18 的两个数据库相关文件
 
-`day18_seed_db.py` 是**准备数据的代码**：`seed_db()` 建 `orders` 表并插入六条固定的假订单。演示和练习都已经调用它，正常学习时直接运行演示、练习即可，无须单独运行种子脚本。
+`demos/day18/day18_seed_db.py` 是**准备数据的代码**：`seed_db()` 建 `orders` 表并插入六条固定的假订单。演示和练习都已经调用它，正常学习时直接运行演示、练习即可，无须单独运行种子脚本。
 
-`day18_orders.sqlite` 是运行时**生成的数据库文件**，`query_orders(city)` 要从这里读数据。它不是 Python 源码，也不是要填写的交付物；`.gitignore` 会忽略它。每次运行演示或练习都会重建 `orders` 表，手动改过的订单会被覆盖。需要记录的观察和结论请写在 `day18_工具选择记录.md`。
+`day18_orders.sqlite` 是运行时**生成的数据库文件**，`query_orders(city)` 要从这里读数据。它不是 Python 源码，也不是要填写的交付物；`.gitignore` 会忽略它。每次运行演示或练习都会重建 `orders` 表，手动改过的订单会被覆盖。需要记录的观察和结论请写在 `demos/day18/day18_工具选择记录.md`。
 
-SQLite 刚入门时，先跑 `day18_sqlite_basics_demo.py` 的第 1～5 节。它用 `:memory:` 建临时库，从一张四行表开始逐步讲 `CREATE TABLE`、`INSERT`、`SELECT`、`WHERE` 和 `?`；第 6 节的 `UPDATE`、`DELETE` 是加餐。想查每个 Python 方法的准确用法，看 [Python 官方 sqlite3 教程](https://docs.python.org/3/library/sqlite3.html#tutorial)；特别看连接、`execute()`、`fetchall()` 和参数占位符，正好对应 Day 18 的订单查询。
+SQLite 刚入门时，先跑 `demos/day18/day18_sqlite_basics_demo.py` 的第 1～5 节。它用 `:memory:` 建临时库，从一张四行表开始逐步讲 `CREATE TABLE`、`INSERT`、`SELECT`、`WHERE` 和 `?`；第 6 节的 `UPDATE`、`DELETE` 是加餐。想查每个 Python 方法的准确用法，看 [Python 官方 sqlite3 教程](https://docs.python.org/3/library/sqlite3.html#tutorial)；特别看连接、`execute()`、`fetchall()` 和参数占位符，正好对应 Day 18 的订单查询。
 
 ## 官方文档去哪看（Day 15 ~ Day 21）
 
@@ -155,13 +159,13 @@ Day 19 另读 [DeepSeek Tool Calls 官方指南](https://api-docs.deepseek.com/z
 
 ## 每日清单
 
-- [x] Day 15｜结构化输出，从杂乱文本抽 JSON，统计成功率（实测 10 条：解析 10/10 = 100%、记录级完全匹配 7/10 = 70%；第 9 条另补跑 3 次，见 `day15_抽取成功率记录.md` 的口径订正）
+- [x] Day 15｜结构化输出，从杂乱文本抽 JSON，统计成功率（实测 10 条：解析 10/10 = 100%、记录级完全匹配 7/10 = 70%；第 9 条另补跑 3 次，见 `demos/day15/day15_抽取成功率记录.md` 的口径订正）
 - [x] Day 16｜Pydantic 校验与失败重试（把抽取结果用模型接收；四条脏数据不崩，失败自动回填重试一次——注入式验证实测走通；三条真实文本一次通过）
-- [x] Day 17｜第一个工具（计算器），跑通最小闭环，画流程图（实测两条问题各走 2 步 / 1 步；流程图见 `day17_工具调用流程图.md`）
+- [x] Day 17｜第一个工具（计算器），跑通最小闭环，画流程图（实测两条问题各走 2 步 / 1 步；流程图见 `demos/day17/day17_工具调用流程图.md`）
 - [x] Day 18｜多工具与工具选择（天气、SQLite 和三工具闭环已跑通；记录了模糊问法多调用订单工具及改写后的对照）
 - [x] Day 19｜错误回填让模型自纠，加最大重试次数（离线四组自测通过；真实模型把失败的 `12 ** 2` 改成 `12 * 12`，运行观察见练习末尾）
 - [x] Day 20｜整合项目、README、真实演示轨迹和面试素材（视频在面试复习时补录）
-- [x] Day 21｜4 分钟闭卷图、对照订正与口头问答；JD 与简历延至项目结束后，记录见 `day21_白板复盘.md`
+- [x] Day 21｜4 分钟闭卷图、对照订正与口头问答；JD 与简历延至项目结束后，记录见 `demos/day21/day21_白板复盘.md`
 
 ## 验收标准
 

@@ -1,5 +1,13 @@
 # Week 02 交接文档
 
+2026-10-18 路径订正：演示、探针及当天记录归入 `demos/dayNN/`，练习归入
+`exercises/`，共用模块归入 `demos/shared/`；下方入口使用整理后的路径。
+
+本次 AI 路径检查：23 个入口分别从仓库根目录和脚本目录检查，共 46 次通过；
+涉及文件型 SQLite 的入口使用临时代码镜像和新库，原库未重建。五份联网演示均运行
+`--live`，共 16 次真实请求；15 次正常响应，另一次是 Day 15 故意省略 `json`
+提示词后捕获的预期 400。临时目录已清理，这些是教具验证，不是新增学员实验记录。
+
 > 写给 Week 03 对话。先读根目录 `AGENTS.md`，再读本文件和本周 `README.md`。
 
 ## 一句话状态
@@ -17,7 +25,7 @@ Day 15～21 的结构化输出、Pydantic 校验、三工具调用和错误回�
 
 # 不联网：错误回填、调用 ID、轮数上限四组检查
 $env:PYTHONIOENCODING='utf-8'
-.venv\Scripts\python.exe -B weeks\week02_tools\day19_error_recovery_probe.py
+.venv\Scripts\python.exe -B weeks\week02_tools\demos\day19\day19_error_recovery_probe.py
 # 预期四组检查均有 ✓；max_rounds=2 时只请求模型两次
 
 # 需要 .env 中的真实密钥和网络；下面是学员已记录过的运行方式
@@ -32,7 +40,7 @@ $env:PYTHONIOENCODING='utf-8'
 .venv\Scripts\python.exe -B -m ruff format --check .
 ```
 
-真实模型的答复可能变化；Day 20 的实际轨迹保存在 `day20_演示与面试素材.md`，项目使用说明和限制保存在 `info_toolbox/README.md`。Day 21 的第一次白板图、参考图和学员订正保存在 `day21_白板复盘.md`。
+真实模型的答复可能变化；Day 20 的实际轨迹保存在 `demos/day20/day20_演示与面试素材.md`，项目使用说明和限制保存在 `info_toolbox/README.md`。Day 21 的第一次白板图、参考图和学员订正保存在 `demos/day21/day21_白板复盘.md`。
 
 ## 环境要点
 
@@ -44,8 +52,8 @@ $env:PYTHONIOENCODING='utf-8'
 
 ## 留的尾巴
 
-1. 按学员决定，招聘 JD 统计和简历修改留到整个学习项目结束后统一处理；模板保存在根目录 `jd-keywords.md` 和 `day21_白板复盘.md`。这不是 Week 03 开工门槛。
-2. Day 20 的三分钟视频留到面试复习时录制；录制位置与日期待填入 `day20_演示与面试素材.md`。Week 01 的视频也仍待补。
+1. 按学员决定，招聘 JD 统计和简历修改留到整个学习项目结束后统一处理；模板保存在根目录 `jd-keywords.md` 和 `demos/day21/day21_白板复盘.md`。这不是 Week 03 开工门槛。
+2. Day 20 的三分钟视频留到面试复习时录制；录制位置与日期待填入 `demos/day20/day20_演示与面试素材.md`。Week 01 的视频也仍待补。
 3. Day 21 第一次闭卷图画出了主线，但漏了工具说明、原 assistant 点单、错误回填和轮数分支；图下已有对照订正，AI 对少量文字做了批改校正。Week 03 开始 Agent 循环时，可再口头复述一次作为热身。
 4. `FAILURES.md` 记录了真实踩坑，包括订单初始化遗漏、南京问题误查北京，以及离线自测的终端编码错误。
 

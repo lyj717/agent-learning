@@ -10,7 +10,7 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-10-18）**：[Week 03](weeks/week03_agent_loop/README.md) 已验收，交接见 [HANDOFF](weeks/week03_agent_loop/HANDOFF.md)。[Week 04 Day 29～33](weeks/week04_frameworks/README.md) 已验收；Day 33 学员完成 A、B 与四道观察订正，AI 实跑批准、拒绝与同编号重试通过。下一单元为 Day 34 学员整合。学员反馈完整整合演示与练习仍太相似，从 Day 34 起优先把综合实现留给学员，独立迁移后续另验。消化半日和跨天闭卷复验仍待安排；Day 31～33 的订正后理解需复验。重复调用判据还需一次隔天复现，安排在下一次满足间隔的学习日。
+**当前接续点（2026-10-18）**：[Week 03](weeks/week03_agent_loop/README.md) 已验收，交接见 [HANDOFF](weeks/week03_agent_loop/HANDOFF.md)。[Week 04 Day 29～33](weeks/week04_frameworks/README.md) 已验收；Day 33 第 3 题的恢复时序已按学员要求直接订正。Day 34 已开工：先闭卷短复习、读两份独立消息转换演示，再由学员把 Day 27 工具与停止行为接成图，A～D 与观察待完成；不预给完整整合实现。文件检查点与人工确认接入自己的图，留在 Day 35 连同恢复变式检验，可按实际进度跨学习日。消化半日和跨天闭卷复验仍待安排，当前短题尚不能记为已通过；Day 31～33 的订正后理解仍需复验。
 
 详细计划见 `docs/` 目录：
 
@@ -36,6 +36,11 @@ agent-learning/
 ```
 
 **命名约定**：每周的代码放 `weeks/weekNN_主题/` 下，当周的交付物在该目录的 README 里说清楚。
+
+每周的练习入口放在 `exercises/`，演示、教具与当天的数据放在 `demos/dayNN/`，
+跨天复用的教具放在 `demos/shared/`。例如 Day 34 练习是
+`weeks/week04_frameworks/exercises/day34_graph_exercises.py`，支持文件是
+`weeks/week04_frameworks/demos/day34/day34_support.py`。已有的独立项目目录保持原位置。
 
 ## 进度表
 

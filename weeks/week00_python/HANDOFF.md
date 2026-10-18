@@ -3,6 +3,13 @@
 > 写给下一个对话的开场材料。一周一个对话，这份文件就是接续点。
 > 写于 2026-10-04。
 
+2026-10-18 路径订正：演示按天归入 `demos/dayNN/`，练习归入 `exercises/`；
+命令行参数演示位于 `demos/argparse/`，下方入口使用整理后的路径。
+
+本次 AI 路径检查：28 个入口分别从仓库根目录和脚本目录检查，共 56 次通过；
+Day 5 文件读写只在临时代码镜像中验证。Day 6 流式示例与 Day 7 API 演示
+各运行一次 `--live`，两次真实请求成功。这些是教具验证，不是新增学员实验记录。
+
 ## 一句话状态
 
 Python 补齐的 7 天全部走完，本周交付物是一个**真跑得起来的 CLI 工具** `chat_cli/`。
@@ -12,7 +19,7 @@ Python 补齐的 7 天全部走完，本周交付物是一个**真跑得起来�
 
 | 产出 | 位置 |
 |---|---|
-| 7 天的演示与练习（31 个 `.py`） | `weeks/week00_python/` |
+| 7 天的演示与练习（31 个 `.py`） | `weeks/week00_python/demos/` 与 `weeks/week00_python/exercises/` |
 | **本周交付物**：CLI 小工具 | `weeks/week00_python/chat_cli/`（用法见它自己的 README） |
 | 速查表：我要干什么 → 用什么 | `notes/python-notes.md` |
 | 卡住时的六招排查法 | `notes/卡住了怎么办.md` |
@@ -52,7 +59,7 @@ cd weeks\week00_python\chat_cli
 
 ## 留的尾巴
 
-1. `*args` / `**kwargs` 只在 `day04_class_demo.py` 的装饰器那节露过一次，没专门练
+1. `*args` / `**kwargs` 只在 `demos/day04/day04_class_demo.py` 的装饰器那节露过一次，没专门练
    —— 留到 Week 04 读框架源码时补
 2. Week 00 的验收标准还差两条：**换台机器 5 分钟跑通**、**对着代码讲 3 分钟**
 3. `docs/` 里有两处写着「装 VS Code」（学习计划的历史文本），实际用的是 PyCharm

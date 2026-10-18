@@ -4,6 +4,19 @@
 
 **交付物**：不用任何框架的 ReAct Agent。
 
+## 当前目录与运行入口（2026-10-18）
+
+本周练习集中在 `exercises/`，演示、辅助脚本和资料按单元放在 `demos/dayNN/`；
+Day 26 两部分沿用 `demos/day26a/`、`demos/day26b/`。下面的文件路径均相对本周目录，
+命令仍从仓库根目录运行。直接在脚本所在目录启动也可找到依赖、资料与 worker；
+真实入口从脚本位置定位仓库根目录的 `.env`。
+
+目录整理后的离线检查：21 个入口分别从仓库根目录和脚本目录启动，42 次均正常退出；
+Day 27 的 12 组情境、Day 28 的 6 组变式、两份检索资料及两个 worker 均已核对。
+Day 23、24、28 的真实入口也已分别运行一次：共 7 次模型请求，三个进程均正常退出；
+Day 24 查到 18 元后算得 126 元，Day 28 查到 7 元后算得 42 元并通过入口自检。
+这些是 AI 对迁移后教具的验证，没有填入学员实验记录。
+
 ## 开工状态（2026-10-11）
 
 Week 02 的 Day 15～21 已验收，接续 `../week02_tools/HANDOFF.md`。
@@ -43,15 +56,15 @@ ReAct 把推理与行动交替起来，让后续行动能根据外部结果调�
 
 | 文件 | 用途 |
 |---|---|
-| `day22_agent_loop_demo.py` | 逐节讲解；内含假模型、乘法工具、结果打印，演示正常结束与步数耗尽 |
-| `day22_agent_loop_exercises.py` | 学员完成的循环，返回状态和轨迹；末尾保留运行观察 |
+| `demos/day22/day22_agent_loop_demo.py` | 逐节讲解；内含假模型、乘法工具、结果打印，演示正常结束与步数耗尽 |
+| `exercises/day22_agent_loop_exercises.py` | 学员完成的循环，返回状态和轨迹；末尾保留运行观察 |
 
 在仓库根目录执行：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day22_agent_loop_demo.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day22\day22_agent_loop_demo.py
 # 已完成的练习：打印四组情境和非法上限的运行结果。
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day22_agent_loop_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day22_agent_loop_exercises.py
 ```
 
 今天完全离线：假模型按固定规则输出，教学摘要为人工编写，不代表真实模型能力。
@@ -81,20 +94,20 @@ ReAct 把推理与行动交替起来，让后续行动能根据外部结果调�
 
 | 文件 | 用途 |
 |---|---|
-| `day23_protocol_demo.py` | 按「是什么／为什么／场景／代码／注意」讲两种决定、语法与协议的边界；`--live` 真请求一次模型 |
-| `day23_json_parse_exercises.py` | 小练习 A：检查结束原因、空正文、JSON 语法和最外层类型 |
-| `day23_decision_exercises.py` | 小练习 B：分别校验 `final` 和 `action` 的字段、类型、工具白名单 |
+| `demos/day23/day23_protocol_demo.py` | 按「是什么／为什么／场景／代码／注意」讲两种决定、语法与协议的边界；`--live` 真请求一次模型 |
+| `exercises/day23_json_parse_exercises.py` | 小练习 A：检查结束原因、空正文、JSON 语法和最外层类型 |
+| `exercises/day23_decision_exercises.py` | 小练习 B：分别校验 `final` 和 `action` 的字段、类型、工具白名单 |
 
 在仓库根目录依次运行：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day23_protocol_demo.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day23\day23_protocol_demo.py
 # 小练习 A：对照正文解析的六组输入
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day23_json_parse_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day23_json_parse_exercises.py
 # 小练习 B：对照最终答复和工具行动
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day23_decision_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day23_decision_exercises.py
 # 最后观察一次真实模型输出；需要根目录 .env 和网络
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day23_protocol_demo.py --live
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day23\day23_protocol_demo.py --live
 ```
 
 两份练习及末尾观察已由学员完成；小练习 A 的 `json` 导入已启用。
@@ -118,10 +131,10 @@ JSON 在这里承载工具参数和工具观察；模型最后仍可用自然语
 
 | 文件 | 用途 |
 |---|---|
-| `day24_retrieval_demo.py` | 单文件检索、出处、列表回填、先查后算；`--live` 观察真实模型的原生工具调用 |
-| `day24_notes/products.txt`、`day24_notes/stock.txt` | 两份虚构商品资料；工具只在这个固定目录内查找 |
-| `day24_search_exercises.py` | 练习 A：复用演示的单文件匹配，自己写多文件搜索与结果总数上限 |
-| `day24_observation_exercises.py` | 练习 B：调用自己的检索或已有计算器，返回带原 ID 的 tool 消息 |
+| `demos/day24/day24_retrieval_demo.py` | 单文件检索、出处、列表回填、先查后算；`--live` 观察真实模型的原生工具调用 |
+| `demos/day24/day24_notes/products.txt`、`demos/day24/day24_notes/stock.txt` | 两份虚构商品资料；工具只在这个固定目录内查找 |
+| `exercises/day24_search_exercises.py` | 练习 A：复用演示的单文件匹配，自己写多文件搜索与结果总数上限 |
+| `exercises/day24_observation_exercises.py` | 练习 B：调用自己的检索或已有计算器，返回带原 ID 的 tool 消息 |
 
 ### 按这个顺序做
 
@@ -137,14 +150,14 @@ JSON 在这里承载工具参数和工具观察；模型最后仍可用自然语
 命令行等价入口（在仓库根目录）：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day24_retrieval_demo.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day24_search_exercises.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day24_observation_exercises.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day24_retrieval_demo.py --live
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day24\day24_retrieval_demo.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day24_search_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day24_observation_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day24\day24_retrieval_demo.py --live
 ```
 
 两份练习和末尾观察已完成；函数题干已清理为一行说明。
-演示的检索只查 `products.txt`；练习 A 扩展到两份文件。演示的循环是 AI 教具，
+演示的检索只查 `demos/day24/day24_notes/products.txt`；练习 A 扩展到两份文件。演示的循环是 AI 教具，
 Day 27 整合时，再由学员把自己的多文件检索、工具回填与循环接起来。
 `--live` 最多请求四次，自动读取根目录 `.env`。它会打印每轮结束原因、
 工具名与参数、调用 ID、完整工具观察、最终答复，足够核对本日观察题。
@@ -180,16 +193,16 @@ Day 24 已有检索和计算器；今天增加第三种工具：接收多行数�
 
 | 文件 | 用途 |
 |---|---|
-| `day25_code_demo.py` | 先看允许计算和语法树入门，再看拒绝文件调用、变量不跨调用保留及子进程入口 |
-| `day25_code_worker.py` | AI 提供的受限解释器；`check_tree` 查白名单，`eval_number` 只计算获准节点 |
-| `day25_syntax_exercises.py` | 小练习 A：从语法树找第一个不被允许的节点 |
-| `day25_permission_exercises.py` | 小练习 B：由应用授权；未授权时不执行工具，仍按原 ID 回填 |
+| `demos/day25/day25_code_demo.py` | 先看允许计算和语法树入门，再看拒绝文件调用、变量不跨调用保留及子进程入口 |
+| `demos/day25/day25_code_worker.py` | AI 提供的受限解释器；`check_tree` 查白名单，`eval_number` 只计算获准节点 |
+| `exercises/day25_syntax_exercises.py` | 小练习 A：从语法树找第一个不被允许的节点 |
+| `exercises/day25_permission_exercises.py` | 小练习 B：由应用授权；未授权时不执行工具，仍按原 ID 回填 |
 
 ### 按这个顺序做
 
-1. 在 PyCharm 打开 `day25_code_demo.py`，直接右键运行。先顺着第 1～5 节
+1. 在 PyCharm 打开 `demos/day25/day25_code_demo.py`，直接右键运行。先顺着第 1～5 节
    看输出，再读文件开头的 `main` 和后面的 `run_limited_code`。
-2. 按需打开 `day25_code_worker.py`，只看 `check_tree` 与 `eval_number`：
+2. 按需打开 `demos/day25/day25_code_worker.py`，只看 `check_tree` 与 `eval_number`：
    前者决定哪些语法能进入，后者计算它们；不用重写整份执行器。
 3. 练习 A 已完成：右键运行，对照 `None`、`Call`、
    `Import`、`While`、`Constant` 和 `SyntaxError`，填文件末尾的观察。
@@ -199,9 +212,9 @@ Day 24 已有检索和计算器；今天增加第三种工具：接收多行数�
 仓库根目录的等价命令：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day25_code_demo.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day25_syntax_exercises.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day25_permission_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day25\day25_code_demo.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day25_syntax_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day25_permission_exercises.py
 ```
 
 两份练习和末尾观察已由学员完成，函数题干已清理为一行说明。
@@ -235,18 +248,18 @@ Day 22 的 `steps` 数了请求次数，但没有记录每次请求消耗多少 
 
 | 文件 | 用途 |
 |---|---|
-| `day26a_budget_demo.py` | 按「是什么／为什么／场景／代码／注意」展示响应、逐轮成本、累计、超支与缺失用量；全部是假数据 |
-| `day26a_budget_exercises.py` | 学员先重写单次教学成本，再写累计与预算判断；主程序打印单次成本和五组情境 |
+| `demos/day26a/day26a_budget_demo.py` | 按「是什么／为什么／场景／代码／注意」展示响应、逐轮成本、累计、超支与缺失用量；全部是假数据 |
+| `exercises/day26a_budget_exercises.py` | 学员先重写单次教学成本，再写累计与预算判断；主程序打印单次成本和五组情境 |
 
 ### 按这个顺序做
 
 1. **先不看旧代码，花 10～15 分钟复述一次**：assistant 的工具点单、对应的
    `tool_call_id`、tool 回填和下一次模型请求是什么关系；然后打开
-   `day22_agent_loop_exercises.py` 核对。把想起来和遗漏的部分写在今天练习文件末尾的热身栏，
+   `exercises/day22_agent_loop_exercises.py` 核对。把想起来和遗漏的部分写在今天练习文件末尾的热身栏，
    这项热身已于 2026-10-13 完成；26A 自身的跨天复验仍待进行。
-2. 在 PyCharm 右键运行 `day26a_budget_demo.py`，按第 1～4 节看输出。
+2. 在 PyCharm 右键运行 `demos/day26a/day26a_budget_demo.py`，按第 1～4 节看输出。
    注意第一次、第二次模型请求各自的 `usage` 与累计账本；教学单价不是实际价格。
-3. 打开 `day26a_budget_exercises.py`，先自己写 `teaching_cost_yuan`，
+3. 打开 `exercises/day26a_budget_exercises.py`，先自己写 `teaching_cost_yuan`，
    再写 `summarize_usage` 和 `stop_before_next_request`。演示里有同名成本函数，
    但练习不需要导入或回看它。题干交代了入参、返回值和优先顺序；右键运行，
    先对照单次成本，再对照五组预算情境，最后填写文件末尾观察。
@@ -256,8 +269,8 @@ Day 22 的 `steps` 数了请求次数，但没有记录每次请求消耗多少 
 仓库根目录的等价命令：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day26a_budget_demo.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day26a_budget_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day26a\day26a_budget_demo.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day26a_budget_exercises.py
 ```
 
 三题与末尾观察已由学员完成，函数题干已清理为一行说明。
@@ -266,9 +279,9 @@ Day 22 的 `steps` 数了请求次数，但没有记录每次请求消耗多少 
 要按当时的响应和价格核对。今天只保证**调用前后检查**，不保证某一次请求
 绝不会使总量越过预算；也不把估算值冒充实测值。
 
-复习入口：Day 9 的 `../week01_llm_api/day09_exercises.py` 看单轮成本公式，
-Day 17 的 `../week02_tools/day17_tool_calling_demo.py` 看两次真实响应各自的
-`usage` 打印，Day 22 的 `day22_agent_loop_exercises.py` 看 `steps` 与停止原因。
+复习入口：Day 9 的 `../week01_llm_api/exercises/day09_exercises.py` 看单轮成本公式，
+Day 17 的 `../week02_tools/demos/day17/day17_tool_calling_demo.py` 看两次真实响应各自的
+`usage` 打印，Day 22 的 `exercises/day22_agent_loop_exercises.py` 看 `steps` 与停止原因。
 只看对应函数或输出，不用从头重做。
 
 - [x] 闭卷复述旧工具回合，并对照 Day 22 记录想起与遗漏之处；证据在练习末尾。
@@ -291,14 +304,14 @@ Day 26 不把预算、超时、重复检测塞进一道首次练习。26A 先完
 
 ### 26B 前半：时间边界（已验收）
 
-今天只学时间边界，暂不做重复调用检测。`day26b_timeout_demo.py` 先用固定时间
-演示已用、剩余和下一次调用的上限，再运行 `day26b_timeout_worker.py` 这个固定慢工具，
+今天只学时间边界，暂不做重复调用检测。`demos/day26b/day26b_timeout_demo.py` 先用固定时间
+演示已用、剩余和下一次调用的上限，再运行 `demos/day26b/day26b_timeout_worker.py` 这个固定慢工具，
 分别看到正常返回和单次调用超时。慢工具只模拟检索，输出的是固定教学文本；没有模型请求。
 
-1. 在 PyCharm 右键运行 `day26b_timeout_demo.py`。先看前三组固定时间：
+1. 在 PyCharm 右键运行 `demos/day26b/day26b_timeout_demo.py`。先看前三组固定时间：
    只剩 0.5 秒时，下一次调用上限也只能是 0.5 秒；总时限到达后不再开始调用。
    再看慢工具：第一次完成，第二次报 `call_timeout`，并比较设定上限和实际经过时间。
-2. 打开 `day26b_timeout_exercises.py`，按 A1、A2、B 的顺序自己写。
+2. 打开 `exercises/day26b_timeout_exercises.py`，按 A1、A2、B 的顺序自己写。
    每题 docstring 给出参数、返回值、期望结果和需要的导入；演示里有同名函数，
    练习文件也给了空位，不必从演示导入。B 开始时取消文件开头两行 import 的注释。
    每写完一题就右键运行，核对该题打印出的实际与期望；后面的题未写会明确报错。
@@ -309,8 +322,8 @@ Day 26 不把预算、超时、重复检测塞进一道首次练习。26A 先完
 仓库根目录的等价命令：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day26b_timeout_demo.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day26b_timeout_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day26b\day26b_timeout_demo.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day26b_timeout_exercises.py
 ```
 
 `time.monotonic()` 的读数只能相减来测经过时间。`subprocess.run(timeout=...)`
@@ -332,15 +345,15 @@ Day 26 不把预算、超时、重复检测塞进一道首次练习。26A 先完
 
 | 文件 | 用途 |
 |---|---|
-| `day26b_repeat_demo.py` | 依次展示重复检索、改参数、观察更新、中途换工具和三次阈值；全是固定示意轨迹 |
-| `day26b_repeat_exercises.py` | 学员写相邻比较、末尾连续计数和停止判断；主程序逐题打印对照输出 |
+| `demos/day26b/day26b_repeat_demo.py` | 依次展示重复检索、改参数、观察更新、中途换工具和三次阈值；全是固定示意轨迹 |
+| `exercises/day26b_repeat_exercises.py` | 学员写相邻比较、末尾连续计数和停止判断；主程序逐题打印对照输出 |
 
 按这个顺序做：
 
-1. 在 PyCharm 右键运行 `day26b_repeat_demo.py`。先看第一次和第二次检索各自的
+1. 在 PyCharm 右键运行 `demos/day26b/day26b_repeat_demo.py`。先看第一次和第二次检索各自的
    assistant 点单与 tool 观察，再看为何它们的 ID 与 JSON 键顺序不同，仍被判为重复。
    随后对照“查询改变”“观察更新”“中途计算”三组，找出哪一项使计数回到 1。
-2. 打开 `day26b_repeat_exercises.py`，依次写 A、B、C。A 比较相邻两条，
+2. 打开 `exercises/day26b_repeat_exercises.py`，依次写 A、B、C。A 比较相邻两条，
    B 只数轨迹**末尾**的连续条数，C 再依据上限决定是否停止；
    每题 docstring 给出参数类型、返回值、期望输出和需要的导入。
    演示里有同名函数，练习文件也留了空位，不用从演示导入。
@@ -351,8 +364,8 @@ Day 26 不把预算、超时、重复检测塞进一道首次练习。26A 先完
 仓库根目录的等价命令：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day26b_repeat_demo.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day26b_repeat_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day26b\day26b_repeat_demo.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day26b_repeat_exercises.py
 ```
 
 本课的规则只处理参数已校验、观察可比较的只读工具轨迹。
@@ -379,16 +392,16 @@ Day 26 不把预算、超时、重复检测塞进一道首次练习。26A 先完
 
 今天没有新机制，也不再给一份实现了完整主循环的演示。学员把已学过的
 原生 `tool_calls` 循环、检索、计算器、受限数值代码工具、预算和停止条件接起来。
-商品问题改成“蓝湾便签买 5 本多少钱，单价出处在哪里？”；`day27_notes/`
-是新的两份虚构资料，不沿用 Day 24 的答案。`day27_fake_model.py` 只按消息历史
+商品问题改成“蓝湾便签买 5 本多少钱，单价出处在哪里？”；`demos/day27/day27_notes/`
+是新的两份虚构资料，不沿用 Day 24 的答案。`demos/day27/day27_fake_model.py` 只按消息历史
 给可控的假点单，要求收到带原 ID 的 tool 回填后才继续；它没有联网，也不是
-学员的 Agent 实现。学员完成的检索与主循环保存在 `day27_integrated_exercises.py`。
+学员的 Agent 实现。学员完成的检索与主循环保存在 `exercises/day27_integrated_exercises.py`。
 
 按这个顺序做：
 
-1. 打开 `day27_integrated_exercises.py`，先看 `main` 的对照情境，
+1. 打开 `exercises/day27_integrated_exercises.py`，先看 `main` 的对照情境，
    再读 `search_notes` 和 `run_agent` 的接口。不用从头读假模型文件；
-   若想看它单独做什么，可右键运行 `day27_fake_model.py`，只看第一次 assistant 点单。
+   若想看它单独做什么，可右键运行 `demos/day27/day27_fake_model.py`，只看第一次 assistant 点单。
 2. 完成 A：把旧的多文件检索迁移到新资料目录；运行后先核对两个文件的出处、
    总上限为 1 时只有一条、无命中返回空列表。这里也完成整合前的检索上限复验。
 3. 完成 B：自己把旧工具和判断函数接进主循环。先核对正常先查后算及两种
@@ -400,7 +413,7 @@ Day 26 不把预算、超时、重复检测塞进一道首次练习。26A 先完
 在 PyCharm 里右键运行该练习文件；仓库根目录的命令行等价入口：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day27_integrated_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day27_integrated_exercises.py
 ```
 
 本日离线情境中的 `usage` 是假数据，`TEACHING_PRICE` 是教学假单价；
@@ -425,18 +438,18 @@ Day 26 不把预算、超时、重复检测塞进一道首次练习。26A 先完
 
 今天不引入新工具，也没有已实现主循环的演示。先闭卷复现 Day 26A 的用量判断、
 Day 26B 的重复判据，再用**暮云贴纸买 6 包**的新问题检验 Day 27 主循环能否复用。
-新商品加在 `day27_notes/` 两份虚构资料的第 4 行；Day 27 原题的资料与答案不变。
-`day28_fake_model.py` 是 AI 提供的离线点单夹具，按收到的观察给下一步，不是学员的
+新商品加在 `demos/day27/day27_notes/` 两份虚构资料的第 4 行；Day 27 原题的资料与答案不变。
+`demos/day28/day28_fake_model.py` 是 AI 提供的离线点单夹具，按收到的观察给下一步，不是学员的
 Agent，也没有真实网络请求。不要先读它的实现来猜运行结果。离线变式完成后，
-`day28_live_check.py --live` 用真实模型请求检查同一个 `run_agent` 的先查、后算、
+`demos/day28/day28_live_check.py --live` 用真实模型请求检查同一个 `run_agent` 的先查、后算、
 再答链条。真实结果以实际输出为准，一次通过也不能说明所有问题都可靠。
 
 | 文件 | 用途 |
 |---|---|
-| `day28_验收记录.md` | 学员先写闭卷预测，再补离线与真实运行证据、三分钟讲解要点 |
-| `day28_variant_exercises.py` | 新用量、工具轨迹和六组变式对照；`run_variant` 留给学员 |
-| `day28_fake_model.py` | AI 提供的新问题假点单，只用于稳定验收消息回填 |
-| `day28_live_check.py` | AI 提供的真实请求入口；只负责连接模型和打印证据，不实现学员主循环 |
+| `demos/day28/day28_验收记录.md` | 学员先写闭卷预测，再补离线与真实运行证据、三分钟讲解要点 |
+| `exercises/day28_variant_exercises.py` | 新用量、工具轨迹和六组变式对照；`run_variant` 留给学员 |
+| `demos/day28/day28_fake_model.py` | AI 提供的新问题假点单，只用于稳定验收消息回填 |
+| `demos/day28/day28_live_check.py` | AI 提供的真实请求入口；只负责连接模型和打印证据，不实现学员主循环 |
 
 按这个顺序进行：
 
@@ -448,7 +461,7 @@ Agent，也没有真实网络请求。不要先读它的实现来猜运行结果
 3. 运行新练习，逐组对照正常、错误后修正、代码权限、步数与成本上限。根据真实
    `request`、`tool`、`final`、`stop` 轨迹填写记录第 2～5 节，不用 AI 教具输出冒充
    自己的预测。两种 `code` 情境共用点单，区别由应用传入的 `allow_code` 决定。
-4. 离线部分完成后，用 PyCharm 打开 `day28_live_check.py`，在运行配置的 Parameters
+4. 离线部分完成后，用 PyCharm 打开 `demos/day28/day28_live_check.py`，在运行配置的 Parameters
    中填 `--live` 再运行。它复用你写的 `run_agent`，最多真实请求四次，打印每次
    `finish_reason`、assistant 点单、tool 观察、调用 ID、最终答复与用量。根据**自己
    跑出的实际输出**填验收记录第 6 节；若失败，保留原始停止原因，检查是哪一步。
@@ -461,9 +474,9 @@ Agent，也没有真实网络请求。不要先读它的实现来猜运行结果
 真实请求的输出可能变化，验收记录保留学员当时的实际结果。
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day28_variant_exercises.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day27_integrated_exercises.py
-.venv\Scripts\python.exe -B weeks\week03_agent_loop\day28_live_check.py --live
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day28_variant_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\exercises\day27_integrated_exercises.py
+.venv\Scripts\python.exe -B weeks\week03_agent_loop\demos\day28\day28_live_check.py --live
 ```
 
 真实请求沿用 Day 24 学过的原生工具协议。只需回看
@@ -483,7 +496,7 @@ assistant 点单和 tool 观察。真实入口只向模型暴露 `search_notes` 
 
 这是待执行安排，不是新的每日作业表。AI 在实际复验后简记日期、证据入口和仍需提示之处。
 
-- [x] 2026-10-13 Day 26 开始前，闭卷复述原 assistant 点单、tool 回填和继续请求的关系；原稿与订正在 `day26a_budget_exercises.py` 末尾。
+- [x] 2026-10-13 Day 26 开始前，闭卷复述原 assistant 点单、tool 回填和继续请求的关系；原稿与订正在 `exercises/day26a_budget_exercises.py` 末尾。
 - [x] 2026-10-15 Day 28 用未见过的 `REVIEW_USAGES` 闭卷预测累计 530/70 token、成本 0.00081 元和 `cost_budget`，输出核对一致。
 - [ ] 2026-10-15 Day 28 用新工具轨迹正确预测末尾计数 1→2 和 `repeated_call`；距 Day 26B 后半约 1 天，短于计划的 2～3 天，Week 04 再做一次延迟复验。
 - [x] 2026-10-15 Day 28 新商品 `limit=1` 补测只得 `catalog.txt:4`；学员在 `allow_code` 两种输入下记录了拒绝与数值观察。
@@ -500,6 +513,6 @@ assistant 点单和 tool 观察。真实入口只向模型暴露 `search_notes` 
 
 ## 验收标准
 
-- [x] 先写流程预测，再依据点单／观察的同一 ID、停止轨迹解释循环，并完成新商品变式；讲解要点见 `day28_验收记录.md`
+- [x] 先写流程预测，再依据点单／观察的同一 ID、停止轨迹解释循环，并完成新商品变式；讲解要点见 `demos/day28/day28_验收记录.md`
 - [x] Agent 在工具连续报错时不会无限循环
 - [x] 正常、无命中、坏参数、重复调用、预算和时限情境都有可核对的依据

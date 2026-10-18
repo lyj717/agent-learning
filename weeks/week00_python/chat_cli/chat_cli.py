@@ -21,7 +21,7 @@ from llm import build_request, chat, stream_chat
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """定义并解析命令行参数。
-    要做的（照着 weeks/week00_python/argparse_demo.py 第 2 步写）：
+    要做的（照着 weeks/week00_python/demos/argparse/argparse_demo.py 第 2 步写）：
         question     位置参数，要问的问题（必填）
         --system     system 提示词，默认 None
         --model      模型名，默认 None（不传就用 .env 里的）

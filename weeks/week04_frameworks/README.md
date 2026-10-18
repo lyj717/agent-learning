@@ -13,13 +13,28 @@ Week 03 的 Day 22～28 主线已验收，证据与限制见
 首次观察中的 ID 混淆经讲解后由学员订正，独立掌握留待跨天复验。Day 29～31 的关键机制
 仍须在完成后 2～3 天闭卷复验。Day 32 已把新概念拆成独立小演示；学员完成 A、B
 和四道观察，AI 用隔离数据库复跑通过。Day 33 已完成 A、B 与四道观察订正并验收，
-AI 实跑批准、拒绝和同编号重试通过；Day 34 的综合实现由学员完成。
-Day 32、33 的订正后理解也留待跨天复验。
+AI 实跑批准、拒绝和同编号重试通过。Day 34 已准备消息转换的两份独立演示与综合
+练习 A～D，主图仍由学员实现，代码与观察均待完成。Day 32、33 的订正后理解也留待跨天复验。
 
 Day 26B 重复判据的延迟复验仍待进行。它在 10 月 14 日完成，10 月 15 日 Day 28
 已做过一次新轨迹预测；同日再做不能记成隔天复验，安排在 **10 月 16～17 日或
 下一次满足间隔的学习日**用 10～15 分钟复现，不作为本阶段开工门槛。
 JD、简历、视频沿用原先的延后安排。
+
+## 目录调整后的运行方式（2026-10-18）
+
+练习集中在 `exercises/`，演示与当天数据在 `demos/dayNN/`。
+下面的文件位置与命令已按新目录更新。Day 34 的练习从
+`exercises/day34_graph_exercises.py` 启动，教具在 `demos/day34/day34_support.py`；
+跨目录代码使用明确的包导入，直接运行时自动定位仓库根目录。
+
+AI 验证：28 个 Week 04 脚本分别从仓库根目录与脚本目录导入，56/56 通过；
+离线演示与已完成练习共 56 次运行通过；用隔离数据库验证跨进程接续、新会话隔离、
+审批恢复与只读查看，8/8 通过。Day 34 的 16 组教具情境经过旧循环及消息转换验证通过，
+这项检查不代表学员的新图已经完成。已有 SQLite 文件的内容保持不变。
+
+Day 34 A 当前能导入并启动，但请求前到期的分支返回 `usages=None`，用量汇总会抛
+`TypeError`。这是尚待订正的练习逻辑；本次目录修复保留了学员的函数实现和观察。
 
 ## 本阶段顺序
 
@@ -33,8 +48,8 @@ JD、简历、视频沿用原先的延后安排。
 | 消化半日 | 闭卷画状态流转、定位顺序/合并错误，补实际缺口 | 待安排 |
 | Day 32 | 检查点：一种本地持久化方案、会话标识、重新启动后继续 | 2026-10-17 已验收；跨天复验待做 |
 | Day 33 | 人工确认与恢复：确认前不执行，用执行次数检查重复生效 | 2026-10-18 引导练习与观察已验收；独立迁移待后续验收 |
-| Day 34 | 学员整合：把 Day 27 的工具、停止规则接入框架版 | 待开始 |
-| Day 35 | 同题对比、恢复变式、口头解释与交接 | 待开始 |
+| Day 34 | 学员整合：把 Day 27 的工具、停止规则接入框架版 | 已开工；知识点教具已验证，A～D 与观察待学员完成 |
+| Day 35 | 接入检查点与人工确认，再做同题对比、恢复变式与交接 | 待开始；按实际进度可跨学习日 |
 
 条件边先用固定模型结果拆解；真实模型接入时由 AI 先验证联网教具，学员再运行自己的
 实验。预算、时限、重复判据沿用 Week 03 的行为契约；不会因为换框架就默认由库保证。
@@ -44,7 +59,7 @@ JD、简历、视频沿用原先的延后安排。
 - [ ] 不看旧答案讲清手写版的消息回填、停止原因与工具边界。
 - [ ] 用短题检查 Week 00 留下的 `*args/**kwargs` 和 Week 01 自评的异常分类；先看现在是否会，只补实际缺口。
 
-题目与回答空位都在 `day29_state_exercises.py` 顶部，不另外写一份记录。
+题目与回答空位都在 `exercises/day29_state_exercises.py` 顶部，不另外写一份记录。
 先用约 10 分钟闭卷回答，交给 AI 看过再决定是否需要补课。
 
 ## Day 29：状态怎样经过节点和边
@@ -65,8 +80,8 @@ B 练的是“谁来执行下一步，以及下一步读到哪一份状态”。
 
 | 文件 | 用途 |
 |---|---|
-| `day29_state_demo.py` | 一个节点整理关键词；对照未返回字段的保留和列表字段的替换 |
-| `day29_state_exercises.py` | 顶部短检查；A 写筛选节点；B 接两节点；末尾写观察 |
+| `demos/day29/day29_state_demo.py` | 一个节点整理关键词；对照未返回字段的保留和列表字段的替换 |
+| `exercises/day29_state_exercises.py` | 顶部短检查；A 写筛选节点；B 接两节点；末尾写观察 |
 
 按这个顺序做：
 
@@ -83,14 +98,14 @@ B 练的是“谁来执行下一步，以及下一步读到哪一份状态”。
 
 ```powershell
 # 开工短检查第 2 题：先写预测，再核对
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day29_state_exercises.py --part warmup
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day29_state_exercises.py --part warmup
 
 # 读演示：完全离线，不需要 .env
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day29_state_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day29\day29_state_demo.py
 
 # 分别重跑 A、B 的三组对照
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day29_state_exercises.py --part a
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day29_state_exercises.py --part b
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day29_state_exercises.py --part a
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day29_state_exercises.py --part b
 ```
 
 环境已在仓库 `.venv` 安装 `langgraph==1.2.15`，写入根 `requirements.txt`。
@@ -154,8 +169,8 @@ AI 实跑 Day 29 演示、开工小实验和 A、B 各三组，均符合预期�
 
 | 文件 | 用途 |
 |---|---|
-| `day30_conditional_demo.py` | 固定假模型对普通／加急请求选不同路线，只演示一次选路，不写完整回环 |
-| `day30_conditional_exercises.py` | A 写本轮回复的选路函数；B 接模型、工具与返回模型的边；末尾写观察 |
+| `demos/day30/day30_conditional_demo.py` | 固定假模型对普通／加急请求选不同路线，只演示一次选路，不写完整回环 |
+| `exercises/day30_conditional_exercises.py` | A 写本轮回复的选路函数；B 接模型、工具与返回模型的边；末尾写观察 |
 
 按这个顺序做：
 
@@ -172,9 +187,9 @@ AI 实跑 Day 29 演示、开工小实验和 A、B 各三组，均符合预期�
 在仓库根目录执行：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day30_conditional_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day30_conditional_exercises.py --part a
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day30_conditional_exercises.py --part b
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day30\day30_conditional_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day30_conditional_exercises.py --part a
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day30_conditional_exercises.py --part b
 ```
 
 演示与已完成的 A、B 均可直接运行。
@@ -211,8 +226,8 @@ A 四组实跑一致；B 零、一次、两次查询分别执行 1、3、5 个�
 
 | 文件 | 用途 |
 |---|---|
-| `day31_messages_demo.py` | 同一条固定路线对照无合并规则时覆盖、有规则时追加及同消息 ID 修订 |
-| `day31_messages_exercises.py` | A 回填本地查询的一条 tool 消息；B 配消息规则并接两节点，末尾写观察 |
+| `demos/day31/day31_messages_demo.py` | 同一条固定路线对照无合并规则时覆盖、有规则时追加及同消息 ID 修订 |
+| `exercises/day31_messages_exercises.py` | A 回填本地查询的一条 tool 消息；B 配消息规则并接两节点，末尾写观察 |
 
 按这个顺序做：
 
@@ -233,9 +248,9 @@ A 四组实跑一致；B 零、一次、两次查询分别执行 1、3、5 个�
 在仓库根目录运行：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day31_messages_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day31_messages_exercises.py --part a
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day31_messages_exercises.py --part b
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day31\day31_messages_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day31_messages_exercises.py --part a
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day31_messages_exercises.py --part b
 ```
 
 演示与已完成的 A、B 均可直接运行。
@@ -277,14 +292,14 @@ AI 实跑演示及 A、B：A 两组各返回一条 tool 消息，消息自身 ID
 
 | 顺序 | 文件 | 只看这一件事 |
 |---|---|---|
-| 1 | `day32_sql_basics_demo.py` | 从零认识表与行、SQL 和 SQLite；先看全部三行，再筛选出一张工单最近的一行 |
-| 2 | `day32_config_demo.py` | 用普通 Python 字典拆开 `config`，分清状态内容与会话编号；这里还不运行图 |
-| 3 | `day32_invoke_demo.py` | 单独看 `graph.invoke(input, config)` 怎样运行图、两个参数与返回值；不装保存器 |
-| 4 | `day32_sqlite_saver_demo.py` | 对照没装与装了 `SqliteSaver` 的两次图调用，认识 `compile(checkpointer=saver)` |
-| 5 | `day32_state_snapshot_demo.py` | 写入前后读取 `StateSnapshot.values`，看 `get_state` 只读、不执行节点 |
-| 6 | `day32_checkpoint_demo.py` | 用文件保存检查点，在两个独立 Python 进程里看到 0 → 1 → 2 |
-| 可选 | `day32_checkpoint_view.py` | 在 PyCharm 运行，只读文件里该会话最新的状态，不增加次数 |
-| 练习 | `day32_checkpoint_exercises.py` | A 给工单图装保存器；B 判断新旧工单并提交本轮消息；末尾写观察 |
+| 1 | `demos/day32/day32_sql_basics_demo.py` | 从零认识表与行、SQL 和 SQLite；先看全部三行，再筛选出一张工单最近的一行 |
+| 2 | `demos/day32/day32_config_demo.py` | 用普通 Python 字典拆开 `config`，分清状态内容与会话编号；这里还不运行图 |
+| 3 | `demos/day32/day32_invoke_demo.py` | 单独看 `graph.invoke(input, config)` 怎样运行图、两个参数与返回值；不装保存器 |
+| 4 | `demos/day32/day32_sqlite_saver_demo.py` | 对照没装与装了 `SqliteSaver` 的两次图调用，认识 `compile(checkpointer=saver)` |
+| 5 | `demos/day32/day32_state_snapshot_demo.py` | 写入前后读取 `StateSnapshot.values`，看 `get_state` 只读、不执行节点 |
+| 6 | `demos/day32/day32_checkpoint_demo.py` | 用文件保存检查点，在两个独立 Python 进程里看到 0 → 1 → 2 |
+| 可选 | `demos/day32/day32_checkpoint_view.py` | 在 PyCharm 运行，只读文件里该会话最新的状态，不增加次数 |
+| 练习 | `exercises/day32_checkpoint_exercises.py` | A 给工单图装保存器；B 判断新旧工单并提交本轮消息；末尾写观察 |
 
 按这个顺序读和做：
 
@@ -319,22 +334,22 @@ AI 实跑演示及 A、B：A 两组各返回一条 tool 消息，消息自身 ID
 
 ```powershell
 # 五个独立概念：每次只读一份源码与对应输出
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_sql_basics_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_config_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_invoke_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_sqlite_saver_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_state_snapshot_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day32\day32_sql_basics_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day32\day32_config_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day32\day32_invoke_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day32\day32_sqlite_saver_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day32\day32_state_snapshot_demo.py
 
 # 整合演示：第一次从 0 开始；第二次在新的 Python 进程里接上旧次数
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_demo.py --continue
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day32\day32_checkpoint_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day32\day32_checkpoint_demo.py --continue
 
 # 可选：只读取刚保存的状态
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_view.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day32\day32_checkpoint_view.py
 
 # 练习 A；B 的第二次 followup 命令从首次输出复制
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_exercises.py --part a
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day32_checkpoint_exercises.py --part b --phase first
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day32_checkpoint_exercises.py --part a
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day32_checkpoint_exercises.py --part b --phase first
 ```
 
 环境已安装 `langgraph-checkpoint-sqlite==3.1.2`，并写入根 `requirements.txt`；换环境时按
@@ -399,20 +414,20 @@ AI 用不同工作目录和两个独立进程复测通过；原学员 SQLite 文
 
 | 顺序 | 文件 | 这一次只看什么 |
 |---|---|---|
-| 1 | `day33_interrupt_demo.py` | `interrupt` 接口：必填 `value`、可选 `response_schema`、暂停输出、返回时机和使用条件 |
-| 2 | `day33_resume_demo.py` | `resume` 参数：创建命令与执行命令的区别；文字、`False`、字典回答的值与类型 |
-| 3 | `day33_replay_demo.py` | 节点重跑机制：只用 `before/after` 位置记录，观察恢复从哪里重新执行 |
-| 4 | `day33_side_effect_demo.py` | 副作用：客服生成通知文案，再模拟发送到客户收件箱；对照返回值与客户实际收到的条数 |
-| 5 | `day33_idempotency_demo.py` | 幂等：纯 Python 对照同编号重试和新编号请求，实际动作数为 1、1、2 |
-| 6 | `day33_checkpoint_resume_demo.py` | 最后整合：完整审核图、文件检查点、恢复、条件边、获准后的模拟动作与去重 |
-| 练习 | `day33_approval_exercises.py` | A 自己写暂停审核；B 自己写恢复入口；对照批准、拒绝和重复编号 |
-| 可选答疑 | `day33_response_schema_demo.py` | 对照普通格式字典仅提供说明、带类型的 schema 实际校验，以及错误回答的 ValidationError |
-| 可选复习 | `day33_node_update_demo.py` | 同一函数普通调用与作为图节点运行的区别：谁把返回字典应用到状态，以及其他字段为何保留 |
+| 1 | `demos/day33/day33_interrupt_demo.py` | `interrupt` 接口：必填 `value`、可选 `response_schema`、暂停输出、返回时机和使用条件 |
+| 2 | `demos/day33/day33_resume_demo.py` | `resume` 参数：创建命令与执行命令的区别；文字、`False`、字典回答的值与类型 |
+| 3 | `demos/day33/day33_replay_demo.py` | 节点重跑机制：只用 `before/after` 位置记录，观察恢复从哪里重新执行 |
+| 4 | `demos/day33/day33_side_effect_demo.py` | 副作用：客服生成通知文案，再模拟发送到客户收件箱；对照返回值与客户实际收到的条数 |
+| 5 | `demos/day33/day33_idempotency_demo.py` | 幂等：纯 Python 对照同编号重试和新编号请求，实际动作数为 1、1、2 |
+| 6 | `demos/day33/day33_checkpoint_resume_demo.py` | 最后整合：完整审核图、文件检查点、恢复、条件边、获准后的模拟动作与去重 |
+| 练习 | `exercises/day33_approval_exercises.py` | A 自己写暂停审核；B 自己写恢复入口；对照批准、拒绝和重复编号 |
+| 可选答疑 | `demos/day33/day33_response_schema_demo.py` | 对照普通格式字典仅提供说明、带类型的 schema 实际校验，以及错误回答的 ValidationError |
+| 可选复习 | `demos/day33/day33_node_update_demo.py` | 同一函数普通调用与作为图节点运行的区别：谁把返回字典应用到状态，以及其他字段为何保留 |
 
 前五份按知识点分别设计案例和最小运行环境，不导入另一份演示的业务图。先读各自的接口
 说明和输入输出，再看标为已学运行环境的支持代码。`interrupt`、`resume`、重跑演示各用
 全新的内存 SQLite；副作用、幂等两份演示只用普通 Python。最后一份才把知识点接成业务图，使用脚本旁的
-`day33_integrated_review.sqlite` 文件，不会操作 Day 32 或旧版教具的数据库。它用 `--resume` 代表教学中
+`demos/day33/day33_integrated_review.sqlite` 文件，不会操作 Day 32 或旧版教具的数据库。它用 `--resume` 代表教学中
 “人已批准”，不调用真实发布系统；在 PyCharm 第二次运行时，把 `--resume` 填到
 运行配置的脚本参数里。练习换成配送申请：AI 给定图路线和模拟动作，学员只写
 `request_review` 与 `resume_dispatch`。A 用 `--part a` 单独观察暂停，B 用 `--part b`
@@ -422,19 +437,19 @@ AI 用不同工作目录和两个独立进程复测通过；原学员 SQLite 文
 从仓库根目录运行：
 
 ```powershell
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_interrupt_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_resume_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_replay_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_side_effect_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_idempotency_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day33\day33_interrupt_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day33\day33_resume_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day33\day33_replay_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day33\day33_side_effect_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day33\day33_idempotency_demo.py
 
 # 跨进程整合：第一条暂停；等它退出后再运行第二条恢复
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_checkpoint_resume_demo.py
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_checkpoint_resume_demo.py --resume
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day33\day33_checkpoint_resume_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day33\day33_checkpoint_resume_demo.py --resume
 
 # 复跑已完成练习：A 观察暂停，B 观察批准和拒绝两组
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_approval_exercises.py --part a
-.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_approval_exercises.py --part b
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day33_approval_exercises.py --part a
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day33_approval_exercises.py --part b
 ```
 
 官方文档读 [Interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts) 的
@@ -485,6 +500,136 @@ AI 再实跑 A、B：首次暂停 0 次；批准后状态次数与外部次数�
 收尾验证：仓库现有测试 `9 passed`，使用 `-p no:cacheprovider`，未新增
 `.pytest_cache`；Ruff 检查通过。格式检查排除不属于本次的根目录 `1.py`，
 其余 160 个 Python 文件通过；本次测试的 `.pytest_tmp` 已清理。
+
+同日后续订正：学员要求直接修改第 3 题的时序表述，AI 已在练习原句处改为
+“恢复时先从 review 节点开头重新执行，走到 interrupt 时才取得 resume 的值”，
+并注明订正日期与来源；上面的验收记录保留当时的批改过程。
+
+## Day 34：自己把手写 Agent 接成图
+
+**今天要交付一个能按原行为停止的框架版 Agent。** Day 29～33 分别练过状态、条件边、
+消息合并、检查点与人工确认；今天先把 Day 27 的单任务循环接成图。AI 给本地工具、
+固定模型回复、输入和对照输出，学员完成模型节点、工具节点、停止判断、路由、接图与
+公开返回结果。没有可逐行搬进练习的完整整合演示。
+
+新增的接口知识只处理一件事：**旧字典消息与消息对象怎样转换**。旧假模型读
+`message['role']`，消息对象用 `.type`；旧工具点单参数在 `function.arguments` 中是
+JSON 文本，`AIMessage.tool_calls` 的 `args` 则是字典。这些形状不能混用，先分别学会
+两个方向的转换。它们都不调用模型、不执行工具。
+
+| 文件 | 用途 |
+|---|---|
+| `demos/day34/day34_to_messages_demo.py` | 独立讲 `convert_to_messages`：一批字典变消息对象，角色、参数和 ID 怎样对应 |
+| `demos/day34/day34_to_native_demo.py` | 独立讲 `convert_to_openai_messages`：单条与列表返回形状、参数 JSON 与可选参数 |
+| `demos/day34/day34_usage_vs_timeout_demo.py` | 答疑对照：正常返回消息但 usage=None，与抛 TimeoutError 没拿到响应 |
+| `exercises/day34_graph_exercises.py` | 数据接口已给；A～D 七个函数留空，闭卷短题与观察由学员写 |
+| `demos/day34/day34_support.py` | 六个公开接口集中说明参数、返回值与例子；直接运行打印手册，底层复用旧工具与停止函数，不实现图 |
+
+按这个顺序开始，不要求一口气写完所有函数：
+
+1. 先在练习末尾用 10～15 分钟闭卷回答两道短题，查自己是否还记得消息合并与无进展重复。
+   写完保留原预测，再看旧实现；没有进行前不勾跨天复验。
+2. 分别运行两份演示，从 `main` 顺读源码与输出；每次只看一个转换接口。
+3. **A** 写 `model_node`，运行 `--part a`。只检查一次请求、请求前到期和请求中超时，
+   此时尚未接图，也不执行工具。参数的来源、返回形状与轨迹字段都在函数说明里。
+4. **B** 写 `tools_node`，运行 `--part b`。使用固定教学点单，可不依赖 A；
+   核对单点单、多点单、错误回填与代码权限，不能只处理 `tool_calls[0]`。
+5. **C** 写 `check_limits`，运行 `--part c`。这些是预制输入轨迹，分别检查参数键顺序、
+   观察更新与多个停止条件同到时的选择，不代表你已运行完整 Agent。
+6. **D** 完成两个路由函数、`build_agent_graph` 与 `run_graph_agent`。
+   先用 `--part d --case 1` 检查正常链条，再按下表核对失败与变式；最后运行全部情境。
+   图的路线由你根据需求接起，不把旧 `for/while` 循环藏进某个节点。
+7. 根据输出填末尾五道观察。今天没有独立交付物 md，不另写一份相同记录。
+
+从仓库根目录运行：
+
+```powershell
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day34\day34_to_messages_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day34\day34_to_native_demo.py
+
+# 不记得复用函数的参数或返回值时，直接运行本地接口手册，不用逐个找旧文件
+.venv\Scripts\python.exe -B weeks\week04_frameworks\demos\day34\day34_support.py
+
+# A、B、C 都是单节点检查，写好对应函数后再运行
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day34_graph_exercises.py --part a
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day34_graph_exercises.py --part b
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day34_graph_exercises.py --part c
+
+# D 接图后先检查一组，再运行全部 16 组；也可把这些参数填进 PyCharm 脚本形参
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day34_graph_exercises.py --part d --case 1
+.venv\Scripts\python.exe -B weeks\week04_frameworks\exercises\day34_graph_exercises.py --part d
+```
+
+练习尚未填写时，运行会明确抛出对应题目的 `NotImplementedError`，这是待完成标记。
+阅读练习时先看 `AgentState` 与 A～D；下面标出的检查环境只负责准备输入和打印。
+`limits` 的七项默认值沿用 Day 27；`usages` 是各次收到响应的原始用量列表，最终公开的
+`usage` 是它的汇总。`steps` 统计模型请求尝试次数，工具节点与停止判断都不加次数。
+单次超时计一次尝试，但没有收到 usage，故用量汇总的 `requests` 可能比 `steps` 小。
+
+必须保留的边界：请求前检查任务总时限；只把模型最终答复当作 `answer`；整批工具执行
+并回填后，再按重复、预算、最大请求次数的顺序检查是否允许下次请求。预算函数自身仍按
+token、成本、用量缺失选择。模型本轮已给最终答复时，即使刚达到次数或 token 阈值，
+也保留成功结果。这是沿用 Day 27 的契约，不由 LangGraph 自动保证。
+
+| D 编号 | 要核对的区别 | 停止原因 / 请求数 / tool 观察总数 |
+|---|---|---|
+| 1 | 正常先检索后计算，55 元与出处 | `final_answer` / 3 / 2 |
+| 2、4 | 无命中重复与连续失败 | `repeated_call` / 2 / 2 |
+| 3 | 坏参数回填后模型解释错误 | `final_answer` / 2 / 1 |
+| 5、6 | 代码权限来自应用；获准与拒绝的观察不同 | `final_answer` / 3 / 2 |
+| 7、8、9 | 用量缺失、token 阈值、成本阈值 | 各自预算原因 / 1 / 1 |
+| 10 | 工具已算完，模型还没最终答复就达到请求上限 | `max_steps` / 2 / 2 |
+| 11、12 | 请求前任务已到期 vs 请求中超时 | `task_timeout` / 0 / 0；`call_timeout` / 1 / 0 |
+| 13 | 只改数量为 7，不能写死 55 | `final_answer` / 3 / 2，77 元 |
+| 14、15 | 同轮两条点单；上限只阻止下一次请求，不截断本轮回填 | 成功 / 2 / 2；`max_steps` / 1 / 2 |
+| 16 | 最终答复与 token、次数阈值同时出现 | `final_answer` / 1 / 0 |
+
+D 还先打印一组“历史有点单、本轮已答复”的路由检查，必须结束，不能重做旧工具。
+这些期望是 AI 预设的验收要求；只有你完成自己的图并运行，才是学习成果证据。
+
+官方接口只查两页的 **Parameters / Returns / Example**：
+[`convert_to_messages`](https://reference.langchain.com/python/langchain-core/messages/utils/convert_to_messages)
+对应字典到对象，
+[`convert_to_openai_messages`](https://reference.langchain.com/python/langchain-core/messages/utils/convert_to_openai_messages)
+对应对象到字典，重点看单条与列表、`include_id`；其余可选参数了解用途即可。
+建图忘了再看 [Graph API](https://docs.langchain.com/oss/python/langgraph/graph-api) 的
+**State、Reducers、Nodes、Edges**，对应当前状态更新与条件边，不扩展其他框架接口。
+
+今天每次调用都从一个新任务开始，假模型不支持在同一历史里开始第二个新问题。
+文件检查点、人工确认接入自己的图，以及同题对比与恢复后的计数检查，留到 Day 35；
+较重时可跨学习日，不把所有验收挤进一个自然日。Day 33 的单进程列表仍不保证跨进程
+外部动作去重，这一边界不变。今天没有联网分支，不需要 `.env`，不读写已有 SQLite 文件。
+
+- [ ] 学员完成两道闭卷短题，并自行核对两份独立转换演示。
+- [ ] A、B、C 的单节点输入、输出和原输入保留检查通过。
+- [ ] D 完成节点、停止与接图，16 组预期和旧历史路由对照符合要求。
+- [ ] 学员写完五道观察，AI 实跑批改后再做收尾、清题干与本地提交。
+
+### 2026-10-18 Day 34 教具交付检查
+
+AI 已逐份运行两份独立演示，并验证 16 组预制情境经过两个方向的消息转换后，仍能由
+已验收的 Day 27 循环得到指定行为；检查器不会因补消息 ID 改动原输入。
+练习从仓库根目录及脚本目录能导入；A～D 仍抛对应的待完成标记，七个函数均留空。
+仓库现有测试 `9 passed`，Ruff 检查与排除无关 `1.py` 后的格式检查通过；本次
+`.pytest_tmp` 已清理。这些只验证 AI 教具和检查环境，学员新图尚未实现或验收。
+
+同日导入修复：学员反馈支持文件引用标红。现将跨周导入改为明确的
+`weeks.week03_agent_loop...` 包路径，并补包标记文件；保留旧脚本内部导入兼容。
+根目录与脚本目录的启动检查、转换后的 16 组教具检查和 Ruff 均通过。
+
+同日接口查阅改进：学员指出逐个追读导入文件太麻烦。现在把六个公开接口的定义与
+完整说明集中在 `demos/day34/day34_support.py`，查看定义和 IDE 提示可直接看到参数、返回字段、
+例子与边界；底层统一通过一个内部 Week 03 模块复用。直接运行支持文件只打印手册，
+不执行工具或完整练习。练习题也已改为指向本地说明，学员的节点与观察保持待完成。
+六个接口的签名、文档例子和输入保留已核对；16 组教具行为复查通过，支持文件 Ruff 通过。
+
+同日 A 返回接口补齐：原题只说节点交回部分更新，未集中说明各分支的返回键，学员因此
+无法确定接口。现明确 `model_node` 四种分支统一返回 `messages / trace / usages /
+steps / answer / stop_reason` 六项；原始响应的 `message / usage / finish_reason`
+与图状态更新分开说明。A 检查入口打印实际键与期望键，题干列出四种分支的字段要求，
+没有改写学员正在编写的函数体。
+轨迹继续沿用 Day 27 的四类事件：完整字段与请求计数规则集中在支持文件
+`TRACE_GUIDE`；直接运行支持文件时先打印这一节，A 的题干也指向同一处。
 
 ## 跨天复验安排
 

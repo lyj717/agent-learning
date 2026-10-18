@@ -94,7 +94,7 @@ def check_python() -> bool:
 
 `version = sys.version_info` —— 拿到 Python 版本信息。它的类型是「类具名元组」的内置结构（CPython 里叫 structseq），所以既能用 `version[0]` 按下标取，也能用 `version.major` 按名字取。
 
-> 严格说它不是 `collections.namedtuple` 造出来的具名元组，而是内置的另一种结构，属性名不一样（它用 `n_fields`，具名元组用 `_fields`）。行为上两者一致。想看实际效果可以运行 `weeks/week00_python/day01_namedtuple_demo.py`。
+> 严格说它不是 `collections.namedtuple` 造出来的具名元组，而是内置的另一种结构，属性名不一样（它用 `n_fields`，具名元组用 `_fields`）。行为上两者一致。想看实际效果可以运行 `weeks/week00_python/demos/day01/day01_namedtuple_demo.py`。
 
 > 另外它还是元组，所以 `version < (3, 11)` 这种比较能成立——元组比较是**逐个位置从左往右比**。如果它不是元组，这行代码就得写成 `version.major < 3 or (version.major == 3 and version.minor < 11)`，啰嗦得多。
 
