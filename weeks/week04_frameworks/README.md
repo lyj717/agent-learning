@@ -4,7 +4,7 @@
 
 Week 是阶段编号，按验收推进；默认每天 3~5 小时，较重单元可跨天。
 
-## 当前接续点（2026-10-17）
+## 当前接续点（2026-10-18）
 
 Week 03 的 Day 22～28 主线已验收，证据与限制见
 [交接文档](../week03_agent_loop/HANDOFF.md)。Day 29 的状态更新与固定边已验收：
@@ -12,7 +12,9 @@ Week 03 的 Day 22～28 主线已验收，证据与限制见
 已完成 A、B 和四道观察。Day 31 的消息合并、追加与同 ID 修订已验收；
 首次观察中的 ID 混淆经讲解后由学员订正，独立掌握留待跨天复验。Day 29～31 的关键机制
 仍须在完成后 2～3 天闭卷复验。Day 32 已把新概念拆成独立小演示；学员完成 A、B
-和四道观察，AI 用隔离数据库复跑通过。Day 32 的订正后理解也留待跨天复验。
+和四道观察，AI 用隔离数据库复跑通过。Day 33 已完成 A、B 与四道观察订正并验收，
+AI 实跑批准、拒绝和同编号重试通过；Day 34 的综合实现由学员完成。
+Day 32、33 的订正后理解也留待跨天复验。
 
 Day 26B 重复判据的延迟复验仍待进行。它在 10 月 14 日完成，10 月 15 日 Day 28
 已做过一次新轨迹预测；同日再做不能记成隔天复验，安排在 **10 月 16～17 日或
@@ -30,7 +32,7 @@ JD、简历、视频沿用原先的延后安排。
 | Day 31 | 消息合并：新增消息与按消息 ID 修改；对照原 tool_call_id 配对 | 2026-10-16 已验收；延迟复验待做 |
 | 消化半日 | 闭卷画状态流转、定位顺序/合并错误，补实际缺口 | 待安排 |
 | Day 32 | 检查点：一种本地持久化方案、会话标识、重新启动后继续 | 2026-10-17 已验收；跨天复验待做 |
-| Day 33 | 人工确认与恢复：确认前不执行，用执行次数检查重复生效 | 待开始 |
+| Day 33 | 人工确认与恢复：确认前不执行，用执行次数检查重复生效 | 2026-10-18 引导练习与观察已验收；独立迁移待后续验收 |
 | Day 34 | 学员整合：把 Day 27 的工具、停止规则接入框架版 | 待开始 |
 | Day 35 | 同题对比、恢复变式、口头解释与交接 | 待开始 |
 
@@ -387,6 +389,103 @@ AI 用不同工作目录和两个独立进程复测通过；原学员 SQLite 文
 2 条、1 次开始。仓库测试 9 项通过。下一次按跨天复验安排检查能否独立说出
 `thread_id`、消息 ID、`get_state` 与 `invoke` 的作用。
 
+## Day 33：先暂停等人确认，再恢复执行
+
+**今天只新增一个主要机制：在节点里暂停，等人给决定后恢复。** Day 32 的“继续”是
+已结束会话接收一条新输入；今天的图还停在 `review` 节点。`interrupt(问题)` 把问题交给
+外部并保存暂停位置；第一次 `invoke` 的输出含 `__interrupt__`。人决定后，用同一
+`thread_id` 调用 `graph.invoke(Command(resume=决定), config)`，这个决定成为节点里
+`interrupt` 的返回值。恢复会从该节点**开头**重新执行，因此确认前不能先做真实动作。
+
+| 顺序 | 文件 | 这一次只看什么 |
+|---|---|---|
+| 1 | `day33_interrupt_demo.py` | `interrupt` 接口：必填 `value`、可选 `response_schema`、暂停输出、返回时机和使用条件 |
+| 2 | `day33_resume_demo.py` | `resume` 参数：创建命令与执行命令的区别；文字、`False`、字典回答的值与类型 |
+| 3 | `day33_replay_demo.py` | 节点重跑机制：只用 `before/after` 位置记录，观察恢复从哪里重新执行 |
+| 4 | `day33_side_effect_demo.py` | 副作用：客服生成通知文案，再模拟发送到客户收件箱；对照返回值与客户实际收到的条数 |
+| 5 | `day33_idempotency_demo.py` | 幂等：纯 Python 对照同编号重试和新编号请求，实际动作数为 1、1、2 |
+| 6 | `day33_checkpoint_resume_demo.py` | 最后整合：完整审核图、文件检查点、恢复、条件边、获准后的模拟动作与去重 |
+| 练习 | `day33_approval_exercises.py` | A 自己写暂停审核；B 自己写恢复入口；对照批准、拒绝和重复编号 |
+| 可选答疑 | `day33_response_schema_demo.py` | 对照普通格式字典仅提供说明、带类型的 schema 实际校验，以及错误回答的 ValidationError |
+| 可选复习 | `day33_node_update_demo.py` | 同一函数普通调用与作为图节点运行的区别：谁把返回字典应用到状态，以及其他字段为何保留 |
+
+前五份按知识点分别设计案例和最小运行环境，不导入另一份演示的业务图。先读各自的接口
+说明和输入输出，再看标为已学运行环境的支持代码。`interrupt`、`resume`、重跑演示各用
+全新的内存 SQLite；副作用、幂等两份演示只用普通 Python。最后一份才把知识点接成业务图，使用脚本旁的
+`day33_integrated_review.sqlite` 文件，不会操作 Day 32 或旧版教具的数据库。它用 `--resume` 代表教学中
+“人已批准”，不调用真实发布系统；在 PyCharm 第二次运行时，把 `--resume` 填到
+运行配置的脚本参数里。练习换成配送申请：AI 给定图路线和模拟动作，学员只写
+`request_review` 与 `resume_dispatch`。A 用 `--part a` 单独观察暂停，B 用 `--part b`
+对照批准与拒绝。两个函数现已完成，题干已清为简短 docstring。
+题末保留学员根据实际输出填写的四道“现象与原因”；今天没有另一份记录 md。
+
+从仓库根目录运行：
+
+```powershell
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_interrupt_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_resume_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_replay_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_side_effect_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_idempotency_demo.py
+
+# 跨进程整合：第一条暂停；等它退出后再运行第二条恢复
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_checkpoint_resume_demo.py
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_checkpoint_resume_demo.py --resume
+
+# 复跑已完成练习：A 观察暂停，B 观察批准和拒绝两组
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_approval_exercises.py --part a
+.venv\Scripts\python.exe -B weeks\week04_frameworks\day33_approval_exercises.py --part b
+```
+
+官方文档读 [Interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts) 的
+**Pause using interrupt、Resuming interrupts、Rules of interrupts** 三节：分别对应
+第一份输出里的 `__interrupt__`、第二份的 `Command(resume=...)`，以及第三份的节点重跑。
+第一份中的可选 `response_schema` 只需了解用途；本日练习不要求结构化回答校验。
+Day 33 先用已学过的 `invoke`，不要求学习文档里的 `stream_events`。模拟动作使用进程内
+列表，只证明本次教学运行的次数；真实发货或转账还需用持久的业务编号防重复，检查点本身
+不保证外部动作在异常重试时恰好执行一次。
+
+- [ ] 学员分别运行五份知识点演示，能说明接口参数、返回值、重跑位置、副作用与同编号去重。
+- [ ] 学员在两个进程运行文件整合演示，看到暂停时 `next=('review',)`、恢复后 `next=()`。
+- [x] 学员完成练习 A、B：未确认 0 次，批准 1 次，拒绝 0 次，同编号重复请求仍 1 次。
+- [x] 学员依据自己的输出完成四道观察并订正；AI 已验收并清理练习脚手架。
+
+### 2026-10-18 按知识点重做演示
+
+学员读完初版前两份后指出，它们沿用同一个审批案例并互相导入业务图，本质仍是一份演示
+切成几段。现将 `interrupt` 与 `resume` 各自改为接口课，单独对照参数、值和类型；节点重跑
+另用位置记录，副作用与幂等也各用一份纯 Python 演示。最后的整合文件才连接完整审核与执行流程。AI 的试跑只
+验证教具，学员的练习与观察仍待完成。
+
+### 2026-10-18 首次交作业批改
+
+AI 实跑学员 A 与 B：A 暂停在 `('review',)`、外部动作数为 0；B 批准后
+`approved=True`、状态次数和外部次数均为 1；拒绝后为 False、0、0；同编号再次请求
+仍只有一条动作记录。学员代码逻辑正确，AI 已修导入顺序与格式，原始观察保留。
+第 2、4 题正确；第 1 题需把节点名称与 `.next` 的元组形状区分开，第 3 题需补清
+“LangGraph 从中断节点开头重跑，再到 interrupt 取回回答”的时序，并说明打印重跑
+与批准后的配送动作次数不同。当前保留题干，待学员补充后再完成验收收尾。
+
+学员同时指出最终演示与练习仍太像，本次题目不重做；从 Day 34 起默认只给知识点演示、
+清楚的练习提示与验收，把综合实现留给学员。若确需完整演示，练习另用关键决策不同的
+情境。本次通过属于引导练习，独立迁移留待 Day 34～35 的新输入与恢复变式验收。
+
+### 2026-10-18 Day 33 验收
+
+学员补充第 1、3 题后，四道观察可以通过：`.next` 已写为 `('review',)`；
+能够区分审核节点从暂停到恢复打印两次，与批准才执行配送、拒绝不执行配送。
+第 3 题“interrupt 得到值后重跑”的措辞保留原稿，批改时补充准确时序：
+恢复时先从节点开头重跑，走到 `interrupt` 才取得 `resume` 的值。
+
+AI 再实跑 A、B：首次暂停 0 次；批准后状态次数与外部次数均为 1；拒绝均为 0；
+同编号重复请求仍为 1。只清理完成练习的题干和导入格式，保留学员逻辑、观察与上面的
+首次批改记录。上方未勾选的演示阅读与跨进程操作没有逐项确认，不冒充学员完成证据。
+本次引导练习验收完成，独立整合仍由 Day 34～35 检验。
+
+收尾验证：仓库现有测试 `9 passed`，使用 `-p no:cacheprovider`，未新增
+`.pytest_cache`；Ruff 检查通过。格式检查排除不属于本次的根目录 `1.py`，
+其余 160 个 Python 文件通过；本次测试的 `.pytest_tmp` 已清理。
+
 ## 跨天复验安排
 
 - [ ] Day 26B 重复判据：按上面的时间窗口用新轨迹复现；AI 届时出题，尚未发生。
@@ -396,6 +495,7 @@ AI 用不同工作目录和两个独立进程复测通过；原学员 SQLite 文
   再判断一组“历史有点单、本轮已答复”的新输入；尚未发生。
 - [ ] Day 31 于 2026-10-16 完成；2～3 天后闭卷区分追加、同消息 ID 更新和工具调用 ID 配对。
 - [ ] Day 32 于 2026-10-17 完成；2～3 天后闭卷区分 `thread_id` 与消息 ID，并预测同工单接续和新工单隔离。
+- [ ] Day 33 于 2026-10-18 完成；2～3 天后用 10～15 分钟闭卷写同会话恢复入口，并预测节点重跑与外部动作次数。
 - [ ] Day 35 用新输入与恢复情境验收，不把 AI 验证教具记成学员通过。
 
 ## 必做顺序

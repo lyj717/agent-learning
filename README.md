@@ -10,7 +10,7 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-10-17）**：[Week 03](weeks/week03_agent_loop/README.md) 已验收，交接见 [HANDOFF](weeks/week03_agent_loop/HANDOFF.md)。[Week 04 Day 29～32](weeks/week04_frameworks/README.md) 已验收；Day 32 把 SQL、`config`、`invoke`、`SqliteSaver`、`StateSnapshot` 拆成五份独立入门演示，再用整合演示观察跨进程接续。学员完成工单图 A、B 与观察；AI 用隔离数据库复跑了续接和新工单隔离。下一单元是 Day 33 人工确认与恢复。消化半日和跨天闭卷复验仍待安排；Day 31、32 的订正后理解需复验。重复调用判据还需一次隔天复现，安排在下一次满足间隔的学习日。
+**当前接续点（2026-10-18）**：[Week 03](weeks/week03_agent_loop/README.md) 已验收，交接见 [HANDOFF](weeks/week03_agent_loop/HANDOFF.md)。[Week 04 Day 29～33](weeks/week04_frameworks/README.md) 已验收；Day 33 学员完成 A、B 与四道观察订正，AI 实跑批准、拒绝与同编号重试通过。下一单元为 Day 34 学员整合。学员反馈完整整合演示与练习仍太相似，从 Day 34 起优先把综合实现留给学员，独立迁移后续另验。消化半日和跨天闭卷复验仍待安排；Day 31～33 的订正后理解需复验。重复调用判据还需一次隔天复现，安排在下一次满足间隔的学习日。
 
 详细计划见 `docs/` 目录：
 
