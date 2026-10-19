@@ -30,6 +30,8 @@ htmlcov/
 # ---- 数据与产物（本地数据不提交）----
 data/raw/
 *.sqlite
+*.sqlite-wal
+*.sqlite-shm
 *.db
 chroma/
 .chroma/
