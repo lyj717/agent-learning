@@ -1,13 +1,4 @@
-"""Day 34：把手写 Agent 的行为迁入 LangGraph，综合实现由学员完成。
-
-先用 10～15 分钟完成末尾两道闭卷短题，再读两份消息转换演示。
-依次运行 --part a / b / c / d；D 可用 --case 1 只检查一组。
-今天完全离线：模型回复与 usage 是教学数据，检索和计算使用已经学过的本地工具。
-本文件不提供整张业务图的实现。文件检查点与人工确认接入留到下一单元，
-先把本次单任务的消息、请求次数和停止行为接对。
-复用函数不用跨文件查找：day34_support.py 内集中定义了六个公开接口及其完整说明，
-直接运行该文件即可打印接口手册，或在 IDE 查看 support.函数名 的本地定义。
-"""
+"""Day 34：用 LangGraph 实现带工具、预算与停止判断的单任务 Agent。"""
 
 import argparse
 import sys
@@ -29,9 +20,7 @@ from langchain_core.messages import (
     convert_to_messages,
     convert_to_openai_messages,
 )
-
-# 写 build_agent_graph 时取消下面这一行的注释，其他建图接口与 Day 29～33 相同。
-# from langgraph.graph import END, START, StateGraph
+from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.graph.state import CompiledStateGraph
 
@@ -39,7 +28,7 @@ from weeks.week04_frameworks.demos.day34 import day34_support as support
 
 
 class AgentState(TypedDict):
-    """AI 给定的数据接口；需要学员实现的是这些数据怎样被节点更新。"""
+    """单任务 Agent 的消息、轨迹、用量与运行限制。"""
 
     # messages 沿用 Day 31；节点只返回本轮新消息，旧项由图合并。
     messages: Annotated[list[AnyMessage], add_messages]
@@ -55,61 +44,9 @@ class AgentState(TypedDict):
 
 
 def model_node(state: AgentState) -> dict:
-    """A：尝试一次模型请求，返回本轮消息、用量、次数与停止状态的部分更新。
-    要做的：保留 Day 27 请求前检查任务时限、单次超时和最终答复的行为。
-    每次实际尝试请求使 steps 加一；任务开始前到期不发请求，也不增加 steps。
-    请求成功时，消息对象与 usage 都要保留；只有模型给出的最终文字能成为 answer。
-    不在这里执行工具，不在这里提前用预算或 max_steps 抹掉已收到的最终答复。
-    不修改传入的 state；trace / usages 是普通列表，更新中要保留旧项。
-    接口：support.plan_next_call(started_at, now, task_limit, call_limit) 返回
-    含 stop_reason / next_timeout 的字典；now 用 time.monotonic() 读取。
-    support.request_model(原生消息字典列表, scenario=..., timeout_seconds=...)
-    返回 {message: 原生assistant字典, finish_reason: 'tool_calls'或'stop',
-    usage: {prompt_tokens: 数量, completion_tokens: 数量}或None}。
-    用两份小演示里的转换接口衔接消息形状。
-    使用 convert_to_messages 时，即使只有一条 response['message']，也传列表。
-    转换对象是整条 message 字典，不是 message['content'] 字符串；转换结果已经是
-    消息对象列表，放入 messages 即可。原生 tool_calls 含 function，不能直接当作
-    AIMessage(tool_calls=...) 的 name / args 结构使用；整条消息转换会处理这些差异。
-    answer 保持模型正文字符串，不调用消息转换函数。
-    节点返回接口（2026-10-18 补齐）：本题四种分支统一返回下面六个键。
-    这是给图更新 AgentState 的字典，不是直接返回 request_model 的原始响应。
-      messages: list[AnyMessage] —— 只放本轮新 AIMessage；没收到响应时为 []。
-                不复制旧消息，旧消息由 add_messages 保留。
-      trace: list[dict] —— 旧轨迹加上本轮新事件；这个普通列表不会自动追加。
-      usages: list[dict | None] —— 旧用量记录加上本轮收到的 usage；未收到响应则保持旧列表。
-      steps: int —— 更新后的模型请求尝试次数。
-      answer: str | None —— 仅最终答复分支放模型正文，其余分支为 None。
-      stop_reason: str | None —— 本轮继续时 None，停止时为下面规定的原因。
-    scenario、limits、started_at 由图保留，不必返回；不增加 message / usage /
-    finish_reason 三个状态键。单次 usage 放进 usages，finish_reason 放进 request 轨迹。
-    四种分支的返回要求：
-      收到工具点单：messages 有一条新 AIMessage；trace 加 request；usages 加本轮 usage；
-                    steps 比旧值加 1，answer=None，stop_reason=None。
-      收到最终答复：messages 有一条新 AIMessage；trace 加 request 与 final；usages 加本轮 usage；
-                    steps 比旧值加 1，answer 为模型正文，stop_reason='final_answer'。
-      请求前任务到期：messages=[]；trace 只加 stop；usages、steps 保持旧值；
-                      answer=None，stop_reason='task_timeout'，用返回字典表示停止。
-      请求中单次超时：messages=[]；trace 加 request 与 stop；usages 保持旧值；
-                      steps 比旧值加 1，answer=None，stop_reason='call_timeout'。
-    收到响应但 usage=None 时，往 usages 加一项 None；请求超时没收到响应时，不加这一项。
-    更新中用到的限制取 state['limits']，它已包含当前案例覆盖后的值；
-    support.DEFAULT_LIMITS 只是默认模板，不能替代本次 state['limits']。
-
-    期望结果：--part a 的三组分别为 (steps, stop_reason) =
-    (1, None)、(0, 'task_timeout')、(1, 'call_timeout')。
-    请求前发现 task_timeout 时只记 stop，没有 request。
-    捕获请求中的 TimeoutError 时记 usage=None 的 request，再记 call_timeout 的 stop；
-    此时不把未返回的 usage 加进 usages，沿用 Day 27。
-    trace 沿用 Day 27：每条是事件字典，按 event 选择不同字段。
-    A 写 request / final / stop，工具事件由 B 写；完整字段与 step 取值见
-    day34_support.py 的 TRACE_GUIDE，直接运行支持文件也会先打印这一节。
-    提示：day34_support.py 中两个 A 接口的本地定义有完整参数、返回字段与例子，
-    无需逐个打开旧导入文件；消息转换看两份独立演示，不复制旧 for 循环。
-    TimeoutError 是 Python 内置异常，无需导入；本题只捕获这次模型请求的超时。
-    """
+    """执行一次模型请求，更新消息、用量、次数与停止状态。"""
     step = state["steps"]
-    trace = []
+    trace = state["trace"].copy()
     now = time.monotonic()
     time_dict = support.plan_next_call(
         started_at=state["started_at"],
@@ -166,17 +103,17 @@ def model_node(state: AgentState) -> dict:
             }
         )
         return {
-            "messages": convert_to_messages(message),
+            "messages": convert_to_messages([message]),
             "trace": trace,
-            "usages": state["usages"],
+            "usages": state["usages"] + [usage],
             "steps": step + 1,
             "answer": message["content"],
             "stop_reason": "final_answer",
         }
     return {
-        "messages": convert_to_messages(message),
+        "messages": convert_to_messages([message]),
         "trace": trace,
-        "usages": state["usages"],
+        "usages": state["usages"] + [usage],
         "steps": step + 1,
         "answer": None,
         "stop_reason": None,
@@ -184,111 +121,123 @@ def model_node(state: AgentState) -> dict:
 
 
 def tools_node(state: AgentState) -> dict:
-    """B：执行最新一条 assistant 的整批点单，返回工具观察与工具轨迹。
-
-    要做的：只处理最新一条 AIMessage 的点单；一条 assistant 可以点多个工具。
-    每条都执行并回填一条 ToolMessage，保留对应调用 ID；steps 不增加。
-    messages 的更新只包含新工具观察；trace 的更新须保留旧轨迹。
-    不把工具结果写成 answer，不在批内处理完第一条后就提前做停止判断。
-
-    节点返回接口：字典含 messages、trace 两个键。
-      messages: list[AnyMessage] —— 本批新产生的全部 ToolMessage，不复制旧消息。
-      trace: list[dict] —— 旧轨迹加上本批全部工具事件。
-    其他状态字段由图保留，不在本节点更新。
-
-    接口：convert_to_openai_messages(一条AIMessage) 返回一条原生字典；
-    其中 tool_calls 每项含 id / function.name / function.arguments(JSON文本)。
-    support.execute_call(call, allow_code=state['limits']['allow_code'])
-    执行一条原生点单，返回含 role / tool_call_id / content 的原生工具字典。
-    它负责已学的参数错误回填和代码权限；不是图节点，不会修改状态。
-    工具轨迹沿用 Day 27 的 step / event='tool' / tool / arguments /
-    tool_call_id / observation，其中 arguments 保留 JSON 文本，observation 为 content。
-
-    期望结果：--part b 打印单点单、多点单、坏参数和代码权限对照。
-    多点单组应一次交回两条工具观察，请求次数仍为 1；错误观察也有原调用 ID。
-    提示：转换改变表示方式，不执行工具；执行工具不代表模型已经给了最终答复。
-    """
-    raise NotImplementedError("第 B 题还没写：tools_node")
+    """执行本轮全部工具点单，返回观察消息与工具轨迹。"""
+    trace = state["trace"].copy()
+    step = state["steps"]
+    messages = []
+    calls = convert_to_openai_messages(state["messages"][-1])["tool_calls"]
+    for call in calls:
+        name = call["function"]["name"]
+        arguments = call["function"]["arguments"]
+        tool_message = support.execute_call(
+            call=call, allow_code=state["limits"]["allow_code"]
+        )
+        trace.append(
+            {
+                "step": step,
+                "event": "tool",
+                "tool": name,
+                "arguments": arguments,
+                "tool_call_id": tool_message["tool_call_id"],
+                "observation": tool_message["content"],
+            }
+        )
+        messages.append(tool_message)
+    return {"messages": convert_to_messages(messages), "trace": trace}
 
 
 def check_limits(state: AgentState) -> dict:
-    """C：整批工具已回填后，决定是否允许再请求模型。
-
-    要做的：保留 Day 27 停止优先级：连续无进展重复 → 预算 → 最大请求次数。
-    repeated_call 比较工具轨迹；不能拿 request / final / stop 事件一起比较。
-    预算使用已发生的 usages 汇总；达到阈值就停，用量缺失不能当 0。
-    没有触发停止时保持 stop_reason=None；触发时追加一条 stop 轨迹。
-    不增加 steps，不重新执行工具，也不能拿最后一条工具观察冒充 answer。
-
-    节点返回接口：字典含 stop_reason、trace 两个键。
-      stop_reason: str | None —— 本次选出的停止原因，继续时为 None。
-      trace: list[dict] —— 停止时为旧轨迹加 stop；继续时保持旧轨迹。
-    其他状态字段由图保留，不在本节点更新。
-
-    接口：support.repeat_stop_reason(工具轨迹列表, repeat_limit)；
-    support.summarize_usage(usages, price=support.TEACHING_PRICE)；
-    support.stop_before_next_request(summary, total_token_limit, cost_limit_yuan)，
-    其中 total_token_limit 取 state['limits']['token_limit']。
-    三个接口都在 day34_support.py 有本地定义、参数说明与例子，无需查旧文件。
-    期望结果：--part c 核对同观察重复、观察更新、多个条件同时到达等对照。
-    提示：本题的 state 已经包含整批工具结果，不负责请求前的任务时限。
-    """
-    raise NotImplementedError("第 C 题还没写：check_limits")
+    """按无进展重复、预算和请求次数判断是否停止。"""
+    limits = state["limits"]
+    trace = state["trace"].copy()
+    step = state["steps"]
+    tool_trace = []
+    for t in trace:
+        if t["event"] == "tool":
+            tool_trace.append(t)
+    if (
+        support.repeat_stop_reason(
+            trace=tool_trace, repeat_limit=limits["repeat_limit"]
+        )
+        == "repeated_call"
+    ):
+        trace.append({"step": step, "event": "stop", "reason": "repeated_call"})
+        return {"trace": trace, "stop_reason": "repeated_call"}
+    summary = support.summarize_usage(
+        usages=state["usages"], price=support.TEACHING_PRICE
+    )
+    stop_reason = support.stop_before_next_request(
+        summary=summary,
+        total_token_limit=limits["token_limit"],
+        cost_limit_yuan=limits["cost_limit_yuan"],
+    )
+    if stop_reason is not None:
+        trace.append({"step": step, "event": "stop", "reason": stop_reason})
+        return {
+            "stop_reason": stop_reason,
+            "trace": trace,
+        }
+    if step >= limits["max_steps"]:
+        trace.append({"step": step, "event": "stop", "reason": "max_steps"})
+        return {
+            "stop_reason": "max_steps",
+            "trace": trace,
+        }
+    return {
+        "stop_reason": None,
+        "trace": trace,
+    }
 
 
 def route_after_model(state: AgentState) -> Literal["tools", "end"]:
-    """D：按本轮模型节点的结果选择继续处理工具或结束。
-
-    要做的：正常点单继续；最终答复、任务时限或单次超时都结束。
-    只读取状态，不执行模型或工具，也不在路由函数里改状态。
-    期望结果：旧历史里有点单、本轮已答复的额外对照必须返回 end。
-    提示：条件边的选择依据是本轮结果，不能搜索整段历史中有没有旧点单。
-    """
-    raise NotImplementedError("第 D 题还没写：route_after_model")
+    """根据模型节点的停止状态选择工具或结束。"""
+    return "tools" if state["stop_reason"] is None else "end"
 
 
 def route_after_limits(state: AgentState) -> Literal["model", "end"]:
-    """D：根据本次停止判断选择允许下一次模型请求或结束。
-
-    要做的：读取 check_limits 已写入的 stop_reason，保持判断与执行分离。
-    期望结果：未触发上限返回 model；已触发上限返回 end。
-    提示：路由标签必须与 build_agent_graph 的 path_map 对应。
-    """
-    raise NotImplementedError("第 D 题还没写：route_after_limits")
+    """根据停止判断选择继续请求模型或结束。"""
+    return "model" if state["stop_reason"] is None else "end"
 
 
 def build_agent_graph() -> CompiledStateGraph:
-    """D：把模型、整批工具和停止判断组成可循环的单任务图。
-
-    要做的：使用上面的 AgentState 与自己写的节点、路由；由图推动后续执行。
-    本题不再给完整接线，需求是先请求模型，按本轮结果执行整批工具或结束；
-    整批工具后决定能否再次请求。给每条路径正确的终点，不保留旧 for/while 总循环。
-    期望结果：--part d 的原 12 组与 4 组新对照都得到指定停止原因、请求数与工具数。
-    提示：仅使用已学的 StateGraph / add_node / add_edge /
-    add_conditional_edges / compile；END 是结束位置，end 只是你返回的路由标签。
-    """
-    raise NotImplementedError("第 D 题还没写：build_agent_graph")
+    """连接模型、工具与停止判断节点，编译单任务图。"""
+    builder = StateGraph(AgentState)
+    builder.add_node("model", model_node)
+    builder.add_node("tools", tools_node)
+    builder.add_node("check", check_limits)
+    builder.add_edge(START, "model")
+    builder.add_conditional_edges(
+        "model", route_after_model, {"tools": "tools", "end": END}
+    )
+    builder.add_edge("tools", "check")
+    builder.add_conditional_edges(
+        "check", route_after_limits, {"model": "model", "end": END}
+    )
+    return builder.compile()
 
 
 def run_graph_agent(question: str, *, scenario: str = "normal", **overrides) -> dict:
-    """D：从新任务运行图，交回与手写版可比较的六项结果。
+    """运行单任务图，返回答复、原生消息、轨迹与用量汇总。"""
+    initial = make_initial(question=question, scenario=scenario, overrides=overrides)
+    graph = build_agent_graph()
+    results = graph.invoke(initial)
+    return {
+        "answer": results["answer"],
+        "stop_reason": results["stop_reason"],
+        "steps": results["steps"],
+        "messages": convert_to_openai_messages(results["messages"]),
+        "trace": results["trace"],
+        "usage": support.summarize_usage(
+            usages=results["usages"], price=support.TEACHING_PRICE
+        ),
+    }
 
-    要做的：make_initial(question, scenario=scenario, overrides=overrides)
-    已负责输入准备；使用自己的图运行，返回 answer / stop_reason / steps /
-    messages / trace / usage。这里 messages 要转回原生字典列表，usage 是汇总字典。
-    overrides 只覆盖 support.DEFAULT_LIMITS 中同名限制，例如 max_steps=2。
-    每次调用都是独立新任务；今天不接文件检查点，也不接真实模型。
-    期望结果：D 每组同时打印预期与实际，并保留足够的消息和轨迹填写末尾观察。
-    提示：invoke 交回的是图状态；公开结果的 usage 需要汇总，不能返回 usages 原列表。
-    """
-    raise NotImplementedError("第 D 题还没写：run_graph_agent")
 
-
-# 以下是 AI 提供的输入与输出检查环境，不包含待实现的 Agent 图。
+# 以下为运行检查与对照输出。
 def make_initial(
     question: str, *, scenario: str = "normal", overrides: dict | None = None
 ) -> AgentState:
-    """为每一组准备独立输入；所有状态字段一次给齐。"""
+    """为每个独立任务准备完整的初始状态。"""
     limits = {**support.DEFAULT_LIMITS, **(overrides or {})}
     if type(limits["max_steps"]) is not int or limits["max_steps"] < 1:
         raise ValueError("max_steps 必须是正整数")
@@ -307,7 +256,7 @@ def make_initial(
 
 
 def apply_for_inspection(state: AgentState, update: dict) -> AgentState:
-    """只为 A～C 查看单节点的部分更新，模拟已学的消息合并规则。"""
+    """合并节点的部分更新，供单节点检查使用。"""
     # add_messages 会给没有消息 ID 的对象补 ID；检查环境不能因此改动被测原输入。
     old = deepcopy(state)
     new = deepcopy(update)
@@ -318,7 +267,7 @@ def apply_for_inspection(state: AgentState, update: dict) -> AgentState:
 
 
 def print_state(state: AgentState) -> None:
-    """逐项打印节点检查需要的字段、消息身份与完整轨迹。"""
+    """打印状态、消息身份与完整轨迹。"""
     print(f"  steps={state['steps']}；stop_reason={state['stop_reason']}")
     print(f"  answer={state['answer']}")
     summary = support.summarize_usage(state["usages"], price=support.TEACHING_PRICE)
@@ -337,7 +286,7 @@ def print_state(state: AgentState) -> None:
 
 
 def inspect_model() -> None:
-    """A 只检查单次模型节点，不执行后续工具或整图。"""
+    """打印模型节点的三组检查结果。"""
     cases = [
         ("正常点单", "normal", {}, "1, None；新增一条 ai；尚无 tool"),
         ("任务一开始已到期", "normal", {"task_limit_seconds": 0.0}, "0, task_timeout"),
@@ -357,7 +306,7 @@ def inspect_model() -> None:
 
 
 def inspect_tools() -> None:
-    """B 的输入是固定教学点单，不依赖 A 已写好。"""
+    """打印工具节点的五组检查结果。"""
     cases = [
         (
             "单条检索",
@@ -425,7 +374,7 @@ def inspect_tools() -> None:
 
 
 def inspect_limits() -> None:
-    """C 使用预制轨迹，只测试停止判断，不冒充学员已经执行过的实验。"""
+    """打印停止判断的结果与预期对照。"""
     first = {
         "step": 1,
         "event": "tool",
@@ -474,12 +423,32 @@ def inspect_limits() -> None:
         state["steps"] = events[-1]["step"]
         before = deepcopy(state)
         print(f"\n=== C {label}；期望 stop_reason={expected} ===")
-        print_state(apply_for_inspection(state, check_limits(state)))
+        update = check_limits(state)
+        print(f"  返回字段={sorted(update)}；期望 ['stop_reason', 'trace']")
+        expected_events = (
+            [{"step": before["steps"], "event": "stop", "reason": expected}]
+            if expected is not None
+            else []
+        )
+        returned_trace = update.get("trace")
+        new_events = (
+            returned_trace[len(before["trace"]) :]
+            if isinstance(returned_trace, list)
+            else None
+        )
+        print(f"  新增轨迹={new_events}；期望 {expected_events}")
+        print(
+            f"  完整轨迹符合期望={returned_trace == before['trace'] + expected_events}；"
+            "期望 True（旧项原序保留，停止才追加一条）"
+        )
+        result = apply_for_inspection(state, update)
+        print(f"  请求次数={result['steps']}；期望仍为 {before['steps']}")
+        print_state(result)
         print(f"  原输入未修改={state == before}；期望 True")
 
 
 def inspect_graph(case_number: int | None) -> None:
-    """D 对照原行为和新情境，打印可供学员核对的真实结果。"""
+    """打印完整图各情境的结果与预期对照。"""
     stale = make_initial("旧点单已处理，本轮已答复")
     stale["messages"].extend(
         [
@@ -523,7 +492,7 @@ def inspect_graph(case_number: int | None) -> None:
 
 
 def main() -> None:
-    """选择单节点检查，或运行学员完成的综合图。"""
+    """按命令行选项运行单节点或整图检查。"""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--part", choices=("a", "b", "c", "d"), default="a")
     parser.add_argument(
@@ -551,28 +520,27 @@ if __name__ == "__main__":
 # === 闭卷短题：先不看旧实现，各用几句话或几行伪代码回答 ===
 # 1. messages 只返回一条新消息，trace 也只返回一条新事件，旧内容都会保留吗？为什么？
 # 我的回答：
-#   会保留，应该新消息并不是覆盖旧消息得来的
+#   messages 通过 add_messages 保留旧消息；trace 没有合并规则，旧列表会被替换
 # 2. 两次工具名和参数相同，但观察由“缺货”变成“有货”，能判 repeated_call 吗？
 #    与“参数键顺序不同、观察仍是缺货”的情境有何不同？
 # 我的回答：
 #   不能，观察变化就说明调用没有在原地踏步，参数键顺序不同、观察仍是缺货则是内容完全相同，参数顺序并不影响判断
 # === 现象与原因：学员写；本日没有独立交付物 md ===
-# 1. 选正常链条，记录 assistant 点单和对应 tool 观察的 ID，引用消息顺序与请求数。
-#    从图中指出哪部分对应原 for 循环，messages 与 trace 分别怎样保留旧项？
+# 1. 图通过哪些节点和边代替原来的循环？
 # 我的回答：
-#
-# 2. 对照“到最大步数”和“直接最终答复且阈值已到”：为什么前者 answer=None，后者成功？
-#    用请求数、最后消息和 stop/final 轨迹支持判断，不能只贴停止原因。
+#   START 用普通边进入 model；model 用条件边决定去 tools 还是 END。
+#   tools 执行工具后，用普通边进入 check；check 用条件边决定回到 model 还是 END。
+#   model → tools → check → model 形成回路，代替原来的循环；条件边负责决定继续或结束。
+# 2. 为什么模型已给出最终答复时，不再用预算或次数上限覆盖结果？
 # 我的回答：
-#
-# 3. 对照同轮两条点单的正常与 max_steps=1 情境：请求数和 tool 观察数各是多少？
-#    若处理第一条工具后就检查 max_steps，会破坏哪条消息配对？
+#   因为预算和次数上限本来就是在下一次循环开始前判断的，模型给出最终答复后就直接结束循环了
+# 3. 为什么同轮的多条工具点单要全部回填后，再检查停止条件？
 # 我的回答：
-#
-# 4. 从 C 的两组相近输入说明：参数键顺序、调用ID、观察更新分别会怎样影响重复判断？
-#    再记录重复和 token 阈值同时触发时的实际原因。
+#   同轮的每条工具点单都需要对应的观察，避免留下未配对的调用。全部回填后，停止判断才能依据本轮完整结果进行，尤其是判断是否重复、是否有新进展。这些停止条件用于决定是否继续下一次模型请求，不应截断本轮的工具回填。
+# 4. 怎样判断工具调用没有新进展？重复和预算同时触发时如何选择？
 # 我的回答：
-#
-# 5. 对照任务开始前到期与单次请求超时：steps、request 轨迹、usage['requests'] 各是多少？
-#    为什么超时的请求尝试次数可以大于已收到 usage 的次数？
+#   用repeated_call判断,工具名、解析后的参数和观察连续相同，达到重复限制，就判为没有新进展。先判断重复再判断预算
+# 5. 请求前到期与请求中超时，在请求计数和用量记录上有什么区别？
 # 我的回答：
+#   请求前到期不会计入请求计数，请求中超时会
+#   请求前到期的用量记录保持原状态，请求中超时没有收到响应时，不增加用量项，收到响应、其中 usage=None时追加 None
