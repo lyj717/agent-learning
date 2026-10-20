@@ -3,6 +3,7 @@
 import argparse
 import sys
 import time
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 from typing import Annotated, Literal, TypedDict
@@ -43,8 +44,10 @@ class AgentState(TypedDict):
     started_at: float  # 本任务开始时的单调时钟读数，今天只在同一进程使用。
 
 
-def model_node(state: AgentState) -> dict:
-    """执行一次模型请求，更新消息、用量、次数与停止状态。"""
+def model_node(
+    state: AgentState, *, chat_fn: Callable[..., dict] = support.request_model
+) -> dict:
+    """执行一次模型请求；chat_fn 默认离线，Day35 可传入同接口的真实请求函数。"""
     step = state["steps"]
     trace = state["trace"].copy()
     now = time.monotonic()
@@ -65,7 +68,7 @@ def model_node(state: AgentState) -> dict:
             "stop_reason": "task_timeout",
         }
     try:
-        message_dict = support.request_model(
+        message_dict = chat_fn(
             messages=convert_to_openai_messages(state["messages"]),
             scenario=state["scenario"],
             timeout_seconds=time_dict["next_timeout"],

@@ -17,13 +17,22 @@ if str(REPO_ROOT) not in sys.path:
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.types import Command, StateSnapshot
+from openai import OpenAIError
 
+from weeks.week03_agent_loop.demos.day28.day28_live_check import print_trace
 from weeks.week03_agent_loop.exercises import day27_integrated_exercises as handwritten
 from weeks.week04_frameworks.exercises import day34_graph_exercises as core
 
 DAY_DIR = Path(__file__).resolve().parent
 DEFAULT_DB = DAY_DIR / "day35_checkpoints.sqlite"
 DEFAULT_OUTBOX = DAY_DIR / "day35_outbox.sqlite"
+LIVE_DB = DAY_DIR / "day35_live_checkpoints.sqlite"
+LIVE_OUTBOX = DAY_DIR / "day35_live_outbox.sqlite"
+LIVE_LIMITS = {
+    "call_limit_seconds": 50.0,
+    "task_limit_seconds": 180.0,
+    "token_limit": 20000,
+}
 QUESTION = "蓝湾便签买 8 本多少钱？请说明单价出处。"
 
 
@@ -89,6 +98,13 @@ def print_snapshot(snapshot: StateSnapshot) -> None:
     print(f"  steps={state['steps']}；消息角色={roles}；已完成的工具={tools}")
     print(f"  已收到响应的用量记录数={len(state['usages'])}")
     print(f"  approved={state['approved']}；图内 action_count={state['action_count']}")
+    if state["scenario"] == "live":
+        summary = core.support.summarize_usage(
+            state["usages"], price=core.support.TEACHING_PRICE
+        )
+        print(f"  真实响应 token 汇总={summary}")
+        print("  token 来自实际响应；known_cost_yuan 仍按教学假价估算，不是实际账单。")
+        print_trace(state["trace"])
     actual_count = outbox_count(Path(state["outbox_db"]), state["quote_id"])
     print(f"  发件箱此 quote_id 的实际记录数={actual_count}")
     for task in snapshot.tasks:
@@ -129,12 +145,19 @@ def run_cli(build_graph: Callable[[SqliteSaver], CompiledStateGraph]) -> None:
         "--decision", choices=("allow", "deny"), help="resume 时必须提供"
     )
     parser.add_argument("--max-steps", type=int, default=4, help="仅 start 使用")
-    parser.add_argument("--db", type=Path, default=DEFAULT_DB, help="检查点文件")
     parser.add_argument(
-        "--outbox", type=Path, default=DEFAULT_OUTBOX, help="仅 start 使用"
+        "--live",
+        action="store_true",
+        help="选择真实模型会话库；仅 start 发请求，最多 max-steps 次",
+    )
+    parser.add_argument("--db", type=Path, help="检查点文件；真实与离线默认用各自文件")
+    parser.add_argument(
+        "--outbox", type=Path, help="仅 start 使用；真实与离线默认用各自文件"
     )
     args = parser.parse_args()
     if args.phase == "compare":
+        if args.live:
+            parser.error("compare 只比较既有离线实现，不使用 --live")
         compare_core()
         return
     if args.phase == "resume" and args.decision is None:
@@ -142,7 +165,10 @@ def run_cli(build_graph: Callable[[SqliteSaver], CompiledStateGraph]) -> None:
     if args.max_steps < 1:
         parser.error("--max-steps 必须是正整数")
 
-    db_path = data_path(args.db)
+    db_path = data_path(args.db or (LIVE_DB if args.live else DEFAULT_DB))
+    outbox_path = data_path(
+        args.outbox or (LIVE_OUTBOX if args.live else DEFAULT_OUTBOX)
+    )
     config = {"configurable": {"thread_id": args.ticket_id}}
     print(f"检查点文件={db_path}；thread_id={args.ticket_id}")
     if args.phase != "start" and not db_path.exists():
@@ -150,6 +176,17 @@ def run_cli(build_graph: Callable[[SqliteSaver], CompiledStateGraph]) -> None:
             parser.error("检查点文件不存在，没有可恢复状态；请核对 --db 和会话编号")
         print("检查点文件尚不存在，此 thread_id 没有旧状态；未创建数据库。")
         return
+    if args.live and args.phase == "start":
+        from weeks.week04_frameworks.demos.day35.day35_live_model import (
+            validate_settings,
+        )
+
+        try:
+            model = validate_settings()
+        except RuntimeError as error:
+            parser.error(str(error))
+        print(f"真实模型={model}；从仓库根 .env 读取已有配置，不打印密钥。")
+        print(f"最多 {args.max_steps} 次请求；工具与发布仍只操作本地教学数据。")
     db_path.parent.mkdir(parents=True, exist_ok=True)
     # Day 32 已学：上下文内使用 saver 和 graph，离开后关闭连接，数据仍在文件中。
     with SqliteSaver.from_conn_string(str(db_path)) as saver:
@@ -161,22 +198,40 @@ def run_cli(build_graph: Callable[[SqliteSaver], CompiledStateGraph]) -> None:
                     "此会话已有状态；用 status/resume 查看或恢复，新任务请换 ticket-id"
                 )
             initial = core.make_initial(
-                QUESTION, overrides={"max_steps": args.max_steps}
+                QUESTION,
+                scenario="live" if args.live else "normal",
+                overrides={
+                    **(LIVE_LIMITS if args.live else {}),
+                    "max_steps": args.max_steps,
+                },
             )
             initial.update(
                 quote_id=args.quote_id or f"offer-{args.ticket_id}",
                 approved=False,
                 action_count=0,
-                outbox_db=str(data_path(args.outbox)),
+                outbox_db=str(outbox_path),
             )
             # Day 32 的旧调用形状：首次 input 是状态字段字典。
-            graph.invoke(initial, config=config)
+            try:
+                graph.invoke(initial, config=config)
+            except OpenAIError as error:
+                # 不输出 SDK 的完整请求和配置；只显示异常类型与 HTTP 状态。
+                status = getattr(error, "status_code", None)
+                parser.exit(
+                    1,
+                    f"真实模型请求失败：{type(error).__name__}，HTTP 状态={status}。"
+                    "请检查网络、模型和额度；修好后用新 ticket-id 重试。\n",
+                )
         elif args.phase == "resume":
             if not before.values:
                 parser.error("此 thread_id 没有可恢复的状态；请核对文件和会话编号")
             if not before.next:
                 print("此会话已结束，不再提交恢复，也不重新启动模型。")
             else:
+                if before.next != ("review",):
+                    parser.error(
+                        "此会话未停在人工审核；不能用 allow/deny 恢复请求，请换新 ticket-id"
+                    )
                 # Day 33 的旧调用形状：只交回人的决定，不重传问题、消息或初始计数。
                 graph.invoke(Command(resume=args.decision), config=config)
         print_snapshot(graph.get_state(config))

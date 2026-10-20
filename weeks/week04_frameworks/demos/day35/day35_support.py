@@ -37,7 +37,7 @@ class QuoteState(TypedDict):
     steps: int  # 已尝试的模型请求次数。
     answer: str | None  # 模型生成的报价草稿；有草稿不代表已经发布。
     stop_reason: str | None  # 无停止原因为 None；模型完成为 final_answer。
-    scenario: str  # 离线模型的教学情境，本课首次输入用 normal。
+    scenario: str  # 默认 normal 为离线教学；CLI --live 首次写入 live。
     limits: dict  # Day 34 的预算、次数和超时等限制。
     started_at: float  # 首次任务计时起点；本课审核恢复后不再请求模型。
 
@@ -55,7 +55,12 @@ def model_node(state: QuoteState) -> dict:
     返回：messages、trace、usages、steps、answer、stop_reason 六项更新。
     模型完成时 answer 是草稿、stop_reason='final_answer'；工具点单时原因是 None。
     请求前到期和请求中超时的行为沿用你已完成的 Day 34。
+    scenario='live' 时只换请求函数，消息转换、计数与状态更新仍由你的 Day 34 节点完成。
     """
+    if state["scenario"] == "live":
+        from weeks.week04_frameworks.demos.day35.day35_live_model import request_model
+
+        return _day34.model_node(state, chat_fn=request_model)
     return _day34.model_node(state)
 
 
