@@ -22,6 +22,9 @@ langgraph==1.2.15
 # Week 04 Day 32：把 LangGraph 检查点保存到本地 SQLite 文件
 langgraph-checkpoint-sqlite==3.1.2
 
+# Week 05 Day 36：显式声明直接使用的 Document 所属包，沿用本机已安装版本
+langchain-core==1.6.10
+
 # ---- 开发工具 ----
 
 # 测试
