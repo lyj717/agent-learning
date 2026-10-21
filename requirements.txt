@@ -25,6 +25,12 @@ langgraph-checkpoint-sqlite==3.1.2
 # Week 05 Day 36：显式声明直接使用的 Document 所属包，沿用本机已安装版本
 langchain-core==1.6.10
 
+# Week 05 Day 38：CPU 上生成中文文本向量，不需要另一份 API 密钥
+fastembed==0.9.0
+
+# Week 05 Day 38：NumPy 前置演示直接使用，沿用已安装并验证的版本
+numpy==2.5.4
+
 # ---- 开发工具 ----
 
 # 测试
