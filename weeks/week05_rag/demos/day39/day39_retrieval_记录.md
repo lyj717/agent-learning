@@ -81,6 +81,14 @@ limit变大并不就意味着每条结果都更有用
 返回了候选但原文不足以回答说明资料可能与问题主题相关但没有提供所问的具体信息
 ## 自有资料基线｜在 Day 41 验收前补齐约 10 条
 
+2026-10-28 接续说明：本表继续作为 Day 41 唯一的十条基线表，不再复制一份。
+学员已选择仓库根目录下的 `notes/python-notes.md`。问题和期望先由学员读原文填写，
+再用 Day 41 的 batch 读取本表已填问题，复用一次建库与同一全文快照运行。
+“实际候选”可记录对应结果 JSON 的路径和关键 id/分数；“判断与原因”分别说明
+检索是否命中、回答内容是否正确、引用是否支持结论。结果 JSON 保存了候选、原始
+响应、用量与校验结果，不要求在多处重复抄写。原有三道教学观察保留在上方。
+下方旧 query 命令保留供复看；Day 41 按本周 README 的新入口运行即可，不必把同题重复跑两遍。
+
 这里的一条是一个测试问题，约十条就是约十个问题。可以围绕自己选定的一两份现有
 学习笔记提问，不要求准备十份资料。问题里既包含原文能支持回答的，也留少量原文
 没有提供所问信息的；由学员读原文确定，不由检索结果反推期望。
@@ -95,6 +103,8 @@ limit变大并不就意味着每条结果都更有用
 切分设置；模型和默认窗口设置可从本周 README 与已有代码核对，不猜未记录的数据。
 
 我的资料根目录、相对路径列表及运行设置：
+
+此处与 Day 41 记录的实际运行设置只需填写一处，另一处写文件链接即可。
 
 先显示原文与行号，尚未写完 A/B 也能运行这条入口。把示例路径替换为自己的：
 
@@ -113,15 +123,31 @@ limit变大并不就意味着每条结果都更有用
 不编造原文位置。“实际候选”来自 query 命令；“判断与原因”由你逐条核对。今天不要求
 填写生成模型的答案或引用正确率，这些等后续单元接入后再观察。
 
+2026-10-30 补充：按学员明确要求，十条问题与期望由 AI 根据所选
+`notes/python-notes.md` 原文整理，含八条有答案、两条资料不足的问题。下列行号指
+包含答案依据的原文位置，检索片段可以覆盖更大的行范围，不要求窗口边界与期望行号相同。
+
+2026-10-30 运行转录：学员告知本次 batch 已跑完，AI 从 `day41/outputs/run_jg_k2_vk/`
+的十份结果 JSON 转录下表候选，按返回顺序列出，余弦分数保留六位小数；完整精度、正文、
+真实模型回复和用量见各行的结果链接。本批候选来源均为 `notes/python-notes.md`，
+编号中的 `L起始-L结束` 同时标明原行范围。模型 status、引用和用量汇总见
+[Day 41 记录第 3 节](../day41/day41_rag_记录.md#3-约十条自有资料基线只维护原有一份表)，
+[十题模型完整回答](../day41/day41_rag_记录.md#模型实际回答2026-10-30-原文转录)也已逐字转录。
+
+观察归档（2026-10-30）：十条“我的判断与原因”已由学员完成，第 7、8 题经反馈订正后
+完成本轮观察验收。AI 将十条观察原文逐题归档到下表最后一列，核对一致后按学员要求
+删除临时 scratch.md。第 7、8 题的首稿留痕保留在 Day 41 记录，详细批改反馈见聊天；
+本轮有答疑与订正，不记作十题全项独立定位或跨天掌握。项目中的问题、期望、运行数据与模型回答继续保留。
+
 | 编号 | 我的问题 | 期望来源与原行范围，或无答案 | 实际候选（id、来源、范围、分数） | 我的判断与原因 |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
-| 6 | | | | |
-| 7 | | | | |
-| 8 | | | | |
-| 9 | | | | |
-| 10 | | | | |
+| 1 | 怎样把多条消息拼成一段文字，让每条消息各占一行？ | `notes/python-notes.md` 第 24 行：先用 `append` 收集到列表，最后用换行符 `join` 拼接。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_01.json)<br>① `notes/python-notes.md#L13-L20`：0.652674<br>② `notes/python-notes.md#L7-L14`：0.642272<br>③ `notes/python-notes.md#L19-L26`：0.568149 | 检索找全了，回答准确完整，引用支持回答 |
+| 2 | 字典里的键可能不存在时，怎样读取它，并指定默认值？ | `notes/python-notes.md` 第 38 行：使用 `d.get("k", 默认值)`。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_02.json)<br>① `notes/python-notes.md#L31-L38`：0.618152<br>② `notes/python-notes.md#L43-L50`：0.609625<br>③ `notes/python-notes.md#L37-L44`：0.607127 | 检索找全了，回答准确完整，引用支持回答 |
+| 3 | 函数的可选参数需要一个默认列表时，笔记推荐怎样定义参数、在函数内初始化？ | `notes/python-notes.md` 第 50 行：参数默认值写 `None`，函数内用 `if x is None: x = []` 创建列表。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_03.json)<br>① `notes/python-notes.md#L49-L56`：0.715366<br>② `notes/python-notes.md#L43-L50`：0.672991<br>③ `notes/python-notes.md#L91-L98`：0.624220 | 检索找全了，回答准确完整，引用支持回答 |
+| 4 | Pydantic 模型转出来的数据要提交给接口时，应该使用哪种转换方式？ | `notes/python-notes.md` 第 74 行：使用 `.model_dump(mode="json")`，避免枚举仍是枚举对象。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_04.json)<br>① `notes/python-notes.md#L67-L74`：0.651270<br>② `notes/python-notes.md#L73-L80`：0.651130<br>③ `notes/python-notes.md#L61-L68`：0.556104 | 检索找全了，回答准确完整，引用支持回答 |
+| 5 | 不确定一个函数有哪些参数、怎么使用时，可以怎样查看说明？ | `notes/python-notes.md` 第 91 行：使用 `print(f.__doc__)` 或 `help(f)` 查看说明。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_05.json)<br>① `notes/python-notes.md#L49-L56`：0.676548<br>② `notes/python-notes.md#L91-L98`：0.660281<br>③ `notes/python-notes.md#L43-L50`：0.637012 | 检索找全了，回答准确完整，引用支持回答 |
+| 6 | 这份笔记建议每天花多少分钟复习 Python？ | 资料不足：所选笔记没有给出每天复习的分钟数。第 4 行只说明复习方法，不能据此推算时长；不编造答案或引用。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_06.json)<br>① `notes/python-notes.md#L1-L8`：0.634229<br>② `notes/python-notes.md#L7-L14`：0.496693<br>③ `notes/python-notes.md#L43-L50`：0.479350 | 判断正确，原文资料不足 |
+| 7 | 想把记录按分数从高到低取前三条，再将对应的文字每条一行拼起来，需要组合笔记中的哪些写法？ | `notes/python-notes.md` 第 40～41 行与第 24 行：用 `sorted(xs, key=lambda x: x["score"], reverse=True)[:3]` 排序取前三条；将对应文字用 `append` 收集到列表，再用 `"\n".join(列表)` 拼接。回答与引用须覆盖排序取数、换行拼接两部分。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_07.json)<br>① `notes/python-notes.md#L13-L20`：0.633556<br>② `notes/python-notes.md#L7-L14`：0.605004<br>③ `notes/python-notes.md#L19-L26`：0.581771 | 检索没有找全，候选没有选到资料中回答这个问题的文本，因此模型返回了insufficient。 |
+| 8 | 检查外部数据结构时，怎样用 Pydantic 定义校验模型，又怎样查看这个模型交给大模型时的结构？ | `notes/python-notes.md` 第 71 行与第 78 行：用 `class X(BaseModel):` 配合类型注解定义校验模型，用 `.model_json_schema()` 查看模型结构。回答与引用须覆盖两部分。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_08.json)<br>① `notes/python-notes.md#L67-L74`：0.646155<br>② `notes/python-notes.md#L61-L68`：0.552437<br>③ `notes/python-notes.md#L91-L98`：0.533601 | 检索没有找全，回答准确但不完整，引用支持了部分回答，有部分引用没有覆盖 |
+| 9 | Pydantic 的 `.model_dump()` 与 `.model_dump_json()` 的返回形式有什么区别？ | `notes/python-notes.md` 第 73 行：前者转成字典，后者转成 JSON 字符串；不能把两者都说成字典或都说成字符串。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_09.json)<br>① `notes/python-notes.md#L73-L80`：0.697381<br>② `notes/python-notes.md#L91-L98`：0.637336<br>③ `notes/python-notes.md#L67-L74`：0.606499 | 检索找全了，回答准确完整，引用支持回答 |
+| 10 | 笔记中「可变默认参数」的踩坑案例，实际运行时打印了什么结果？ | 资料不足：全文未记录该案例的实际运行输出。第 113～120 行只是留空的踩坑模板；第 50 行虽给出推荐写法，也不能据此编造当时的打印结果。 | [结果 JSON](../day41/outputs/run_jg_k2_vk/question_10.json)<br>① `notes/python-notes.md#L109-L116`：0.750592<br>② `notes/python-notes.md#L1-L8`：0.585221<br>③ `notes/python-notes.md#L49-L56`：0.581623 | 判断正确，资料不足 |
