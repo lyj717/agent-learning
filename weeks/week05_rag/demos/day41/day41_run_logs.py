@@ -61,11 +61,15 @@ def run_logged_check(
     check_fn: Callable[..., None],
     learner_fn: Callable[..., object],
     log_root: Path = CHECK_LOGS,
+    exercise_path: Path = EXERCISE,
+    origin_env: str = "DAY41_RUN_ORIGIN",
 ) -> None:
     """运行 A/B 检查并留证，发生异常时保存回溯并原样抛出。
 
     part 是 a 或 b；check_fn 是已有检查入口；learner_fn 是学员函数。
     log_root 默认位于 Day 41 输出目录，供 AI 验证时也可传入隔离目录。
+    exercise_path 是被检查的练习文件；origin_env 指定来源标记的环境变量名。
+    其他单元可显式指定这三项，复用留证机制；省略时保持 Day 41 行为。
     每次使用独立目录；origin 是来源标记，默认未确认，不据此声称学员亲跑。
     返回 None；控制台、日志和运行状态分别保留，不修改学员函数结果。
     """
@@ -83,11 +87,12 @@ def run_logged_check(
         "part": part,
         "started_at": started.isoformat(),
         "finished_at": None,
-        "origin": os.environ.get("DAY41_RUN_ORIGIN", "unconfirmed"),
+        "origin": os.environ.get(origin_env, "unconfirmed"),
         "python_executable": sys.executable,
         "working_directory": str(Path.cwd()),
         "arguments": sys.argv,
-        "exercise_sha256": hashlib.sha256(EXERCISE.read_bytes()).hexdigest(),
+        "exercise_path": str(exercise_path.resolve()),
+        "exercise_sha256": hashlib.sha256(exercise_path.read_bytes()).hexdigest(),
         "console_log": str(log_path),
         "state": "running",
     }
