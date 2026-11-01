@@ -1,0 +1,419 @@
+{
+  "schema_version": 1,
+  "source_snapshot_sha256": "923b660e3d09527cf9a54be9bee4a67c78fb0e5b7c67cc5cca8007ff92e623df",
+  "annotation_provenance": {
+    "q01_q10": "复用 Week05 旧十题及既有期望与依据。",
+    "q11_q30": "2026-11-01 应学员明确要求，由 AI 根据固定全文补齐问题、answerable、期望与依据；不作为学员独立出题或标注的证据。"
+  },
+  "cases": [
+    {
+      "id": "q01",
+      "split": "dev",
+      "question": "怎样把多条消息拼成一段文字，让每条消息各占一行？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 24 行：先用 `append` 收集到列表，最后用换行符 `join` 拼接。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 24,
+          "line_end": 24
+        }
+      ]
+    },
+    {
+      "id": "q02",
+      "split": "dev",
+      "question": "字典里的键可能不存在时，怎样读取它，并指定默认值？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 38 行：使用 `d.get(\"k\", 默认值)`。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 38,
+          "line_end": 38
+        }
+      ]
+    },
+    {
+      "id": "q03",
+      "split": "dev",
+      "question": "函数的可选参数需要一个默认列表时，笔记推荐怎样定义参数、在函数内初始化？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 50 行：参数默认值写 `None`，函数内用 `if x is None: x = []` 创建列表。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 50,
+          "line_end": 50
+        }
+      ]
+    },
+    {
+      "id": "q04",
+      "split": "dev",
+      "question": "Pydantic 模型转出来的数据要提交给接口时，应该使用哪种转换方式？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 74 行：使用 `.model_dump(mode=\"json\")`，避免枚举仍是枚举对象。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 74,
+          "line_end": 74
+        }
+      ]
+    },
+    {
+      "id": "q05",
+      "split": "dev",
+      "question": "不确定一个函数有哪些参数、怎么使用时，可以怎样查看说明？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 91 行：使用 `print(f.__doc__)` 或 `help(f)` 查看说明。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 91,
+          "line_end": 91
+        }
+      ]
+    },
+    {
+      "id": "q06",
+      "split": "dev",
+      "question": "这份笔记建议每天花多少分钟复习 Python？",
+      "answerable": false,
+      "expected": "资料不足：所选笔记没有给出每天复习的分钟数。第 4 行只说明复习方法，不能据此推算时长；不编造答案或引用。",
+      "evidence": []
+    },
+    {
+      "id": "q07",
+      "split": "dev",
+      "question": "想把记录按分数从高到低取前三条，再将对应的文字每条一行拼起来，需要组合笔记中的哪些写法？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 40～41 行与第 24 行：用 `sorted(xs, key=lambda x: x[\"score\"], reverse=True)[:3]` 排序取前三条；将对应文字用 `append` 收集到列表，再用 `\"\\n\".join(列表)` 拼接。回答与引用须覆盖排序取数、换行拼接两部分。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 40,
+          "line_end": 41
+        },
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 24,
+          "line_end": 24
+        }
+      ]
+    },
+    {
+      "id": "q08",
+      "split": "dev",
+      "question": "检查外部数据结构时，怎样用 Pydantic 定义校验模型，又怎样查看这个模型交给大模型时的结构？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 71 行与第 78 行：用 `class X(BaseModel):` 配合类型注解定义校验模型，用 `.model_json_schema()` 查看模型结构。回答与引用须覆盖两部分。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 71,
+          "line_end": 71
+        },
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 78,
+          "line_end": 78
+        }
+      ]
+    },
+    {
+      "id": "q09",
+      "split": "dev",
+      "question": "Pydantic 的 `.model_dump()` 与 `.model_dump_json()` 的返回形式有什么区别？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 73 行：前者转成字典，后者转成 JSON 字符串；不能把两者都说成字典或都说成字符串。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 73,
+          "line_end": 73
+        }
+      ]
+    },
+    {
+      "id": "q10",
+      "split": "dev",
+      "question": "笔记中「可变默认参数」的踩坑案例，实际运行时打印了什么结果？",
+      "answerable": false,
+      "expected": "资料不足：全文未记录该案例的实际运行输出。第 113～120 行只是留空的踩坑模板；第 50 行虽给出推荐写法，也不能据此编造当时的打印结果。",
+      "evidence": []
+    },
+    {
+      "id": "q11",
+      "split": "dev",
+      "question": "消息列表为空时，用换行符 join 拼接会得到什么？会不会留下多余的换行符？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 26 行：`\"\\n\".join([])` 得到空字符串，不会多出分隔符或换行符。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 26,
+          "line_end": 26
+        }
+      ]
+    },
+    {
+      "id": "q12",
+      "split": "dev",
+      "question": "想从数值列表中先挑出符合条件的元素，再把选中的元素都乘以 2，笔记分别给出了哪两种列表写法？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 35～36 行：筛选用 `[x for x in xs if 条件]`；逐项变换用 `[x * 2 for x in xs]`，第二步应作用于筛选后的列表。回答须覆盖筛选和变换两个要点。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 35,
+          "line_end": 36
+        }
+      ]
+    },
+    {
+      "id": "q13",
+      "split": "dev",
+      "question": "统计一批消息中每个词出现的次数时，怎样更新词 w 的计数，让第一次出现的词也能从 1 开始？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 37 行：使用 `counts[w] = counts.get(w, 0) + 1`，读取不到现有计数时按 0 处理，再加 1 写回。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 37,
+          "line_end": 37
+        }
+      ]
+    },
+    {
+      "id": "q14",
+      "split": "dev",
+      "question": "记录中某个键必须存在，缺失时希望立即报错，不采用默认值，笔记建议怎样读取？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 39 行：使用 `d[\"k\"]` 直接取值，让缺少必需键的问题当场暴露；不能改成用默认值掩盖缺失。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 39,
+          "line_end": 39
+        }
+      ]
+    },
+    {
+      "id": "q15",
+      "split": "dev",
+      "question": "排序字段名由参数 field 传入时，key 应怎样取出每条记录对应字段的值？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 42 行：使用 `key=lambda x: x[field]`，按传入的字段名读取值，而不是把字段名固定为 score。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 42,
+          "line_end": 42
+        }
+      ]
+    },
+    {
+      "id": "q16",
+      "split": "dev",
+      "question": "笔记中的函数签名怎样标注 query、top_k 和返回值的类型？如果调用时要覆盖可省略参数的默认值，推荐用什么方式写清参数名？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 51 行给出 `def f(query: str, top_k: int = 5) -> list[str]:`，query 为字符串，top_k 为默认 5 的整数，返回字符串列表。第 49 行推荐调用时用参数名明确传值，例如对该签名写 `f(query, top_k=10)`。回答与引用须覆盖类型签名和具名覆盖默认值两部分。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 49,
+          "line_end": 49
+        },
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 51,
+          "line_end": 51
+        }
+      ]
+    },
+    {
+      "id": "q17",
+      "split": "dev",
+      "question": "自定义对象直接 print 时想给人看清楚，放进列表调试时又想显示字段，分别该写什么方法？前一个方法应返回什么？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 60～61 行：面向人的打印格式用 `__str__`，应 return 字符串而非在方法内部 print；调试或放进列表时清楚显示对象用 `__repr__`，可写成 `X(a=1, b=2)` 的样子。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 60,
+          "line_end": 61
+        }
+      ]
+    },
+    {
+      "id": "q18",
+      "split": "dev",
+      "question": "两个类有一部分初始化代码重复时，笔记给出的复用写法是什么，子类怎样调用父类初始化？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 64 行：用 `class B(A):` 继承复用代码，并在子类中通过 `super().__init__(...)` 调用父类初始化。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 64,
+          "line_end": 64
+        }
+      ]
+    },
+    {
+      "id": "q19",
+      "split": "dev",
+      "question": "几种不同的任务对象都要被同一个循环执行，笔记建议各个类提供什么方法，外层怎样处理？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 65 行：各个类实现同名的 `run()` 方法，外层用一个循环统一调用各对象的该方法。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 65,
+          "line_end": 65
+        }
+      ]
+    },
+    {
+      "id": "q20",
+      "split": "dev",
+      "question": "用 Pydantic 描述外部数据时，一个列表字段希望允许省略，另一个字段只允许固定几个值，分别采用什么写法？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 72 行：列表字段使用 `= Field(default_factory=list)` 提供默认值；第 76 行：固定几个值用 `class X(StrEnum)` 定义枚举。回答与引用须覆盖默认列表和固定取值两部分。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 72,
+          "line_end": 72
+        },
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 76,
+          "line_end": 76
+        }
+      ]
+    },
+    {
+      "id": "q21",
+      "split": "dev",
+      "question": "函数的参数个数不确定时，笔记列出的两种写法是什么？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 53 行：参数个数不确定时可使用 `*args` 或 `**kwargs`；回答须列出这两种写法，不把该行当作已经展开讲解其完整用法。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 53,
+          "line_end": 53
+        }
+      ]
+    },
+    {
+      "id": "q22",
+      "split": "dev",
+      "question": "编写这份笔记时，实际运行示例的 Python 完整版本号是多少？",
+      "answerable": false,
+      "expected": "资料不足：固定全文没有记录当时实际运行示例的 Python 完整版本号。第 76 行虽出现 StrEnum，也不能据此确定运行环境的具体版本。",
+      "evidence": []
+    },
+    {
+      "id": "q23",
+      "split": "dev",
+      "question": "笔记中的词频统计方案处理十万条消息，实测耗时多少毫秒？",
+      "answerable": false,
+      "expected": "资料不足：第 37 行只给出词频更新写法，固定全文没有记录十万条消息的测试数据、环境或实测耗时，不能从一行代码推算具体毫秒数。",
+      "evidence": []
+    },
+    {
+      "id": "q24",
+      "split": "dev",
+      "question": "外部 JSON 校验失败后，这份笔记规定最多重试几次、每次等待多少秒？",
+      "answerable": false,
+      "expected": "资料不足：第 71、75、77 行分别涉及校验模型、读取 JSON 和错误分类，固定全文未规定校验失败后的重试次数或等待时间；不能自行补出重试策略。",
+      "evidence": []
+    },
+    {
+      "id": "q25",
+      "split": "holdout",
+      "question": "字符串里可能带有看不见的换行或空格，笔记建议怎样把它的表示打印出来以便检查？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 28 行：使用 `print(repr(s))`，或用 `f\"{s!r}\"` 得到字符串的表示，以便检查不可见字符。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 28,
+          "line_end": 28
+        }
+      ]
+    },
+    {
+      "id": "q26",
+      "split": "holdout",
+      "question": "希望自定义对象能像列表一样通过 len(对象) 获取长度，类中要实现哪个方法？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 62 行：在类中实现 `__len__`，使 `len(对象)` 能够使用。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 62,
+          "line_end": 62
+        }
+      ]
+    },
+    {
+      "id": "q27",
+      "split": "holdout",
+      "question": "拿到一段 JSON 字符串后，怎样直接创建 Pydantic 对象？校验报错时，从哪里辨认是缺字段、类型不对还是枚举值不合法？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 75 行：调用 `.model_validate_json(raw)` 从 JSON 字符串创建对象；第 77 行：查看报错中的 `type=`，如 `missing`、`string_type`、`enum`，辨认问题类别。回答与引用须覆盖创建对象和识别错误类别两部分。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 75,
+          "line_end": 75
+        },
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 77,
+          "line_end": 77
+        }
+      ]
+    },
+    {
+      "id": "q28",
+      "split": "holdout",
+      "question": "工具脚本既要能直接运行，又要供其他文件导入使用，入口应怎样保护？另一个文件怎样导入模块或其中的 format_tool？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 84～85 行：把直接运行的入口放在 `if __name__ == \"__main__\":` 下；其他文件可写 `import day04_helpers` 导入模块，或 `from day04_helpers import format_tool` 导入其中的函数。回答须覆盖入口保护和导入方式。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 84,
+          "line_end": 85
+        }
+      ]
+    },
+    {
+      "id": "q29",
+      "split": "holdout",
+      "question": "不知道对象 x 有哪些成员，想列出不以下划线开头的名字，笔记给出的写法是什么？",
+      "answerable": true,
+      "expected": "`notes/python-notes.md` 第 92 行：使用 `[n for n in dir(x) if not n.startswith(\"_\")]`，从 dir(x) 的名字中排除以下划线开头的项。",
+      "evidence": [
+        {
+          "source": "notes/python-notes.md",
+          "line_start": 92,
+          "line_end": 92
+        }
+      ]
+    },
+    {
+      "id": "q30",
+      "split": "holdout",
+      "question": "导入另一个 Python 文件时出现循环导入，这份笔记给出了什么排查和解决步骤？",
+      "answerable": false,
+      "expected": "资料不足：第 85 行只给出普通模块导入和函数导入的写法，固定全文没有循环导入的排查或解决步骤；不能把一般 Python 经验当作笔记中已提供的依据。",
+      "evidence": []
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+# 固定快照按原始字节校验 SHA256，保留复制时的换行，不执行 Git 文本转换。
+sources_snapshot.json -text whitespace=cr-at-eol

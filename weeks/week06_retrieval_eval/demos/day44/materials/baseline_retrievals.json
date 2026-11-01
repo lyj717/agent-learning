@@ -1,0 +1,418 @@
+{
+  "source_snapshot_sha256": "923b660e3d09527cf9a54be9bee4a67c78fb0e5b7c67cc5cca8007ff92e623df",
+  "chunk_lines": 8,
+  "overlap_lines": 2,
+  "limit": 3,
+  "cases": {
+    "q01": {
+      "question": "怎样把多条消息拼成一段文字，让每条消息各占一行？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L13-L20",
+            "page_content": "\n用法：卡住的时候先在纸上（或在心里）说一句「我现在要干什么」，比如「把几条消息拼成一段文字」，\n再来这里找。找不到，说明这个需求还没挂上标签，解决之后回来补一条。\n\n左边一栏要写**你当时的原话**，不要写官方术语——写「字符串拼接」没用，因为卡住的时候你\n脑子里想的是「怎么换行拼起来」。\n\n### 字符串与输出",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 13,
+              "line_end": 20
+            }
+          },
+          0.6526739635402599
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L7-L14",
+            "page_content": "\n---\n\n## 我要干什么 → 用什么\n\n这张表按**需求**查，不按术语查。\n\n用法：卡住的时候先在纸上（或在心里）说一句「我现在要干什么」，比如「把几条消息拼成一段文字」，",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 7,
+              "line_end": 14
+            }
+          },
+          0.6422716506847086
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L19-L26",
+            "page_content": "\n### 字符串与输出\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 把一堆东西一行一行拼成一段文字 | 先 `append` 攒进列表，最后 `\"\\n\".join(列表)`；不要边循环边 `+=` | Day 2 第 1 题、Day 4 综合题第 4 步 |\n| 自己指定分隔符（逗号、顿号） | `\"，\".join(列表)` | `day02_join_demo.py` |\n| 空列表会不会多出个分隔符 | 不会，`\"\\n\".join([])` 就是空字符串 | `day02_join_demo.py` 第 2 节 |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 19,
+              "line_end": 26
+            }
+          },
+          0.5681491564372816
+        ]
+      ]
+    },
+    "q02": {
+      "question": "字典里的键可能不存在时，怎样读取它，并指定默认值？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L31-L38",
+            "page_content": "### 列表 / 字典 / 排序\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 从一堆东西里挑出符合条件的 | `[x for x in xs if 条件]` | Day 2 |\n| 对每个元素做点变化，得到新列表 | `[x * 2 for x in xs]` | Day 2 |\n| 数每个词出现几次 | `counts[w] = counts.get(w, 0) + 1` | `day02_counter_demo.py` |\n| 取字典的值，但不确定键在不在 | `d.get(\"k\", 默认值)` | `notes/卡住了怎么办.md` 自查第 2 条 |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 31,
+              "line_end": 38
+            }
+          },
+          0.6181519326269715
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L43-L50",
+            "page_content": "| 只要前几个 / 跳过前几个 | `xs[:3]` / `xs[3:]` | Day 2 |\n\n### 函数\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 参数可以省略，用默认值 | `def f(a, b=5)`；调用时写 `f(a, b=10)` 更清楚 | Day 3 |\n| 默认值想用列表/字典 | 默认写 `None`，函数里 `if x is None: x = []` 再建 | Day 3 第 4 题、`FAILURES.md` |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 43,
+              "line_end": 50
+            }
+          },
+          0.6096252084698381
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L37-L44",
+            "page_content": "| 数每个词出现几次 | `counts[w] = counts.get(w, 0) + 1` | `day02_counter_demo.py` |\n| 取字典的值，但不确定键在不在 | `d.get(\"k\", 默认值)` | `notes/卡住了怎么办.md` 自查第 2 条 |\n| 键一定在，缺了就该当场报错 | `d[\"k\"]` | 同上 |\n| 按某个字段从大到小排 | `sorted(xs, key=lambda x: x[\"score\"], reverse=True)` | `day02_sorted_demo.py` |\n| 排完序只要前 N 个 | `sorted(...)[:N]` | Day 2 第 2 题 |\n| 排序依据的字段名是参数传进来的 | `key=lambda x: x[field]` | Day 3 第 3 题 |\n| 只要前几个 / 跳过前几个 | `xs[:3]` / `xs[3:]` | Day 2 |\n",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 37,
+              "line_end": 44
+            }
+          },
+          0.6071268131917745
+        ]
+      ]
+    },
+    "q03": {
+      "question": "函数的可选参数需要一个默认列表时，笔记推荐怎样定义参数、在函数内初始化？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L49-L56",
+            "page_content": "| 参数可以省略，用默认值 | `def f(a, b=5)`；调用时写 `f(a, b=10)` 更清楚 | Day 3 |\n| 默认值想用列表/字典 | 默认写 `None`，函数里 `if x is None: x = []` 再建 | Day 3 第 4 题、`FAILURES.md` |\n| 给参数和返回值写说明书 | `def f(query: str, top_k: int = 5) -> list[str]:` | Day 3 第 2 题 |\n| 把「怎么排序、怎么取数」交给调用者 | 用 `key=` 收一个函数，函数里用传进来的参数 | Day 3 第 3 题 |\n| 不确定参数有几个 | `*args` / `**kwargs` | 清单里列过，只在 `day04_class_demo.py` 的 `AlertCheck` 露过一次 |\n\n### 类\n",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 49,
+              "line_end": 56
+            }
+          },
+          0.7153658634505405
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L43-L50",
+            "page_content": "| 只要前几个 / 跳过前几个 | `xs[:3]` / `xs[3:]` | Day 2 |\n\n### 函数\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 参数可以省略，用默认值 | `def f(a, b=5)`；调用时写 `f(a, b=10)` 更清楚 | Day 3 |\n| 默认值想用列表/字典 | 默认写 `None`，函数里 `if x is None: x = []` 再建 | Day 3 第 4 题、`FAILURES.md` |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 43,
+              "line_end": 50
+            }
+          },
+          0.6729906030804322
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L91-L98",
+            "page_content": "| 不知道某个函数有什么参数、还能怎么用 | `print(f.__doc__)` 或 `help(f)` | Day 4 查 `model_dump` 的 `mode` 参数 |\n| 不知道一个对象身上有哪些方法 | `[n for n in dir(x) if not n.startswith(\"_\")]` | Day 4 用这招找到 `model_validate_json` |\n| 想知道某个东西到底是什么类型 | `print(type(x))`、`print(x.__name__)` | 排错常用 |\n\n补表的方法：每次卡住、最后解决之后回到这里加一行，左边写你当时的原话，右边贴最小的代码形状。\n只有实际解决过的问题才补表；是否掌握还要看隔几天能否独立使用。未完成的下方模板可以留空，不新增重复填表任务。\n\n---",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 91,
+              "line_end": 98
+            }
+          },
+          0.6242202826975803
+        ]
+      ]
+    },
+    "q04": {
+      "question": "Pydantic 模型转出来的数据要提交给接口时，应该使用哪种转换方式？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L67-L74",
+            "page_content": "### 数据校验与结构（Pydantic）\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 外部来的数据（模型返回、接口、文件）先校验 | `class X(BaseModel):` + 类型注解 | Day 4 第 2 题 |\n| 某个字段可以不传 | `= Field(default_factory=list)` | Day 4 第 3 题 |\n| 转成字典 / 转成 JSON 字符串 | `.model_dump()` / `.model_dump_json()` | `day04_pydantic_demo.py` 第 7 节 |\n| 转出来的值要发给接口 | `.model_dump(mode=\"json\")`，否则枚举还是枚举对象 | Day 4 综合题第 5 步 |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 67,
+              "line_end": 74
+            }
+          },
+          0.6512703756668448
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L73-L80",
+            "page_content": "| 转成字典 / 转成 JSON 字符串 | `.model_dump()` / `.model_dump_json()` | `day04_pydantic_demo.py` 第 7 节 |\n| 转出来的值要发给接口 | `.model_dump(mode=\"json\")`，否则枚举还是枚举对象 | Day 4 综合题第 5 步 |\n| 从 JSON 字符串直接变对象 | `.model_validate_json(raw)` | Day 4 第 3 题 |\n| 一个字段只能取固定几个值 | `class X(StrEnum)` | `day04_more_demo.py` 第 3 节 |\n| 报错里想知道是哪一类问题 | 看 `type=`：`missing` / `string_type` / `enum` … | Day 4 第 4 题 |\n| 看看这个结构交给模型长什么样 | `.model_json_schema()` | `day04_pydantic_demo.py` 第 8 节 |\n\n### 文件与运行",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 73,
+              "line_end": 80
+            }
+          },
+          0.6511303660371733
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L61-L68",
+            "page_content": "| 调试、放进列表里显示得清楚 | `__repr__`，写成 `X(a=1, b=2)` 的样子 | Day 4 第 1 题 |\n| 让 `len(我的对象)` 能用 | `__len__` | `day04_more_demo.py` 第 2 节 |\n| 有个值是由别的数据算出来的 | `@property` | `day04_more_demo.py` 第 4 节 |\n| 两个类有一半代码重复 | 继承 `class B(A):` + `super().__init__(...)` | `day04_more_demo.py` 第 1 节 |\n| 不同的类提供同名方法，被统一循环处理 | 各自实现 `run()`，外层一个循环调用 | `day04_class_demo.py` 第 4 节 |\n\n### 数据校验与结构（Pydantic）\n",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 61,
+              "line_end": 68
+            }
+          },
+          0.5561035417004885
+        ]
+      ]
+    },
+    "q05": {
+      "question": "不确定一个函数有哪些参数、怎么使用时，可以怎样查看说明？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L49-L56",
+            "page_content": "| 参数可以省略，用默认值 | `def f(a, b=5)`；调用时写 `f(a, b=10)` 更清楚 | Day 3 |\n| 默认值想用列表/字典 | 默认写 `None`，函数里 `if x is None: x = []` 再建 | Day 3 第 4 题、`FAILURES.md` |\n| 给参数和返回值写说明书 | `def f(query: str, top_k: int = 5) -> list[str]:` | Day 3 第 2 题 |\n| 把「怎么排序、怎么取数」交给调用者 | 用 `key=` 收一个函数，函数里用传进来的参数 | Day 3 第 3 题 |\n| 不确定参数有几个 | `*args` / `**kwargs` | 清单里列过，只在 `day04_class_demo.py` 的 `AlertCheck` 露过一次 |\n\n### 类\n",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 49,
+              "line_end": 56
+            }
+          },
+          0.6765483596895914
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L91-L98",
+            "page_content": "| 不知道某个函数有什么参数、还能怎么用 | `print(f.__doc__)` 或 `help(f)` | Day 4 查 `model_dump` 的 `mode` 参数 |\n| 不知道一个对象身上有哪些方法 | `[n for n in dir(x) if not n.startswith(\"_\")]` | Day 4 用这招找到 `model_validate_json` |\n| 想知道某个东西到底是什么类型 | `print(type(x))`、`print(x.__name__)` | 排错常用 |\n\n补表的方法：每次卡住、最后解决之后回到这里加一行，左边写你当时的原话，右边贴最小的代码形状。\n只有实际解决过的问题才补表；是否掌握还要看隔几天能否独立使用。未完成的下方模板可以留空，不新增重复填表任务。\n\n---",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 91,
+              "line_end": 98
+            }
+          },
+          0.6602813984215068
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L43-L50",
+            "page_content": "| 只要前几个 / 跳过前几个 | `xs[:3]` / `xs[3:]` | Day 2 |\n\n### 函数\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 参数可以省略，用默认值 | `def f(a, b=5)`；调用时写 `f(a, b=10)` 更清楚 | Day 3 |\n| 默认值想用列表/字典 | 默认写 `None`，函数里 `if x is None: x = []` 再建 | Day 3 第 4 题、`FAILURES.md` |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 43,
+              "line_end": 50
+            }
+          },
+          0.6370121398382343
+        ]
+      ]
+    },
+    "q06": {
+      "question": "这份笔记建议每天花多少分钟复习 Python？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L1-L8",
+            "page_content": "# Python 学习笔记\n\n用途：记下「和我会的语言的差异」「踩过的坑」「报错原文与原因」。\n复习时先闭卷回忆一个用法，再查表核对；不要求为了笔记完整而补满所有空格。\n\n> 2026-10-12 使用说明：速查表是查询入口，不等于每项都已独立掌握。后续遇到 JSON、异常、流式或工具消息的问题，解决后再补一条「当时想做什么 → 最小写法 → 证据位置」。解释、学员观察和待验证猜测分清，不把 AI 的讲解改写成学员实验。\n\n---",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 1,
+              "line_end": 8
+            }
+          },
+          0.6342291470665645
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L7-L14",
+            "page_content": "\n---\n\n## 我要干什么 → 用什么\n\n这张表按**需求**查，不按术语查。\n\n用法：卡住的时候先在纸上（或在心里）说一句「我现在要干什么」，比如「把几条消息拼成一段文字」，",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 7,
+              "line_end": 14
+            }
+          },
+          0.4966933652461452
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L43-L50",
+            "page_content": "| 只要前几个 / 跳过前几个 | `xs[:3]` / `xs[3:]` | Day 2 |\n\n### 函数\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 参数可以省略，用默认值 | `def f(a, b=5)`；调用时写 `f(a, b=10)` 更清楚 | Day 3 |\n| 默认值想用列表/字典 | 默认写 `None`，函数里 `if x is None: x = []` 再建 | Day 3 第 4 题、`FAILURES.md` |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 43,
+              "line_end": 50
+            }
+          },
+          0.47934976686780234
+        ]
+      ]
+    },
+    "q07": {
+      "question": "想把记录按分数从高到低取前三条，再将对应的文字每条一行拼起来，需要组合笔记中的哪些写法？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L13-L20",
+            "page_content": "\n用法：卡住的时候先在纸上（或在心里）说一句「我现在要干什么」，比如「把几条消息拼成一段文字」，\n再来这里找。找不到，说明这个需求还没挂上标签，解决之后回来补一条。\n\n左边一栏要写**你当时的原话**，不要写官方术语——写「字符串拼接」没用，因为卡住的时候你\n脑子里想的是「怎么换行拼起来」。\n\n### 字符串与输出",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 13,
+              "line_end": 20
+            }
+          },
+          0.6335562625742468
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L7-L14",
+            "page_content": "\n---\n\n## 我要干什么 → 用什么\n\n这张表按**需求**查，不按术语查。\n\n用法：卡住的时候先在纸上（或在心里）说一句「我现在要干什么」，比如「把几条消息拼成一段文字」，",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 7,
+              "line_end": 14
+            }
+          },
+          0.6050042936221536
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L19-L26",
+            "page_content": "\n### 字符串与输出\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 把一堆东西一行一行拼成一段文字 | 先 `append` 攒进列表，最后 `\"\\n\".join(列表)`；不要边循环边 `+=` | Day 2 第 1 题、Day 4 综合题第 4 步 |\n| 自己指定分隔符（逗号、顿号） | `\"，\".join(列表)` | `day02_join_demo.py` |\n| 空列表会不会多出个分隔符 | 不会，`\"\\n\".join([])` 就是空字符串 | `day02_join_demo.py` 第 2 节 |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 19,
+              "line_end": 26
+            }
+          },
+          0.5817707123358793
+        ]
+      ]
+    },
+    "q08": {
+      "question": "检查外部数据结构时，怎样用 Pydantic 定义校验模型，又怎样查看这个模型交给大模型时的结构？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L67-L74",
+            "page_content": "### 数据校验与结构（Pydantic）\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 外部来的数据（模型返回、接口、文件）先校验 | `class X(BaseModel):` + 类型注解 | Day 4 第 2 题 |\n| 某个字段可以不传 | `= Field(default_factory=list)` | Day 4 第 3 题 |\n| 转成字典 / 转成 JSON 字符串 | `.model_dump()` / `.model_dump_json()` | `day04_pydantic_demo.py` 第 7 节 |\n| 转出来的值要发给接口 | `.model_dump(mode=\"json\")`，否则枚举还是枚举对象 | Day 4 综合题第 5 步 |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 67,
+              "line_end": 74
+            }
+          },
+          0.6461549119885002
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L61-L68",
+            "page_content": "| 调试、放进列表里显示得清楚 | `__repr__`，写成 `X(a=1, b=2)` 的样子 | Day 4 第 1 题 |\n| 让 `len(我的对象)` 能用 | `__len__` | `day04_more_demo.py` 第 2 节 |\n| 有个值是由别的数据算出来的 | `@property` | `day04_more_demo.py` 第 4 节 |\n| 两个类有一半代码重复 | 继承 `class B(A):` + `super().__init__(...)` | `day04_more_demo.py` 第 1 节 |\n| 不同的类提供同名方法，被统一循环处理 | 各自实现 `run()`，外层一个循环调用 | `day04_class_demo.py` 第 4 节 |\n\n### 数据校验与结构（Pydantic）\n",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 61,
+              "line_end": 68
+            }
+          },
+          0.5524367705993906
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L91-L98",
+            "page_content": "| 不知道某个函数有什么参数、还能怎么用 | `print(f.__doc__)` 或 `help(f)` | Day 4 查 `model_dump` 的 `mode` 参数 |\n| 不知道一个对象身上有哪些方法 | `[n for n in dir(x) if not n.startswith(\"_\")]` | Day 4 用这招找到 `model_validate_json` |\n| 想知道某个东西到底是什么类型 | `print(type(x))`、`print(x.__name__)` | 排错常用 |\n\n补表的方法：每次卡住、最后解决之后回到这里加一行，左边写你当时的原话，右边贴最小的代码形状。\n只有实际解决过的问题才补表；是否掌握还要看隔几天能否独立使用。未完成的下方模板可以留空，不新增重复填表任务。\n\n---",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 91,
+              "line_end": 98
+            }
+          },
+          0.5336009329173473
+        ]
+      ]
+    },
+    "q09": {
+      "question": "Pydantic 的 `.model_dump()` 与 `.model_dump_json()` 的返回形式有什么区别？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L73-L80",
+            "page_content": "| 转成字典 / 转成 JSON 字符串 | `.model_dump()` / `.model_dump_json()` | `day04_pydantic_demo.py` 第 7 节 |\n| 转出来的值要发给接口 | `.model_dump(mode=\"json\")`，否则枚举还是枚举对象 | Day 4 综合题第 5 步 |\n| 从 JSON 字符串直接变对象 | `.model_validate_json(raw)` | Day 4 第 3 题 |\n| 一个字段只能取固定几个值 | `class X(StrEnum)` | `day04_more_demo.py` 第 3 节 |\n| 报错里想知道是哪一类问题 | 看 `type=`：`missing` / `string_type` / `enum` … | Day 4 第 4 题 |\n| 看看这个结构交给模型长什么样 | `.model_json_schema()` | `day04_pydantic_demo.py` 第 8 节 |\n\n### 文件与运行",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 73,
+              "line_end": 80
+            }
+          },
+          0.6973813173949733
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L91-L98",
+            "page_content": "| 不知道某个函数有什么参数、还能怎么用 | `print(f.__doc__)` 或 `help(f)` | Day 4 查 `model_dump` 的 `mode` 参数 |\n| 不知道一个对象身上有哪些方法 | `[n for n in dir(x) if not n.startswith(\"_\")]` | Day 4 用这招找到 `model_validate_json` |\n| 想知道某个东西到底是什么类型 | `print(type(x))`、`print(x.__name__)` | 排错常用 |\n\n补表的方法：每次卡住、最后解决之后回到这里加一行，左边写你当时的原话，右边贴最小的代码形状。\n只有实际解决过的问题才补表；是否掌握还要看隔几天能否独立使用。未完成的下方模板可以留空，不新增重复填表任务。\n\n---",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 91,
+              "line_end": 98
+            }
+          },
+          0.6373362329746156
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L67-L74",
+            "page_content": "### 数据校验与结构（Pydantic）\n\n| 我要干什么（大白话） | 写法 | 见过的地方 |\n|---|---|---|\n| 外部来的数据（模型返回、接口、文件）先校验 | `class X(BaseModel):` + 类型注解 | Day 4 第 2 题 |\n| 某个字段可以不传 | `= Field(default_factory=list)` | Day 4 第 3 题 |\n| 转成字典 / 转成 JSON 字符串 | `.model_dump()` / `.model_dump_json()` | `day04_pydantic_demo.py` 第 7 节 |\n| 转出来的值要发给接口 | `.model_dump(mode=\"json\")`，否则枚举还是枚举对象 | Day 4 综合题第 5 步 |",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 67,
+              "line_end": 74
+            }
+          },
+          0.6064987728535244
+        ]
+      ]
+    },
+    "q10": {
+      "question": "笔记中「可变默认参数」的踩坑案例，实际运行时打印了什么结果？",
+      "candidates": [
+        [
+          {
+            "id": "notes/python-notes.md#L109-L116",
+            "page_content": "---\n\n## 踩过的坑\n\n### 1. 可变默认参数\n\n```python\n# 错误写法",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 109,
+              "line_end": 116
+            }
+          },
+          0.7505917193888075
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L1-L8",
+            "page_content": "# Python 学习笔记\n\n用途：记下「和我会的语言的差异」「踩过的坑」「报错原文与原因」。\n复习时先闭卷回忆一个用法，再查表核对；不要求为了笔记完整而补满所有空格。\n\n> 2026-10-12 使用说明：速查表是查询入口，不等于每项都已独立掌握。后续遇到 JSON、异常、流式或工具消息的问题，解决后再补一条「当时想做什么 → 最小写法 → 证据位置」。解释、学员观察和待验证猜测分清，不把 AI 的讲解改写成学员实验。\n\n---",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 1,
+              "line_end": 8
+            }
+          },
+          0.5852205517226337
+        ],
+        [
+          {
+            "id": "notes/python-notes.md#L49-L56",
+            "page_content": "| 参数可以省略，用默认值 | `def f(a, b=5)`；调用时写 `f(a, b=10)` 更清楚 | Day 3 |\n| 默认值想用列表/字典 | 默认写 `None`，函数里 `if x is None: x = []` 再建 | Day 3 第 4 题、`FAILURES.md` |\n| 给参数和返回值写说明书 | `def f(query: str, top_k: int = 5) -> list[str]:` | Day 3 第 2 题 |\n| 把「怎么排序、怎么取数」交给调用者 | 用 `key=` 收一个函数，函数里用传进来的参数 | Day 3 第 3 题 |\n| 不确定参数有几个 | `*args` / `**kwargs` | 清单里列过，只在 `day04_class_demo.py` 的 `AlertCheck` 露过一次 |\n\n### 类\n",
+            "metadata": {
+              "source": "notes/python-notes.md",
+              "line_start": 49,
+              "line_end": 56
+            }
+          },
+          0.5816225508935469
+        ]
+      ]
+    }
+  }
+}
