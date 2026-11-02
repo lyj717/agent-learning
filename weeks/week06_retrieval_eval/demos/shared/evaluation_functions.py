@@ -4,10 +4,31 @@
 chunk_documents：Week05 Day37，全文按行切块，供 Day44 查看固定版本片段。
 score_query：Week06 Day43 A，单题编号级指标，供 Day44 旧基线回放。
 evaluate_queries：Week06 Day43 B，有答案题逐题平均，供后续整批比较。
-Day44 学员新函数 project_relevance 不在本文件，由学员在练习中实现。
+project_relevance：Week06 Day44 A，原文依据映射到当前全库编号，供 Day45 探查。
+Day45 的关键词排名和融合函数由学员在本次练习实现。
 """
 
 from langchain_core.documents import Document
+
+
+def project_relevance(evidence: list[dict], chunks: list[Document]) -> set[str]:
+    """把原文依据映射为同源、行范围相交的片段编号集合（原 Day44 A）。
+
+    evidence（list[dict]，必填）：每项含 source:str、line_start:int、line_end:int，
+    表示固定原文的来源与闭区间行号，不是检索结果或片段编号。
+    chunks（list[Document]，必填）：待核对的全部片段，id 为编号，metadata 含上述三键。
+    输入字段由调用环境预先校验；不在此重复校验，也不改变输入。
+    返回 set[str]：同源且至少共享一行的片段 id，重复命中去重；空输入或无相交返回空集合。
+    相交允许只覆盖部分依据，不代表必要事实全部找齐；缺字段等异常原样抛出。
+    """
+    set_id = set()
+    for e in evidence:
+        for chunk in chunks:
+            if e["source"] == chunk.metadata["source"] and max(
+                e["line_start"], chunk.metadata["line_start"]
+            ) <= min(e["line_end"], chunk.metadata["line_end"]):
+                set_id.add(chunk.id)
+    return set_id
 
 
 def chunk_documents(

@@ -51,10 +51,13 @@ def run_logged(
     config: dict,
     exercise_path: Path,
     log_root: Path,
+    *,
+    origin_env: str = "DAY44_RUN_ORIGIN",
 ) -> None:
     """运行 action(本次新输出目录)，保存来源、配置与异常；返回 None。
 
-    五个参数必填；config 只放可公开的运行配置。来源读 DAY44_RUN_ORIGIN，
+    前五个参数必填；config 只放可公开的运行配置。origin_env 可指定来源变量名，
+    默认读 DAY44_RUN_ORIGIN，供 Day44 的既有调用保持原行为。
     默认 unconfirmed；AI 验证显式标记 ai_validation，不自动认定学员亲跑。
     运行失败保留日志并原样抛错；不覆盖已有目录，不修改数据与学员函数。
     """
@@ -70,7 +73,7 @@ def run_logged(
         "config": config,
         "started_at": started.isoformat(),
         "finished_at": None,
-        "origin": os.environ.get("DAY44_RUN_ORIGIN", "unconfirmed"),
+        "origin": os.environ.get(origin_env, "unconfirmed"),
         "python_executable": sys.executable,
         "working_directory": str(Path.cwd()),
         "arguments": sys.argv,
