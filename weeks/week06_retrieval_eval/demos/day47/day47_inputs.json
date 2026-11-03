@@ -1,0 +1,71 @@
+{
+  "provenance": "AI 转录学员已确认亲跑的 Day46 客观排名；不含新检索、回答或人工判分。",
+  "source_batch": "batch_20261102_222543_590948_483bd721",
+  "source_report_sha256": "725b8ee48f5d1b36128f996c8cb2f11aacfdb11aa2775655723fdc20ba3fdd50",
+  "source_snapshot_sha256": "923b660e3d09527cf9a54be9bee4a67c78fb0e5b7c67cc5cca8007ff92e623df",
+  "labels_sha256": "46b7b4312e2597f73a9a0cb6c906e30bfe4e9cfc861f5b0c687b15139613ee2b",
+  "case_ids": [
+    "q01",
+    "q03",
+    "q06",
+    "q08"
+  ],
+  "rows": [
+    {
+      "id": "q01",
+      "question": "怎样把多条消息拼成一段文字，让每条消息各占一行？",
+      "vector_ids": [
+        "notes/python-notes.md#L13-L20",
+        "notes/python-notes.md#L7-L14",
+        "notes/python-notes.md#L19-L26"
+      ],
+      "fused_ids": [
+        "notes/python-notes.md#L13-L20",
+        "notes/python-notes.md#L7-L14",
+        "notes/python-notes.md#L1-L8"
+      ]
+    },
+    {
+      "id": "q03",
+      "question": "函数的可选参数需要一个默认列表时，笔记推荐怎样定义参数、在函数内初始化？",
+      "vector_ids": [
+        "notes/python-notes.md#L49-L56",
+        "notes/python-notes.md#L43-L50",
+        "notes/python-notes.md#L91-L98"
+      ],
+      "fused_ids": [
+        "notes/python-notes.md#L49-L56",
+        "notes/python-notes.md#L43-L50",
+        "notes/python-notes.md#L85-L92"
+      ]
+    },
+    {
+      "id": "q06",
+      "question": "这份笔记建议每天花多少分钟复习 Python？",
+      "vector_ids": [
+        "notes/python-notes.md#L1-L8",
+        "notes/python-notes.md#L7-L14",
+        "notes/python-notes.md#L43-L50"
+      ],
+      "fused_ids": [
+        "notes/python-notes.md#L1-L8",
+        "notes/python-notes.md#L7-L14",
+        "notes/python-notes.md#L91-L98"
+      ]
+    },
+    {
+      "id": "q08",
+      "question": "检查外部数据结构时，怎样用 Pydantic 定义校验模型，又怎样查看这个模型交给大模型时的结构？",
+      "vector_ids": [
+        "notes/python-notes.md#L67-L74",
+        "notes/python-notes.md#L61-L68",
+        "notes/python-notes.md#L91-L98"
+      ],
+      "fused_ids": [
+        "notes/python-notes.md#L67-L74",
+        "notes/python-notes.md#L61-L68",
+        "notes/python-notes.md#L73-L80"
+      ]
+    }
+  ]
+}

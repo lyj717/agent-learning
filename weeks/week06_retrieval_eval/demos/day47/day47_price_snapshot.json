@@ -1,0 +1,16 @@
+{
+  "checked_date": "2026-11-03",
+  "source_url": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+  "currency": "CNY",
+  "unit_tokens": 1000000,
+  "basis": "统一按 Flash 高峰价换算，非实际账单；未记录缓存拆分时给全命中至全未命中的范围。",
+  "model_names": [
+    "deepseek-flash",
+    "deepseek-v4.1-flash-1017"
+  ],
+  "price": {
+    "input_hit": 0.04,
+    "input_miss": 2.0,
+    "output": 8.0
+  }
+}
