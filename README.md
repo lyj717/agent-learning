@@ -34,7 +34,8 @@ Day48 已于 11 月 4 日完成本次验收，原估约 1/2 个自然日、2～3
 亲跑 freeze、六题两组检索与单方案六份回答；六份判分 6/6、引用支持 5/5，6 次请求 0 失败。
 留出检索 vector/fused mean_hit 0.8/1.0、mean_recall 0.8/0.9、mean_precision 0.4/0.466667；
 开发检索仍为 Day46 的 vector hit 0.894737、fused 0.842105。报告第 3 节经反馈订正，六题已暴露，
-后续改版需新留出。剩 Day49 阶段变式与口头解释。
+后续改版需新留出。
+Day49 已于 11 月 4 日完成本次验收：新情境变式与 3 分钟口头解释通过，Week06 交接见 [HANDOFF](weeks/week06_retrieval_eval/HANDOFF.md)。Week06 已完成本次阶段验收，下一阶段为 Week07。
 不把未做的复验记为通过；当前入口见 [Week06 后续安排](weeks/week06_retrieval_eval/README.md)。
 Day44 短复验于 11 月 3 日经订正完成，不记独立闭卷首答通过；Day45 在 11 月 4～5 日、Day46 与 Day47 在 11 月 5～6 日或满足间隔的学习日复验。
 本周目标约四个自然日，交付分层评测报告与一组控制变量对比；Day 43 原估半天、2～3 小时，
@@ -93,7 +94,7 @@ agent-learning/
 - [x] Week 03｜Agent 核心循环，手写不用框架（交付：ReAct Agent；重复判据的延迟复验待补）
 - [x] Week 04｜框架与记忆（交付：带文件检查点、人工确认与本地业务防重的 LangGraph 重写版；跨天独立复验待补）
 - [x] Week 05｜RAG 基础（Day 36～42 经答疑订正验收；自有资料问答、十题真实基线及引用回查变式已交付，跨天独立复验见交接）
-- [ ] Week 06｜高级检索与评测（Day48 报告已交付；Day49 阶段变式待做）
+- [x] Week 06｜高级检索与评测（Day48 报告、Day49 阶段变式与口头解释已验收；延迟复验见 HANDOFF）
 - [ ] Week 07｜工程化与可观测性（交付：带 trace 的服务）
 - [ ] Week 08｜评测与可靠性（交付：自动评测 + CI）
 - [ ] Week 09｜进阶方向选一项（交付：可用的 MCP Server 或其他选定方向成果）
@@ -192,6 +193,11 @@ Remove-Item ".pytest_cache" -Recurse -Force
 
 > 补充：AI 在这台机器上跑测试时也会留下同类目录——**名字带 `dell`，权限却属于另一个账号**。
 > 判断和处理办法写在 `AGENTS.md` 的「在这台机器上跑命令的注意」一节。
+>
+> 2026-11-04 遗留：Day48 的 pytest 临时目录删除被拒，路径为
+> `C:\Users\dell\Documents\Codex\2026-09-24\s\agent-learning\.pytest_tmp_day48_1600`
+> 和 `C:\Users\dell\Documents\Codex\2026-09-24\s\agent-learning\weeks\week06_retrieval_eval\demos\day48\outputs\pytest_tmp_ai_1600`，
+> 仓库根 `.pytest_tmp` 也有同样权限问题。下次开工先请管理员删除；详见 `FAILURES.md` 同日条目。
 
 ## 本周要交付的那「一个东西」
 

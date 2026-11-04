@@ -939,3 +939,9 @@
 - **报告第 3 节订正**：首轮把“看过留出结果”写成“所有题参与过调试”，并漏掉 Day47 失败轮保留；反馈后分开 dev/holdout 与看过/参与调试，补“据此改进则转开发、改版需新留出”，并补 503/超时/中断轮次、本日 0 失败边界与失败项保存位置。学员原答保留，不代写。
 - **pytest 临时目录权限**：按 `.pytest_tmp` 运行 12 项时，9 项依赖 tmp_path 的测试在初始化/清理阶段报 WinError 5；换新 basetemp、用户临时目录及 day48 outputs 仍复现。文件权限诊断返回 NOT_THIS_CLASS，未发现可修复的包权限或缺失的目录控制权，未改权限。不依赖 tmp_path 的 3 项通过，9 项未执行；两个临时目录删除也被同一权限拒绝，未纳入提交。该项是环境问题，不是 Day48 代码失败。
 - **边界**：本日只有一轮六次请求，0 失败不能外推服务长期稳定；Day47 的失败轮和原始日志继续保留，不跨轮挑答案。六题留出已暴露，后续改版需新留出。
+- **待管理员清理（下次开工先处理）**：以下 pytest 临时目录当前账号删除被拒，未提交：`C:\Users\dell\Documents\Codex\2026-09-24\s\agent-learning\.pytest_tmp_day48_1600`、`C:\Users\dell\Documents\Codex\2026-09-24\s\agent-learning\weeks\week06_retrieval_eval\demos\day48\outputs\pytest_tmp_ai_1600`、仓库根 `.pytest_tmp`。下次开工先请有管理员权限的人用管理员 PowerShell 删除；删除前不把残留当作测试通过或失败证据。命令：
+  ```powershell
+  Remove-Item -LiteralPath 'C:\Users\dell\Documents\Codex\2026-09-24\s\agent-learning\.pytest_tmp_day48_1600' -Recurse -Force
+  Remove-Item -LiteralPath 'C:\Users\dell\Documents\Codex\2026-09-24\s\agent-learning\weeks\week06_retrieval_eval\demos\day48\outputs\pytest_tmp_ai_1600' -Recurse -Force
+  Remove-Item -LiteralPath 'C:\Users\dell\Documents\Codex\2026-09-24\s\agent-learning\.pytest_tmp' -Recurse -Force
+  ```
