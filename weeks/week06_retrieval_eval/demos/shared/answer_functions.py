@@ -1,4 +1,4 @@
-"""回答评测的旧函数集中入口：保留已验收实现，不提供 Day47 人工判分汇总答案。
+"""回答评测的旧函数集中入口：保留已验收实现，供后续整合查阅。
 
 函数索引与用途：
 匹配原文：matches_source（Week05 Day37 B）。
@@ -6,8 +6,10 @@
 检查 JSON/引用编号：check_grounded_reply（Week05 Day40 B，不判语义）。
 按引用顺序核对出处：trace_citations（Week05 Day42 B，不判语义）。
 换算生成费用：cost_of_call（Week01 Day9 A，必须显式传本次价格表）。
+汇总人工判分：summarize_reviews（Week06 Day47 A；Day48 汇总六份所选方案回答）。
 
 Day47 summarize_reviews 不需要旧函数；生成与报告环境复用本文件的五个实现。
+Day48 的运行环境复用上述五个函数与 summarize_reviews；方案选择与语义判分由学员完成。
 签名保留，price 的默认值仍是旧练习的空闲价；本日环境始终显式传已核对的高峰价。
 每个函数的中文 docstring 说明参数、返回和边界；原练习继续保留为学习记录。
 导入只定义函数，不加载模型、读取配置、创建数据库或发起请求。
@@ -218,3 +220,98 @@ def cost_of_call(
         + cached_tokens / 10**6 * price["input_hit"]
         + completion_tokens / 10**6 * price["output"]
     )
+
+
+def summarize_reviews(reviews: list[dict]) -> dict:
+    """按方案汇总已完成人工判分的回答（原 Week06 Day47 A，保留学员实现）。
+
+    reviews（list[dict]，必填）：每项含 id:str、group:vector/fused、
+    reviewed:bool、answer_ok:bool、citation_ok:bool|None；reason 不参与计算。
+    返回 dict：vector、fused 两组各有 total、answer_correct、answer_accuracy、
+    citation_applicable、citation_supported、citation_support_rate 六键。
+    两项比率分别以全部回答、可评价引用的回答为分母；无分母时为 None，
+    空组保留全部字段，计数为 0。计数的单位是一份回答，不是片段或引用数量。
+    重复同组题号、未知方案、非法题号、未评阅、非严格 bool 判分抛 ValueError；
+    不修改输入，不替人工根据模型状态判分。两路同题号允许，整数 0/1 不算 bool。
+    """
+    id_group = []
+    for review in reviews:
+        id = review["id"]
+        group = review["group"]
+        reviewed = review["reviewed"]
+        answer_ok = review["answer_ok"]
+        citation_ok = review["citation_ok"]
+        id_group.append((id, group))
+        if group not in {"vector", "fused"}:
+            raise ValueError("未知group！")
+        if not isinstance(id, str) or not id.strip():
+            raise ValueError("id必须是非空字符串！")
+        if reviewed is not True:
+            raise ValueError("还没有判断！")
+        if type(answer_ok) is not bool:
+            raise ValueError("answer_ok必须是bool！")
+        if type(citation_ok) is not bool and citation_ok is not None:
+            raise ValueError("citation_ok必须是bool或None！")
+    if len(id_group) != len(set(id_group)):
+        raise ValueError("有重复的(id,group)!")
+    vector_total = 0
+    fused_total = 0
+    v_answer_correct = 0
+    f_answer_correct = 0
+    v_citation_applicable = 0
+    f_citation_applicable = 0
+    v_citation_supported = 0
+    f_citation_supported = 0
+    for review in reviews:
+        group = review["group"]
+        answer_ok = review["answer_ok"]
+        citation_ok = review["citation_ok"]
+        if group == "vector":
+            vector_total += 1
+            if answer_ok:
+                v_answer_correct += 1
+            if citation_ok is not None:
+                v_citation_applicable += 1
+            if citation_ok:
+                v_citation_supported += 1
+        else:
+            fused_total += 1
+            if answer_ok:
+                f_answer_correct += 1
+            if citation_ok is not None:
+                f_citation_applicable += 1
+            if citation_ok:
+                f_citation_supported += 1
+    if vector_total > 0:
+        v_answer_accuracy = v_answer_correct / vector_total
+    else:
+        v_answer_accuracy = None
+    if v_citation_applicable > 0:
+        v_citation_support_rate = v_citation_supported / v_citation_applicable
+    else:
+        v_citation_support_rate = None
+    vector = {
+        "total": vector_total,
+        "answer_correct": v_answer_correct,
+        "answer_accuracy": v_answer_accuracy,
+        "citation_applicable": v_citation_applicable,
+        "citation_supported": v_citation_supported,
+        "citation_support_rate": v_citation_support_rate,
+    }
+    if fused_total > 0:
+        f_answer_accuracy = f_answer_correct / fused_total
+    else:
+        f_answer_accuracy = None
+    if f_citation_applicable > 0:
+        f_citation_support_rate = f_citation_supported / f_citation_applicable
+    else:
+        f_citation_support_rate = None
+    fused = {
+        "total": fused_total,
+        "answer_correct": f_answer_correct,
+        "answer_accuracy": f_answer_accuracy,
+        "citation_applicable": f_citation_applicable,
+        "citation_supported": f_citation_supported,
+        "citation_support_rate": f_citation_support_rate,
+    }
+    return {"vector": vector, "fused": fused}
