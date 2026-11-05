@@ -10,7 +10,15 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-11-04）**：已按 [Week 05 HANDOFF](weeks/week05_rag/HANDOFF.md) 开始
+**当前接续点（2026-11-05）**：[Week07 Day50](weeks/week07_production/README.md) 已经答疑订正验收，
+请求 ID、结构化阶段日志和失败定位已完成；下一步 Day51 学习 FastAPI 请求/响应与会话边界，尚未开工。
+Day45 到期短复验与 Day50 三道观察通过，学员亲跑 A 5/5、B 8/8，客观数据已转录；
+练习题干已清理，学员逻辑、观察与原日志保留。收尾 A 5/5、B 8/8，Week07 Ruff、格式检查通过，
+现有离线测试 12 passed（1.76 秒）。Day50 原估约半个自然日、2～3 小时，非实测耗时。
+Day50 延迟复验安排在 11 月 7～8 日，未提前算作通过。
+原权限残留于 11 月 4 日清理，当次沙箱外现有测试 12 passed；详情见本周入口与故障台账。
+
+Week06 接续与验收记录：已按 [Week 05 HANDOFF](weeks/week05_rag/HANDOFF.md) 开始
 [Week 06](weeks/week06_retrieval_eval/README.md)。Day 43 的片段级指标函数与三道观察已经答疑、
 订正完成当次验收，A 16 组、B 12 组及输入不变检查通过；题干已清理，学员逻辑、观察原稿与
 原始日志保留。Day 44 标注与留出已于 11 月 1 日完成本次验收，A 的 14 组结果与 14 组输入检查通过，
@@ -194,10 +202,11 @@ Remove-Item ".pytest_cache" -Recurse -Force
 > 补充：AI 在这台机器上跑测试时也会留下同类目录——**名字带 `dell`，权限却属于另一个账号**。
 > 判断和处理办法写在 `AGENTS.md` 的「在这台机器上跑命令的注意」一节。
 >
-> 2026-11-04 遗留：Day48 的 pytest 临时目录删除被拒，路径为
-> `C:\Users\dell\Documents\Codex\2026-09-24\s\agent-learning\.pytest_tmp_day48_1600`
-> 和 `C:\Users\dell\Documents\Codex\2026-09-24\s\agent-learning\weeks\week06_retrieval_eval\demos\day48\outputs\pytest_tmp_ai_1600`，
-> 仓库根 `.pytest_tmp` 也有同样权限问题。下次开工先请管理员删除；详见 `FAILURES.md` 同日条目。
+> 2026-11-04 Day50 开工订正：Day48 遗留的 `.pytest_tmp_day48_1600`、
+> `demos/day48/outputs/pytest_tmp_ai_1600` 和根 `.pytest_tmp` 已在沙箱外删除；
+> 另清理旧 pytest/Python/Ruff 缓存与未引用的 `.tmp_env`。旧实验日志和当前 `.venv` 保留。
+> 本次沙箱内 Ruff 无输出退出、旧测试导入 `_ssl` 失败；相同解释器在沙箱外正常，
+> 12 项测试全部通过。没有重装依赖或改动全局权限，详见 `FAILURES.md` 同日条目。
 
 ## 本周要交付的那「一个东西」
 
