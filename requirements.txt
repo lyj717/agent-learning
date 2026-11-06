@@ -37,6 +37,10 @@ qdrant-client==1.19.1
 # Week 06 Day45：本地关键词评分，与原向量检索的排名做融合
 rank-bm25==0.2.2
 
+# Week07 Day51A：本地 HTTP 应用与进程内 TestClient，沿用本课验证版本
+fastapi==0.162.0
+starlette==1.10.0
+
 # ---- 开发工具 ----
 
 # 测试
