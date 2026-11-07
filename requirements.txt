@@ -41,6 +41,9 @@ rank-bm25==0.2.2
 fastapi==0.162.0
 starlette==1.10.0
 
+# Week07 Day52：让已完成的 FastAPI 应用监听本机端口；只安装基础包
+uvicorn==0.54.0
+
 # ---- 开发工具 ----
 
 # 测试
