@@ -1,15 +1,19 @@
 """Week07 问答路径复用的旧函数：实现从已验收公共文件原样集中。
 
-索引与按题用途：
-A trace_call 不依赖业务旧函数，只调用参数传来的 action 与 emit。
-B answer_with_trace：build_grounded_messages 组装消息（原 Week05 Day40 A）；
-check_grounded_reply 校验 JSON、字段与引用编号（原 Week05 Day40 B）。
-两份实现沿用 Week06 demos/shared/answer_functions.py，不改学员原逻辑。
-B 的 retrieve_fn、request_fn、emit 是外部回调；trace_call 与整合逻辑由学员实现。
+函数索引：build_grounded_messages、check_grounded_reply、trace_call、answer_with_trace。
+前两项来自 Week05 Day40，经 Week06 公共文件集中；后两项原样集中自 Day50 已验收练习。
+按题用途：Day50 A 实现 trace_call，B 实现 answer_with_trace（原练习保留学习记录）；
+Day51B A 只写请求模型，不用旧函数；B 的 create_chat_app 复用这里的 answer_with_trace。
+其内部已调用另三份旧实现，学员不重写。retrieve_fn/request_fn/emit 是运行入口提供的
+已实现回调；本次新写的是 HTTP 路由、会话历史及失败响应的整合，不在本文件预填。
 所有参数必填；中文 docstring 说明输入、返回及边界。导入不会加载模型或请求服务商。
 """
 
 import json
+import time
+from collections.abc import Callable
+from typing import Any
+from uuid import uuid4
 
 from langchain_core.documents import Document
 
@@ -114,3 +118,127 @@ def check_grounded_reply(raw_text: str, evidence: list[Document]) -> dict:
         if cited_ids:
             raise ValueError("insufficient状态下cited_ids必须为空！")
     return text_dict
+
+
+def trace_call(
+    request_id: str,
+    stage: str,
+    action: Callable[[], Any],
+    emit: Callable[[dict], None],
+) -> Any:
+    """执行已提供的无参数动作并记录阶段事件（原 Day50 A，保留学员实现）。
+
+    request_id（str，必填）：调用方给定的本次请求编号。
+    stage（str，必填）：阶段名，如 retrieve；本函数不自行决定业务阶段。
+    action（Callable[[], Any]，必填）：外部已实现的动作；本函数只调用 action() 一次，
+        不重新定义它。返回值可以是任意对象，包括 None 或 False，均原样返回。
+    emit（Callable[[dict], None]，必填）：外部已实现的事件保存器；调用 emit(event)，
+        无需传路径，路径已由提供方固定。约定 emit 本身不抛异常。
+
+    开始先 emit start；正常结束 emit ok 和 elapsed_ms；普通 Exception 结束 emit error、
+    elapsed_ms 与 error_type，并裸 raise 同一异常。不吞错，不记录异常消息或业务数据。
+    KeyboardInterrupt 等 BaseException 不被 except Exception 捕获。
+    例：action() 返回 3，本函数也返回 3；同时记录 start/ok 两条事件。
+    """
+    emit(
+        {
+            "request_id": request_id,
+            "stage": stage,
+            "state": "start",
+        }
+    )
+    start_time = time.perf_counter()
+    try:
+        result = action()
+    except Exception as error:
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        emit(
+            {
+                "request_id": request_id,
+                "stage": stage,
+                "state": "error",
+                "elapsed_ms": elapsed_ms,
+                "error_type": type(error).__name__,
+            }
+        )
+        raise
+    elapsed_ms = (time.perf_counter() - start_time) * 1000
+    emit(
+        {
+            "request_id": request_id,
+            "stage": stage,
+            "state": "ok",
+            "elapsed_ms": elapsed_ms,
+        }
+    )
+    return result
+
+
+def answer_with_trace(
+    question: str,
+    retrieve_fn: Callable[[str], list[Document]],
+    request_fn: Callable[[list[dict[str, str]]], dict],
+    emit: Callable[[dict], None],
+) -> dict:
+    """运行已有四阶段问答并关联请求编号（原 Day50 B，保留学员实现）。
+
+    question（str，必填）：调用方已去首尾空白的非空问题；本函数不处理 session_id。
+    retrieve_fn（Callable[[str], list[Document]]，必填）：外部已实现的检索函数；
+        本函数调用 retrieve_fn(question) 一次，取得证据片段列表。每项带 id、
+        page_content，以及 source/line_start/line_end 三项 metadata。
+    request_fn（Callable[[list[dict[str, str]]], dict]，必填）：外部已实现的请求函数；
+        用 request_fn(messages) 调用，messages 由旧 build_grounded_messages 组装。
+        返回至少有 raw_text:str、finish_reason:str；usage 可有可无，本函数不汇总用量。
+    emit（Callable[[dict], None]，必填）：外部已实现的事件保存器，调用 emit(event)；
+        只传事件字典，不传路径；约定保存器自身不抛异常。三项回调均无需学员重新赋值。
+
+    返回 dict，固定两键：
+        request_id:str：本函数生成的 UUID4 hex，请求内四阶段共用；
+        checked:dict|None：非空证据时为旧校验器的 status/answer/cited_ids 字典，
+        空证据时为 None（不是异常）。例：{"request_id":"某次编号","checked":None}。
+    证据为空只执行 retrieve，request_fn 不调用；否则 prepare/generate/validate 顺序执行，
+    request_fn 只调用一次。finish_reason 非 stop、无效 JSON/字段/引用抛 ValueError；
+    检索或请求回调抛出的 TimeoutError 等异常继续传出，后续阶段跳过。
+    日志只含阶段与异常类型；结构通过不证明回答语义正确。
+
+    Day51B 的回调由离线入口提供，均为人工替身，不加载向量模型、不请求服务商。
+    本函数本身保留真实调用接口；今后真实回调需要另行配置并真实验证。
+    """
+    request_id = uuid4().hex
+
+    def retrieve_action() -> Any:
+        return retrieve_fn(question)
+
+    evidence = trace_call(
+        request_id=request_id, stage="retrieve", action=retrieve_action, emit=emit
+    )
+    if not evidence:
+        return {"request_id": request_id, "checked": None}
+
+    def prepare_action() -> Any:
+        return build_grounded_messages(question=question, evidence=evidence)
+
+    messages = trace_call(
+        request_id=request_id, stage="prepare", action=prepare_action, emit=emit
+    )
+
+    def generate_action() -> Any:
+        return request_fn(messages)
+
+    answer = trace_call(
+        request_id=request_id, stage="generate", action=generate_action, emit=emit
+    )
+
+    def validate_action() -> Any:
+        if answer["finish_reason"] != "stop":
+            raise ValueError
+        raw_text = answer["raw_text"]
+        return check_grounded_reply(raw_text=raw_text, evidence=evidence)
+
+    checked = trace_call(
+        request_id=request_id,
+        stage="validate",
+        action=validate_action,
+        emit=emit,
+    )
+    return {"request_id": request_id, "checked": checked}
