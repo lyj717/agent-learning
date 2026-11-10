@@ -34,6 +34,33 @@ Week07 的最后一组任务：安全失败路径、容器打包、最简页面�
 验收结果：五组 5/5，正文只有 `detail` 与 `request_id`，密钥、路径与堆栈均未出现；
 两道观察已核对。下一步 A2。
 
+## A2 做什么（2026-11-10 已验收）
+
+先跑 [工具授权演示](day55_tool_auth_demo.py)（从 demonstrate 读起）：看只查工具名时
+`../private` 仍被放行，以及注入文本怎样诱导出 `delete_file`。
+
+再在 [A2 练习](../../exercises/day55_tool_auth_exercises.py) 实现
+`authorize(tool_name, args, policy) -> tuple[bool, str]`：
+
+- 工具名不在 `policy` → `(False, "工具不在白名单")`；
+- `read_file`：`path` 缺失/空 → “缺少参数”；不以 `prefix` 开头或含 `..` → “路径越界”；
+- `search`：`query` 缺失/空 → “缺少参数”；超过 `max_len` → “查询过长”；
+- 通过则 `(True, "允许")`；原因只能是五个固定短句，不拼接路径或文档内容。
+
+八组情形（read_public、read_traversal、read_outside、read_missing、search_ok、
+search_empty、search_long、injected_delete）与期望结果都列在练习题面里。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week07_production\demos\day55\day55_tool_auth_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week07_production\exercises\day55_tool_auth_exercises.py
+```
+
+验收结果：八组 8/8；路径穿越、越界路径、空参数、超长查询与被注入的 `delete_file`
+全部被拒，原因均为固定短句；两道观察已核对。下一步 B 容器（等 Docker）与 C 页面。
+
+边界：只做授权判断，不执行工具、不读文件；策略是代码常量，不由模型或外部文档生成；
+输出过滤、密钥存放与容器放到后续小段。
+
 ## 边界
 
 - A1 只做错误响应与信息暴露；提示词注入、工具越权、输出过滤不在这一题里解决。
