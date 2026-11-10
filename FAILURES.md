@@ -1280,3 +1280,9 @@
 - 学员亲跑 [Semaphore 演示](weeks/week07_production/demos/day54/day54_semaphore_demo.py) 与 [异步动作演示](weeks/week07_production/demos/day54/day54_async_action_demo.py) 并确认来源，练习留证 concurrency_exercise_20261109_182934_003489_c7ccaa20（origin 为 unconfirmed，经学员确认亲跑），源码摘要 808f7d62… 与提交前文件一致，三组 3/3。AI 另以 ai_validation 复跑同一源码（concurrency_exercise_20261109_182950_881580_3afd84df），峰值 1/1/2、每份调用一次、名额恢复、原对象保持、防挂起超时 False，结果一致；ruff check 与 format --check 通过。两道观察由学员写在记录里，客观数据按亲跑日志转录，题面提示已清理为一行 docstring。
 - 学员中途三版草稿（18:05、18:09、18:17）的失败日志保留在 outputs，不覆盖；最终版把 `if not semaphore.locked()` 的条件式占位改为 `async with` 整段包住 `await`，这三轮失败不作为环境故障。
 - 读 run_info.json 时踩到坑：PowerShell 5.1 的 Get-Content 默认按 ANSI 解码，文件里一旦有中文 error 字段，管道给 ConvertFrom-Json 会报「传入了未终止的字符串」；同一文件加 -Encoding utf8 后解析正常（已用失败留证做对照实测）。以后批改读这些 JSON 一律带 -Encoding utf8，或改用 Python json 读取。
+- 复验题 B2 的题面前提写错：写成 normal 模式会发 4 个非空 delta，实际 day52_stream_support.make_stream_app 只有 2 个非空 delta（请、到二楼取书。），中间夹一个空 text delta 和一个 progress。学员按前两个非空 delta 作答仍成立，批改时不把该前提算作学员错误；出同类题前先对照 fixture 源码列事件序列。
+- Day54 C 教具交付：窗口限额演示展示计数时间线、「满了就跳过」和「睡醒不重判」两种错误；练习只留 WindowLimiter.acquire 空实现，三组检查（2 次/0.2 秒、1 次/0.15 秒、空闲 0.2 秒后 3 份）由 AI 提供。AI 用临时参考实现实跑 3/3，另用「直接放行」和「睡醒不重判」两种错误实现验证检查器会分别拒掉（前两行峰值超限），临时文件已删除。
+- C 检查器首版每组都新建限额器，idle_reset 第二批实际换了对象，测不出「空闲后不额外等待」；改为同一实例跨两批，并用 resume 时刻判断第二批是否立即开始。演示首版把「第几次」打印成窗口内序号，与后文「第 3、4 份」对不上，已改为全局份数并复跑。
+- Day54 C 收尾：学员亲跑 3/3（rate_limit_exercise_20261109_222756_620529_867dec87），数据已转录，两道观察已核对；题面清成一行 docstring，锁的“本题临界区无 await、不是必需”写进学习路线。补课四份演示与三道预测题全过，Task 动手练习 2/2（task_exercise_20261110_170902_451282_e26b5a0b）。
+- Day54 D：学员首版把退避写成累加，exhausted 间隔 0.157 秒（应为 0.10），但当时检查器容差 +0.1 把它放过；容差收紧到 +0.03 后暴露，订正为按次数计算，复跑 6/6（间隔 0.061、0.109）。这是检查器容差过宽导致的漏判，不是学员数据的错。
+- 按学员 2026-11-10 要求，AGENTS.md 练习题一节新增“题面必须写清调用点与全部判分情形”：调用示意、全部判分情形表、行为与边界，检查器只负责执行留证。反面例子记 Day54 C（没摆调用点，学员反复问谁调用）与 Day54 D（按新规出题，一次写对）。

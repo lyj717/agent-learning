@@ -78,9 +78,89 @@ gather 的结果顺序和阻塞等待的影响。旧练习中已写过这些内�
 若仍混淆函数、待执行对象和最终结果，先单独回温，不直接进入异步回调的整合题。
 
 Semaphore 与异步动作小演示和 B 练习已交付；B 已于 2026-11-09 验收（学员亲跑 3/3，
-两道观察核对通过，题面已清理）。速率控制的独立演示与后段练习尚未交付。
+两道观察核对通过，题面已清理）。
 新回调会在题面写清谁提供、怎样调用/等待、返回结构、异常、跳过条件和次数，
 不会要求先读验收器。旧同步重试代码不会未经讲解就塞进异步函数。
+
+## C 的接口与边界（2026-11-09 交付）
+
+先跑 [窗口限额演示](day54_rate_limit_demo.py)（从 demonstrate_async 读起），
+再在 [C 练习](../../exercises/day54_rate_limit_exercises.py) 只实现 `WindowLimiter.acquire`。
+
+`WindowLimiter(limit, window)` 的字段在 `__init__` 已就位：`limit` 是每个窗口允许开始的次数，
+`window` 是窗口长度（秒），`lock` 保护计数，`window_start` 为 None 表示还没开窗，
+`count` 是本窗口已放行几次。`await acquire()` 无参数、无返回值：有名额就占一次并立即返回；
+名额用完要等到下个窗口；每次调用最终都要返回，不能丢工作或忙等。时间用
+`asyncio.get_running_loop().time()`，sleep 必须在锁外。
+
+三组检查：`two_per_window`（2 次、0.2 秒、5 份）、`one_per_window`（1 次、0.15 秒、3 份）、
+`idle_reset`（3 次、0.15 秒；先 3 份，停 0.2 秒再来 3 份，第二批不该等）。
+判定看任意窗口内最多开始几次、是否每份都执行、总耗时是否达到应有的等待。
+
+边界：固定窗口在相邻两窗交界处最多可放 2×limit 次，它不是滑动窗口；本节只做单进程内计数，
+不涉及 429、重试、HTTP 或跨进程共享。旧重试的次数与异常边界，以及“重试再次占用窗口配额”，
+放在下一学习日。
+
+关于锁：本题临界区里没有 `await`（读时间、判断、`count += 1`），在单线程事件循环里不会被别的
+任务插队，所以当前实现里锁不是必需的。保留它是为了以后临界区出现 `await`（例如查共享存储、
+等另一个限额器）时仍然正确；那时没有锁，两份额外的工作会同时看到“还有一个名额”。
+
+## 2026-11-10 补课：异步调度前置（约 2～2.5 小时）
+
+C 的代码已 3/3、观察已核对，但学员反馈锁、共享状态与“谁调用这个函数”还没弄懂，暂不提交。
+学员另指出：此前的演示和练习都由 AI 搭好环境，自己只写被调用的函数，从没创建过 Task。
+因此补课里单独加一份 Task 演示和一道动手题。
+
+先读四份独立演示，每份只回答一个问题：
+
+1. [任务交替](day54_task_order_demo.py)：一个线程里两个任务怎么在 await 处轮流；
+2. [调用与 Task](day54_await_states_demo.py)：调用 async 函数、create_task、await 各做了什么；
+3. [Task 对象](day54_task_object_demo.py)：Task 的类型、done()/result()/exception() 和异常重新抛出；
+4. [什么会挂起](day54_suspend_points_demo.py)：哪些 await 会换人、哪些不会。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week07_production\demos\day54\day54_task_order_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week07_production\demos\day54\day54_await_states_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week07_production\demos\day54\day54_task_object_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week07_production\demos\day54\day54_suspend_points_demo.py
+```
+
+再完成两份练习：
+
+- [三道预测题](../../exercises/day54_async_predict_exercises.md)：先写输出判断，再运行核对，不写新函数；
+- [Task 动手练习](../../exercises/day54_task_exercises.py)：亲手 `create_task` 一个任务，并让两个任务真正并发，
+  检查器会看返回类型、`done()` 状态、结果顺序和总耗时。
+
+补完确认后清 C 题面并提交，旧重试边界随后接。补课不改变 C 的已通过结论，
+也不把 C 重做成新题。
+
+## D 的接口与边界（2026-11-10 已验收）
+
+先跑 [重试边界演示](day54_retry_boundary_demo.py)（从 demonstrate_async 读起），
+再在 [D 练习](../../exercises/day54_retry_exercises.py) 实现 `call_with_retry`。
+
+签名：`call_with_retry(action, job_id, *, attempts=3, base_delay=0.05) -> dict[str, str]`。
+`action` 是入口提供的 async 函数，接收 `job_id`，成功返回 `{"job_id","answer"}`；
+入口会在六种剧本下调用你的函数，每次尝试调用一次 `action`。
+
+规则：`TimeoutError`、`ConnectionError`、`RateLimitedError` 可重试；`BadRequestError`、
+`ValueError` 及其他异常立刻原样抛出；可重试但还有次数时，第 n 次失败后等
+`base_delay * 2 ** (n - 1)` 秒；次数用完抛出最后一次的异常对象。
+
+六种情形（ok_now、timeout_then_ok、exhausted、bad_request、value_error、attempts_one）
+的 action 行为、期望调用次数与期望间隔，都列在练习函数的题面里，不需要打开检查器。
+
+边界：本节不接窗口限额，也不涉及 429、HTTP 或真实服务商；“一次重试再占一个开始名额”
+用记录里观察 2 回答。旧同步重试的代码保留原处，不要求重写或搬运。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week07_production\demos\day54\day54_retry_boundary_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week07_production\exercises\day54_retry_exercises.py
+```
+
+验收结果：六组 6/6（间隔 0.061、0.109 秒），不可重试错误各只调用一次，
+两道观察已核对。首版把退避写成累加（第二次等 0.15 秒），检查器当时的容差 +0.1
+放过了它；容差收紧到 +0.03 后暴露并订正。Day54 到此完成。
 
 ## 与其他安排的关系
 
