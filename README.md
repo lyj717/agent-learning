@@ -10,16 +10,18 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-11-10）**：[Week07 Day54](weeks/week07_production/README.md) 已完成
-（A/B/C、异步补课、D 重试边界）；下一步是 Day53 延迟复验（11 月 10～11 日窗口）与 Day55。
-Day54 实际跨两个学习日，原估约 1～1.5 个自然日保留作排期参考，未测实际学时。
-学员亲跑 `call_with_limit`（3/3）、`WindowLimiter`（3/3）与 `call_with_retry`（6/6），
-退避间隔实测 0.05、0.10 秒，不可重试错误只调用一次；补课的三道预测题全过、Task 练习 2/2。
-数据与观察在 [记录](weeks/week07_production/demos/day54/day54_记录.md)。
+**当前接续点（2026-11-10）**：[Week07 Day55](weeks/week07_production/README.md) 已开工，
+先做 A1 错误映射与信息暴露；Day53 的延迟复验已出题待答。
+Day54 已完成（A/B/C、异步补课、D 重试边界）：学员亲跑 `call_with_limit` 3/3、
+`WindowLimiter` 3/3、`call_with_retry` 6/6，退避间隔实测 0.05、0.10 秒；
+补课三道预测题全过、Task 练习 2/2。数据与观察在
+[Day54 记录](weeks/week07_production/demos/day54/day54_记录.md)。
 11 月 9 日另完成 Day51B/Day52 到期短复验：经提示与订正核对，不记独立闭卷首答。
-接下来 Day55 的安全失败路径、容器打包与最简页面，开工时另估完整学习量。
-路线、范围与后续分段见
-[Day54 学习路线](weeks/week07_production/demos/day54/day54_学习路线.md)。
+Day55 整体重估约 1～1.5 个自然日，分安全失败路径、容器打包与最简页面三段；
+本机没有 Docker，容器段只准备配置，验证状态如实记录。
+Day53 复验题目在 [追踪短复验](weeks/week07_production/exercises/day53_span_review.md)。
+路线与边界见
+[Day55 学习路线](weeks/week07_production/demos/day55/day55_学习路线.md)。
 
 **Day53 已经答疑与订正完成本次验收，本地提交 2c45c82。**
 Day51A 到期短复验经反馈订正通过；A/B 演示及 C 的 19:05 版本均确认学员亲跑，
