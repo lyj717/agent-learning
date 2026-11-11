@@ -92,6 +92,27 @@ docker rm -f week07
 学员另改出 `Dockerfile.learner` 加非 root 用户，重建后 `id -u` 为 1000。首次构建曾因
 Docker Hub 认证接口超时失败，属网络问题，未记为 Dockerfile 错误。
 
+## C 做什么（2026-11-11 交付）
+
+最简页面只做一件事：把 `/ask` 返回的 JSON 显示出来。
+
+- [页面入口](day55_web.py)：复用 `make_app()`，再加一个 `GET /` 返回 [index.html](static/index.html)；
+- 页面里 `<input>`、按钮和输出区已经搭好，`ask()` 里留了四个 TODO：
+  发 POST、解析 JSON、算耗时、把回答/引用/耗时写进页面；
+- 浏览器打开页面后，输入“地点”，应看到“请到二楼取书。”、引用 `public.md#L1-L1` 和毫秒数。
+
+```powershell
+.venv\Scripts\python.exe -m uvicorn weeks.week07_production.demos.day55.day55_web:app --port 8002 --reload
+# 浏览器打开 http://127.0.0.1:8002/
+```
+
+验收：页面能加载；正常提问显示回答、引用和耗时；空问题能看到错误提示（不是静默失败）。
+边界：单页、不引前端框架、不做鉴权或样式打磨；页面只消费已有接口。
+
+验收结果（2026-11-11）：页面 200；提问“地点”返回 `请到二楼取书。` 与 `public.md#L1-L1`；
+空输入返回 422 并在页面显示校验错误；耗时在页面显示。页面 JS 逻辑由学员伪代码给出，
+AI 只修正语法，HTML 与服务入口由 AI 提供。
+
 ## 边界
 
 - A1 只做错误响应与信息暴露；提示词注入、工具越权、输出过滤不在这一题里解决。
