@@ -61,6 +61,37 @@ search_empty、search_long、injected_delete）与期望结果都列在练习题
 边界：只做授权判断，不执行工具、不读文件；策略是代码常量，不由模型或外部文档生成；
 输出过滤、密钥存放与容器放到后续小段。
 
+## B 做什么（2026-11-10 交付，待亲跑）
+
+容器这段把现有离线问答应用打进镜像：
+
+- **镜像**是只读模板，**容器**是它的一次运行实例；
+- 根目录 [Dockerfile](../../../../Dockerfile) 的每一行都有注释：基础镜像、环境变量、
+  先装依赖再拷代码、暴露端口、`0.0.0.0` 启动；
+- [.dockerignore](../../../../.dockerignore) 排除 `.venv`、`outputs`、`.git`、密钥文件——
+  它们不属于镜像，传进去只会拖慢构建、甚至泄露数据；
+- [运行入口](day55_server.py) 只做一件事：`app = make_app()`，把 Day51/Day52 的应用交给 uvicorn；
+- 依赖只列在 [requirements-docker.txt](../../../../requirements-docker.txt)，不含测试与开发工具。
+
+```powershell
+# 仓库根目录执行
+docker build -t week07-service:v1 .
+docker run -d --name week07 -p 8000:8000 week07-service:v1
+docker ps --filter name=week07
+docker logs week07
+Invoke-RestMethod http://127.0.0.1:8000/health
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/ask -ContentType 'application/json' -Body '{"session_id":"demo","question":"where"}'
+docker images week07-service:v1
+docker rm -f week07
+```
+
+边界：不做 Compose、HTTPS、鉴权或多阶段构建；镜像里不放密钥；真实构建结果以亲跑日志为准，
+失败也保留日志。
+
+验收结果：`week07-service:v1` 构建成功（279MB），容器 `Up`，`/health` 200、`/ask` 正常；
+学员另改出 `Dockerfile.learner` 加非 root 用户，重建后 `id -u` 为 1000。首次构建曾因
+Docker Hub 认证接口超时失败，属网络问题，未记为 Dockerfile 错误。
+
 ## 边界
 
 - A1 只做错误响应与信息暴露；提示词注入、工具越权、输出过滤不在这一题里解决。

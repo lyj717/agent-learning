@@ -1291,3 +1291,5 @@
 - Day55 A2 验收：8/8（tool_auth_exercise_20261110_220338_823054_bff156bf），路径穿越、越界路径、空参数、超长查询与被注入的 delete_file 均被拒；题面清成一行 docstring，观察核对通过。
 - 学员 2026-11-10 要求记录表不再设“来源确认”列，AGENTS 已改；A1/A2 记录已按新格式。
 - 学员正在安装 Docker（本机无管理员权限、WSL 被拒，AI 无法代装）；B 段等安装后再做真实构建，未装则只准备配置并标未验证。
+- Day55 B 验收：原版镜像 week07-service:v1 构建成功（279MB），/health 200、/ask 正常；学员按指导改出 Dockerfile.learner 加非 root 用户，重建后 id -u=1000。首次构建因 auth.docker.io 超时失败，属网络问题（未记录最终是代理还是镜像站解决），不记为 Dockerfile 错误。
+- 记录表已去掉“来源确认”列；A1/A2/B 数据按新格式转录。

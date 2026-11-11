@@ -1,0 +1,13 @@
+# Day55 B：构建上下文排除项。这些内容不属于镜像，传进去只会拖慢构建、泄露数据。
+.git
+.venv
+.pytest_tmp
+.pytest_cache
+.ruff_cache
+**/__pycache__
+**/*.pyc
+**/outputs
+.env
+.env.*
+docs
+notes

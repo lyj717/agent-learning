@@ -75,7 +75,37 @@
 
    作答：因为提示词不能保证模型真的不做，代码里的授权检查发生在模型调用工具前
 
+## B：容器打包
+
+按 [Day55 学习路线](day55_学习路线.md) 的 B 段操作：根目录的 `Dockerfile` 把
+`day55_server` 打进镜像，`.dockerignore` 排除虚拟环境、outputs 与密钥文件。
+
+### 客观运行数据
+
+| 检查项 | 实际结果 |
+|---|---|
+| `docker build` 是否成功 | 成功（原版与学员改的 `Dockerfile.learner` 都构建通过） |
+| 镜像名与大小 | `week07-service:v1` 279MB；`week07-learner:v1` 279MB（content 63.8MB） |
+| `docker ps` 容器状态 | `Up`，`0.0.0.0:8001->8000/tcp` |
+| `GET /health` 响应 | 200 `{"status":"ok","mode":"offline"}` |
+| `POST /ask` 响应 | 200，`session_id=demo`，`request_id=c3514661…`，`checked.answer=请到二楼取书。` |
+| 容器内用户 | `docker exec week07-learner id -u` → `1000`（非 root） |
+| 容器启动日志 | `Uvicorn running on http://0.0.0.0:8000` |
+
+构建、启动与请求的原始输出保存在 `outputs/docker_build.log`、`outputs/docker_run.log`。
+
+### 观察与判断（学员填写）
+
+1. `.dockerignore` 里为什么要排除 `.venv` 和 `**/outputs`？不排除会有什么后果？
+
+   作答：不排除会导致环境和输出日志泄露，可能导致敏感信息泄露，同时导致构建上下文变大、镜像变大
+
+2. 容器里 `/health` 能返回 200，说明哪几步都成功了？如果端口映射写成 `-p 8001:8000`，
+   从宿主机该访问哪个地址？
+
+   作答：说明镜像构建、容器启动、端口映射、应用路由都成功了，宿主机访问http://127.0.0.1:8001 ；容器内部仍然是 8000
+
 ## 后续状态
 
-A1、A2 已验收（各 5/5、8/8，观察核对通过）。B 容器与 C 最简页面待做：
-学员正在安装 Docker，装好后做真实构建验证；未装则只准备配置并如实标“未验证”。
+A1、A2、B 已验收（5/5、8/8、构建与运行通过，观察均核对）。C 最简页面待做：
+返回 HTML、在浏览器里提问，显示回答、引用和耗时。

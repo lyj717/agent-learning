@@ -1,0 +1,5 @@
+# Day55 B：容器运行所需的最小依赖。只装服务用到的包，不装测试与开发工具。
+fastapi>=0.110
+uvicorn>=0.30
+pydantic>=2.9
+langchain-core>=0.3
