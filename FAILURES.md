@@ -1299,3 +1299,34 @@
 - Day56 梯度脚本首跑失败：day56_app 直接以脚本启动时未把仓库根加入 sys.path，报 ModuleNotFoundError: weeks；补上 ROOT 插入后通过。演示/教具类脚本从任意目录启动都要自带路径处理，这次漏了。
 - 本次在沙箱内复跑 pytest 时 .pytest_tmp 触发 [WinError 5]（跨账号 ACL），未能取得新结果；上次记录为 12 passed，HANDOFF 已注明需在学员终端复跑，不伪报测试通过。
 - 订正上一条 pytest 记录：之前的 [WinError 5] 是 workspace-write 沙箱下创建的临时目录 ACL 导致，不是代码或测试失败。2026-11-13 在完整访问权限下用独立 basetemp 复跑，12 passed（1.67 秒），.pytest_tmp_day56、.pytest_tmp、.tmp_pytest_day56 均已删除，工作区干净。
+
+### 2026-11-13｜Week08 开工漏看预建目录，另建了同周文件夹
+
+- 开工读进度时只看了 week06/week07 的内容和文件清单，第一条 `Get-ChildItem weeks`
+  的输出被截断，没注意到 2026-09-24 就预建的 `weeks/week08_eval_ci/`（里面已有一份
+  本周 README），于是新建了 `weeks/week08_evaluation_reliability/`。学员指出：
+  「为什么不在原来设置好的文件夹里开始」。
+- 已把旧 README 的必做、选修与验收要求并入新 README（CI 回归报告、成功率/引用质量/
+  用量与延迟的报告口径、三件套、覆盖不到的风险），再按学员要求删除预建目录；
+  旧文件仍在 Git 历史里。此后再开一周，先单独执行 `Get-ChildItem weeks -Directory`，
+  以已有 `weekNN_*` 为准，不靠被截断的递归清单判断。
+
+### 2026-11-14｜Day57 引用行号、乱序用例与规则字段的缺口
+
+- 评测数据里的 `retrieved_ids` / `cited_ids` 行号是设计时写的示意值，和
+  `notes/python-notes.md` 实际行对不上（q04 的 join 在第 24 行，原写 L17-L19）。
+  已按 137 行快照逐题对齐，A/B/regression 判定不变。以后写评测夹具先按真实文件
+  核对行号，不能凭主题猜位置。
+- B 检查器原先 8 组输入都是有序字典，学员按插入顺序返回列表也能 8/8；补第 9 组
+  乱序输入后才暴露 `unchanged_pass` 未排序。契约里写了「按题号升序」就要有对应用例，
+  交付前逐条核对「契约里的每个词有没有判分情形」。
+- 题面没有列出每题 `must_include` / `must_not_include` 的实际值，`--part a` 也不打印；
+  学员做第 3 题时不知道规则字段，无法判断「规则为什么没拦住」。已加规则字段表并在
+  检查器逐题打印；模板逐格核对时要问「这一格判断需要的数据，学员从输出里拿得到吗」。
+- `failed 为空` 有歧义（None、空字符串、空列表都叫「空」），学员追问返回类型。
+  已写明 `failed: list[str]`、通过时为 `[]`，并给通过/失败两个完整返回例子；
+  类型说明不能只写「为空」。
+- 学员在 `exercises/` 留了草稿 `test.py`（ruff 报错、引用不存在的变量），验收时删除。
+  草稿不要放在交付目录，临时验证放 `outputs/` 或验收后删除。
+
+

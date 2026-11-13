@@ -1,0 +1,10 @@
+{
+  "q01": { "passed": true, "failed": [] },
+  "q02": { "passed": false, "failed": ["missing_points"] },
+  "q03": { "passed": true, "failed": [] },
+  "q04": { "passed": true, "failed": [] },
+  "q05": { "passed": true, "failed": [] },
+  "q06": { "passed": true, "failed": [] },
+  "q07": { "passed": true, "failed": [] },
+  "q08": { "passed": false, "failed": ["no_citation"] }
+}

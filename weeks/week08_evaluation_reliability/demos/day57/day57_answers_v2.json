@@ -1,0 +1,56 @@
+{
+  "q01": {
+    "status": "answered",
+    "answer": "用 sorted(xs, key=lambda x: x[\"score\"], reverse=True)，分数高的排在前面。",
+    "cited_ids": [
+      "notes/python-notes.md#L40-L42"
+    ]
+  },
+  "q02": {
+    "status": "answered",
+    "answer": "用 d.get(\"k\", 默认值)，键不在时返回默认值。",
+    "cited_ids": [
+      "notes/python-notes.md#L36-L38"
+    ]
+  },
+  "q03": {
+    "status": "answered",
+    "answer": "def f(x=[]) 就行，列表会按调用自动新建。",
+    "cited_ids": [
+      "notes/python-notes.md#L50-L52"
+    ]
+  },
+  "q04": {
+    "status": "answered",
+    "answer": "不要用 \"\\n\".join(列表)，直接在循环里把每行 += 到字符串上更省事。",
+    "cited_ids": [
+      "notes/python-notes.md#L23-L25"
+    ]
+  },
+  "q05": {
+    "status": "answered",
+    "answer": "def f(query: str, top_k: int = 5) -> list[str]: 参数和返回值都写上类型。",
+    "cited_ids": [
+      "notes/python-notes.md#L51-L53"
+    ]
+  },
+  "q06": {
+    "status": "answered",
+    "answer": "items: list[str] = Field(default_factory=list)，不要用可变对象当默认值。",
+    "cited_ids": [
+      "notes/python-notes.md#L70-L72"
+    ]
+  },
+  "q07": {
+    "status": "answered",
+    "answer": "用 *args 收位置参数，用 **kwargs 收关键字参数。",
+    "cited_ids": [
+      "notes/python-notes.md#L53-L55"
+    ]
+  },
+  "q08": {
+    "status": "answered",
+    "answer": "sorted(xs, key=lambda x: x[field])，字段名由参数传进来。",
+    "cited_ids": []
+  }
+}

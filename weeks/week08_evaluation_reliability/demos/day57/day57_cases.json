@@ -1,0 +1,113 @@
+[
+  {
+    "id": "q01",
+    "question": "列表里是字典，怎么按 score 字段从大到小排？",
+    "must_include": [
+      "sorted(",
+      "key=",
+      "reverse=True"
+    ],
+    "must_not_include": [],
+    "retrieved_ids": [
+      "notes/python-notes.md#L37-L39",
+      "notes/python-notes.md#L40-L42",
+      "notes/python-notes.md#L43-L45"
+    ],
+    "note": "对应速查表「按某个字段从大到小排」一行。"
+  },
+  {
+    "id": "q02",
+    "question": "从字典取值，但不确定键在不在，怎么写？",
+    "must_include": [
+      "d.get"
+    ],
+    "must_not_include": [],
+    "retrieved_ids": [
+      "notes/python-notes.md#L36-L38",
+      "notes/python-notes.md#L39-L41"
+    ],
+    "note": "对应「取字典的值，但不确定键在不在」一行。"
+  },
+  {
+    "id": "q03",
+    "question": "函数默认参数想用列表，怎么写才安全？",
+    "must_include": [
+      "None",
+      "is None"
+    ],
+    "must_not_include": [
+      "def f(x=[])"
+    ],
+    "retrieved_ids": [
+      "notes/python-notes.md#L50-L52"
+    ],
+    "note": "对应「默认值想用列表/字典」一行；可变默认值是本周仍要拦住的坑。"
+  },
+  {
+    "id": "q04",
+    "question": "把一堆字符串一行一行拼成一段文字，怎么写？",
+    "must_include": [
+      "join"
+    ],
+    "must_not_include": [],
+    "retrieved_ids": [
+      "notes/python-notes.md#L23-L25",
+      "notes/python-notes.md#L26-L28"
+    ],
+    "note": "对应「把一堆东西一行一行拼成一段文字」一行。"
+  },
+  {
+    "id": "q05",
+    "question": "给函数的参数和返回值写类型注解，长什么样？",
+    "must_include": [
+      "def ",
+      "->",
+      "list[str]"
+    ],
+    "must_not_include": [],
+    "retrieved_ids": [
+      "notes/python-notes.md#L51-L53"
+    ],
+    "note": "对应「给参数和返回值写说明书」一行。"
+  },
+  {
+    "id": "q06",
+    "question": "Pydantic 模型里，列表字段的默认值怎么写？",
+    "must_include": [
+      "Field",
+      "default_factory"
+    ],
+    "must_not_include": [],
+    "retrieved_ids": [
+      "notes/python-notes.md#L70-L72",
+      "notes/python-notes.md#L73-L75"
+    ],
+    "note": "对应 Pydantic 小节「某个字段可以不传」一行。"
+  },
+  {
+    "id": "q07",
+    "question": "函数参数个数不确定，怎么收？",
+    "must_include": [
+      "*args",
+      "**kwargs"
+    ],
+    "must_not_include": [],
+    "retrieved_ids": [
+      "notes/python-notes.md#L53-L55"
+    ],
+    "note": "对应「不确定参数有几个」一行。"
+  },
+  {
+    "id": "q08",
+    "question": "排序依据的字段名是参数传进来的，怎么写？",
+    "must_include": [
+      "key=lambda",
+      "x[field]"
+    ],
+    "must_not_include": [],
+    "retrieved_ids": [
+      "notes/python-notes.md#L40-L42"
+    ],
+    "note": "对应「排序依据的字段名是参数传进来的」一行。"
+  }
+]
