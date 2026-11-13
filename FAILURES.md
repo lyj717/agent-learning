@@ -1298,3 +1298,4 @@
 - Day56 完成：整合设计五题（含纠错）、B1 serve_question 5/5（调用次数、异常、span 父子、并发峰值）、B2 端到端服务与梯度：1 档 60.4ms、5 档 802.6ms、10 档 2332.1ms，全部 200；一次“超时”请求返回 504，按 request_id 找到 1 根 + 3 个 ERROR answer，request 509.6ms。口头问答要点与 HANDOFF 已写，但 Q1“如何区分三层”、Q2/Q3 细节偏薄，已在 HANDOFF 列为待加强项。
 - Day56 梯度脚本首跑失败：day56_app 直接以脚本启动时未把仓库根加入 sys.path，报 ModuleNotFoundError: weeks；补上 ROOT 插入后通过。演示/教具类脚本从任意目录启动都要自带路径处理，这次漏了。
 - 本次在沙箱内复跑 pytest 时 .pytest_tmp 触发 [WinError 5]（跨账号 ACL），未能取得新结果；上次记录为 12 passed，HANDOFF 已注明需在学员终端复跑，不伪报测试通过。
+- 订正上一条 pytest 记录：之前的 [WinError 5] 是 workspace-write 沙箱下创建的临时目录 ACL 导致，不是代码或测试失败。2026-11-13 在完整访问权限下用独立 basetemp 复跑，12 passed（1.67 秒），.pytest_tmp_day56、.pytest_tmp、.tmp_pytest_day56 均已删除，工作区干净。

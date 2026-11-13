@@ -24,11 +24,11 @@ Invoke-RestMethod http://127.0.0.1:8000/health
 docker rm -f week07
 ```
 
-测试：上一次记录为 12 passed；本次在沙箱里复跑时 `.pytest_tmp` 触发 `[WinError 5]`，
-未能取得新结果，需在学员终端用下方命令确认：
+测试：2026-11-13 复跑 **12 passed**（1.67 秒），命令如下；本轮用独立 basetemp，
+跑完已清理，未留下 `.pytest_cache` 或临时目录。
 
 ```powershell
-.venv\Scripts\python.exe -m pytest -p no:cacheprovider --basetemp=.pytest_tmp tests
+.venv\Scripts\python.exe -m pytest -p no:cacheprovider --basetemp=.pytest_tmp_day56 tests
 ```
 
 ## 3. 环境要点
