@@ -10,18 +10,14 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-11-10）**：[Week07 Day55](weeks/week07_production/README.md) 已开工，
-先做 A1 错误映射与信息暴露；Day53 的延迟复验已出题待答。
-Day54 已完成（A/B/C、异步补课、D 重试边界）：学员亲跑 `call_with_limit` 3/3、
-`WindowLimiter` 3/3、`call_with_retry` 6/6，退避间隔实测 0.05、0.10 秒；
-补课三道预测题全过、Task 练习 2/2。数据与观察在
-[Day54 记录](weeks/week07_production/demos/day54/day54_记录.md)。
-11 月 9 日另完成 Day51B/Day52 到期短复验：经提示与订正核对，不记独立闭卷首答。
-Day55 整体重估约 1～1.5 个自然日，分安全失败路径、容器打包与最简页面三段；
-本机没有 Docker，容器段只准备配置，验证状态如实记录。
-Day53 复验题目在 [追踪短复验](weeks/week07_production/exercises/day53_span_review.md)。
-路线与边界见
-[Day55 学习路线](weeks/week07_production/demos/day55/day55_学习路线.md)。
+**当前接续点（2026-11-13）**：Week07 已完成，下一步 Week08（评测、回归与成本）。
+服务化主线 Day50～56 均已验收：接口与会话、SSE、标准 trace、并发/窗口限额、重试、错误映射、
+容器打包与最简页面。Day56 把限额、重试、追踪接成可跑服务：1/5/10 梯度（10 档约 2.3 秒），
+一次 504 的 trace 为 1 根 + 3 次尝试，可按 `request_id` 回溯。
+交接与尾巴见 [Week07 HANDOFF](weeks/week07_production/HANDOFF.md)。
+仍是人工教具：真实 RAG/SSE 组合、工具授权接入 HTTP、真实服务商负载与额度未验证；
+B/C 按了解级记录，不按掌握计。
+下一步：先读 Week08 计划，整理 Week06 的评测样本与指标，定 baseline 与留出集。
 
 **Day53 已经答疑与订正完成本次验收，本地提交 2c45c82。**
 Day51A 到期短复验经反馈订正通过；A/B 演示及 C 的 19:05 版本均确认学员亲跑，
