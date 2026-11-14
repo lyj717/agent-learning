@@ -1,0 +1,10 @@
+{
+  "q01": { "answer_ok": true, "citation_ok": true, "reason": "都正确" },
+  "q02": { "answer_ok": true, "citation_ok": true, "reason": "都正确" },
+  "q03": { "answer_ok": false, "citation_ok": false, "reason": "回答错误且不符合引用" },
+  "q04": { "answer_ok": false, "citation_ok": false, "reason": "回答错误且不符合引用" },
+  "q05": { "answer_ok": true, "citation_ok": true, "reason": "都正确" },
+  "q06": { "answer_ok": true, "citation_ok": true, "reason": "都正确" },
+  "q07": { "answer_ok": true, "citation_ok": true, "reason": "都正确" },
+  "q08": { "answer_ok": true, "citation_ok": null, "reason": "没有引用" }
+}

@@ -1329,4 +1329,21 @@
 - 学员在 `exercises/` 留了草稿 `test.py`（ruff 报错、引用不存在的变量），验收时删除。
   草稿不要放在交付目录，临时验证放 `outputs/` 或验收后删除。
 
+### 2026-11-14｜Day58 证据来源、None 判断与裁判漏判
+
+- 练习 A 的契约只写了「每个证据的编号与正文」，没说清证据来自 `case["evidence"]`
+  还是 `answer["cited_ids"]`；学员把 `cited_ids` 当证据，并把 `content` 写成 dict。
+  已补「evidence 由 retrieved_ids 切出、cited_ids 只是指针、content 必须是 str」。
+- 学员首版把 `citation_ok` 的 None 判断写反，B 两次 8/10（对照 1、2 把 null 判成
+  「不是 bool 也不是 None」）；检查器覆盖到了，修正后 10/10。bool 与 None 的联合
+  判断要单独设计用例，不能只测 true/false。
+- `compare` 只在人工 `citation_ok` 为 bool 的题上比引用；裁判在 q08（无引用）给了
+  `true`，没有被计入分歧，输出仍是「分歧：[]」。已把 q08 写进记录观察 2；
+  后续比较逻辑可加「人工 null、裁判 bool」的规则违背清单，避免被一致率掩盖。
+- 学员函数里残留调试 `print`（content 类型、解析 dict），live 时每题多两行、
+  污染日志；交付前扫一遍 `print(`。
+- AI 在交付前用参考实现跑了 1 次真实裁判：q01 返回合法 JSON，487+61 token、1.28 秒；
+  确认 JSON 模式、温度 0 与解析链路可用，不计作学员实验。
+
+
 

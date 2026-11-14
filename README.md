@@ -10,7 +10,7 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-11-14）**：Week08 进行中，Day57 已验收，下一步 Day58；入口见
+**当前接续点（2026-11-14）**：Week08 进行中，Day57、Day58 已验收，下一步 Day59；入口见
 [Week08 README](weeks/week08_evaluation_reliability/README.md)。Week07 服务化主线
 Day50～56 已验收，交接与尾巴见 [Week07 HANDOFF](weeks/week07_production/HANDOFF.md)：
 接口与会话、SSE、标准 trace、并发/窗口限额、重试、错误映射、容器打包与最简页面；
@@ -26,7 +26,11 @@ Day62 GitHub Actions 与推送后验证（约 1/2～3/4 天）、Day63 阶段变
 Day57 已验收（2026-11-14）：规则判分 14/14、基线比较 9/9，regression 抓到
 `fixed=q02`、`regressed=q03`、`still_failing=q08`；四道观察通过，数据已转录到
 [Day57 记录](weeks/week08_evaluation_reliability/demos/day57/day57_记录.md)。
-下一步 Day58：模型裁判与人工判分逐题对齐，开工前确认小预算（8～12 次调用）。
+Day58 已验收（2026-11-14）：A/B 各 10/10；8 次真实裁判调用、解析失败 0，
+答案一致 8/8、引用一致 7/7；q08 在无引用时被裁判给了 true，违反评分项，
+已在记录中单列。数据见
+[Day58 记录](weeks/week08_evaluation_reliability/demos/day58/day58_record.md)。
+下一步 Day59：先量成本与延迟，按证据定瓶颈。
 
 **Day53 已经答疑与订正完成本次验收，本地提交 2c45c82。**
 Day51A 到期短复验经反馈订正通过；A/B 演示及 C 的 19:05 版本均确认学员亲跑，

@@ -3,7 +3,7 @@
 **阶段交付物**：自动评测集 + 可复现的回归检查 + GitHub Actions CI 回归报告，
 外加一份按瓶颈选择的成本/延迟优化对照与失败模式清单。
 
-## 当前接续：Day57 已验收（2026-11-14），下一步 Day58
+## 当前接续：Day58 已验收（2026-11-14），下一步 Day59
 
 Week07 已完成（服务化主线与 Day56 整合），交接见
 [Week07 HANDOFF](../week07_production/HANDOFF.md)。按交接建议，本周先盘点
@@ -90,6 +90,43 @@ regression 另存 `regression.json`。失败也保留，不覆盖历史。
 数据文件与全部判分情形见 [题目说明](demos/day57/day57_题目说明.md)；
 本轮 8 题、两版回答与基线都是教学数据，不是新的真实模型评测。
 
+## Day58：模型裁判与解析（2026-11-14 开工，11-14 验收）
+
+**完成情况**：A 10/10、B 10/10；人工判读 8 题后跑裁判 8 次，解析失败 0；
+答案一致 8/8、引用一致 7/7。q08 在「回答没有引用」时被裁判给了 `true`，
+违反评分项，已在记录观察 2 单列。四道观察经一轮修改后通过。
+被裁判的是 Day57 的 8 份回答，今天没有重新生成回答；原估约 1 天，实际学习小时未测。
+
+顺序：
+
+1. [裁判口径演示](demos/day58/day58_judge_rubric_demo.py)：评分项怎么拆、
+   为什么用二值 + 理由、裁判的偏差与成本。
+2. [解析演示](demos/day58/day58_parse_demo.py)：代码块、前后解释文字、缺键与
+   类型错误分别怎么处理。
+3. 实现 A 的 `build_judge_messages`，`--part a` 10/10；再实现 B 的
+   `parse_judge_verdict`，`--part b` 10/10。
+4. 先填 [人工标签](demos/day58/day58_human_labels.json)：8 题答案对错、引用支持、
+   简短理由。**先人工、后裁判**，没有引用的题 `citation_ok` 填 `null`。
+5. 单题试跑 `--part live --limit 1`（1 次），再全量 `--part live`（8 次）；
+   两次均完成，解析失败 0，原始返回已保存。
+6. `--part compare` 完成：答案一致 8/8、引用一致 7/7；观察写在
+   [记录](demos/day58/day58_record.md)，q08 的规则违背也在那里。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\demos\day58\day58_judge_rubric_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\demos\day58\day58_parse_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day58_judge_exercises.py --part a
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day58_judge_exercises.py --part b
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day58_judge_exercises.py --part live --limit 1
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day58_judge_exercises.py --part live
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day58_judge_exercises.py --part compare
+```
+
+预算：单题试跑 1 次 + 全量 8 次 = **9 次调用**，在计划的 8～12 次内；不自动重试。
+每次运行在 `demos/day58/outputs/` 下新建目录，保存 `console.log`、`run_info.json`；
+live 另存 `judge_results.json`，compare 另存 `agreement.json`。
+字段、全部判分情形与标签规则见 [题目说明](demos/day58/day58_题目说明.md)。
+
 ## 复验安排
 
 Week07 交接留下的 Day54～56 跨天复现（限额、重试、整合，10～15 分钟闭卷变式）
@@ -99,7 +136,7 @@ Week07 交接留下的 Day54～56 跨天复现（限额、重试、整合，10�
 ## 必做顺序
 
 - [x] Day57：规则判分 + 基线回归，14 + 9 组对照与四道观察
-- [ ] Day58：模型裁判、与人工判分逐题对齐、抽样分歧
+- [x] Day58：模型裁判、与人工判分逐题对齐、抽样分歧
 - [ ] Day59：成本与延迟基线、瓶颈判断
 - [ ] Day60：按瓶颈做一项优化，同批前后对照
 - [ ] Day61：五类失败模式清单与自动判据，接进 pytest
