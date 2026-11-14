@@ -10,7 +10,7 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-11-14）**：Week08 进行中，Day57、Day58 已验收，下一步 Day59；入口见
+**当前接续点（2026-11-14）**：Week08 进行中，Day57～59 已验收，下一步 Day60；入口见
 [Week08 README](weeks/week08_evaluation_reliability/README.md)。Week07 服务化主线
 Day50～56 已验收，交接与尾巴见 [Week07 HANDOFF](weeks/week07_production/HANDOFF.md)：
 接口与会话、SSE、标准 trace、并发/窗口限额、重试、错误映射、容器打包与最简页面；
@@ -30,7 +30,12 @@ Day58 已验收（2026-11-14）：A/B 各 10/10；8 次真实裁判调用、解�
 答案一致 8/8、引用一致 7/7；q08 在无引用时被裁判给了 true，违反评分项，
 已在记录中单列。数据见
 [Day58 记录](weeks/week08_evaluation_reliability/demos/day58/day58_record.md)。
-下一步 Day59：先量成本与延迟，按证据定瓶颈。
+Day59 已验收（2026-11-14）：A/B 10/10、7/7；单次 8 题 + 重复 3 轮 24 次均成功。
+端到端 P50/P95 为 1216/1530ms，输入 6970 token、输出 586 token、费用 0.017374 元
+（输入约 73%）；q07 首字在 711～2230ms 间波动。数据见
+[Day59 记录](weeks/week08_evaluation_reliability/demos/day59/day59_record.md)。
+下一步 Day60：按数据选一项优化（观察里选的是证据 3→2 条、每块 8→4 行），
+用重复测量和 Day57 规则 + Day58 裁判验证没有变差。
 
 **Day53 已经答疑与订正完成本次验收，本地提交 2c45c82。**
 Day51A 到期短复验经反馈订正通过；A/B 演示及 C 的 19:05 版本均确认学员亲跑，

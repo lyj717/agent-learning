@@ -3,7 +3,7 @@
 **阶段交付物**：自动评测集 + 可复现的回归检查 + GitHub Actions CI 回归报告，
 外加一份按瓶颈选择的成本/延迟优化对照与失败模式清单。
 
-## 当前接续：Day58 已验收（2026-11-14），下一步 Day59
+## 当前接续：Day59 已验收（2026-11-14），下一步 Day60
 
 Week07 已完成（服务化主线与 Day56 整合），交接见
 [Week07 HANDOFF](../week07_production/HANDOFF.md)。按交接建议，本周先盘点
@@ -127,6 +127,41 @@ regression 另存 `regression.json`。失败也保留，不覆盖历史。
 live 另存 `judge_results.json`，compare 另存 `agreement.json`。
 字段、全部判分情形与标签规则见 [题目说明](demos/day58/day58_题目说明.md)。
 
+## Day59：成本与延迟基线（2026-11-14 开工，11-14 验收）
+
+**完成情况**：A 10/10、B 7/7；单次测量 8 题成功，重复 3 轮 24 次、失败 0。
+P50/P95 端到端 1216/1530ms；输入 6970 token、输出 586 token，费用 0.017374 元，
+输入约占 73%。同题重复显示 q07 首字在 711～2230ms 间波动，说明单次基线不能当结论。
+四道观察经两轮修改后通过；今天只量不改，Day60 按数据选一项优化。
+
+顺序：
+
+1. [测量演示](demos/day59/day59_metrics_demo.py)：检索/首字/生成的时间边界、
+   最近秩百分位、费用拆分与瓶颈判断。
+2. 实现 A 的 `percentile`，`--part a` 应 10/10；实现 B 的
+   `summarize_measurements`，`--part b` 应 7/7。
+3. 单题试跑 `--part live --limit 1`（1 次），再全量 `--part live`（8 次）。
+4. `--part report` 读逐题表与汇总。
+5. `--part repeat` 跑 3 轮 × 8 题（24 次），看每题首字与端到端的 min/median/max，
+   再写 [记录](demos/day59/day59_record.md)（含「同题重复」表与作答区）。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\demos\day59\day59_metrics_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day59_measure_exercises.py --part a
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day59_measure_exercises.py --part b
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day59_measure_exercises.py --part live --limit 1
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day59_measure_exercises.py --part live
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day59_measure_exercises.py --part report
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day59_measure_exercises.py --part repeat
+```
+
+预算：单题 1 次 + 全量 8 次 + 重复 24 次 = **33 次调用**；失败不自动重试，
+失败题写进 `errors`。检索索引用本机缓存模型，不下载；费用按 Day47 价格快照换算，
+不是账单。每次运行在 `demos/day59/outputs/` 下新建目录，保存 `console.log`、
+`run_info.json`；live 另存 `measurements.json`，report 另存 `summary.json`，
+repeat 另存 `repeat_measurements.json`。
+字段、判分情形与计时边界见 [题目说明](demos/day59/day59_题目说明.md)。
+
 ## 复验安排
 
 Week07 交接留下的 Day54～56 跨天复现（限额、重试、整合，10～15 分钟闭卷变式）
@@ -137,7 +172,7 @@ Week07 交接留下的 Day54～56 跨天复现（限额、重试、整合，10�
 
 - [x] Day57：规则判分 + 基线回归，14 + 9 组对照与四道观察
 - [x] Day58：模型裁判、与人工判分逐题对齐、抽样分歧
-- [ ] Day59：成本与延迟基线、瓶颈判断
+- [x] Day59：成本与延迟基线、瓶颈判断
 - [ ] Day60：按瓶颈做一项优化，同批前后对照
 - [ ] Day61：五类失败模式清单与自动判据，接进 pytest
 - [ ] Day62：GitHub Actions、推送后观察一次真实运行
