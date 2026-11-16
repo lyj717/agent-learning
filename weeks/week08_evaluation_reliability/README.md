@@ -3,7 +3,7 @@
 **阶段交付物**：自动评测集 + 可复现的回归检查 + GitHub Actions CI 回归报告，
 外加一份按瓶颈选择的成本/延迟优化对照与失败模式清单。
 
-## 当前接续：Day59 已验收（2026-11-14），下一步 Day60
+## 当前接续：Day60 已验收（2026-11-16），下一步 Day61
 
 Week07 已完成（服务化主线与 Day56 整合），交接见
 [Week07 HANDOFF](../week07_production/HANDOFF.md)。按交接建议，本周先盘点
@@ -162,6 +162,46 @@ P50/P95 端到端 1216/1530ms；输入 6970 token、输出 586 token，费用 0.
 repeat 另存 `repeat_measurements.json`。
 字段、判分情形与计时边界见 [题目说明](demos/day59/day59_题目说明.md)。
 
+## Day60：缩小证据的前后对照（2026-11-14 开工，11-16 验收）
+
+**完成情况**：A 6/6；measure 48/48；quality 规则 7/8、裁判 8/8（两套相同）。
+端到端均值 1032 → 986ms（−46ms，约 −4.5%），费用 0.008267 → 0.007528 元
+（约 −8.9%）；逐题有快有慢：q01 −315、q07 −263，q05 +169、q08 +105。
+质量没有下降；q06 两套都因证据未覆盖 Pydantic 而返回 `insufficient`，规则记
+`not_answered`、裁判判 `answer_ok`，是口径差异。四道观察通过。
+这次同时改了切块与检索条数两个变量，归因需要后续单变量对照。
+
+顺序：
+
+1. [对照演示](demos/day60/day60_controlled_demo.py)：为什么配对、交替顺序、
+   比中位数、质量代价与回退条件。
+2. 实现 `compare_conditions`，`--part a` 应 6/6。
+3. 成对测量：`--part measure`（3 轮 × 2 套 × 8 题 = 48 次）。
+4. 质量检查：`--part quality`（Day57 规则 + Day58 裁判，16 次裁判调用）。
+5. 对照报告：`--part report`，把收益与质量写进
+   [记录](demos/day60/day60_record.md)（四道题都有作答区）。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\demos\day60\day60_controlled_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day60_optimize_exercises.py --part a
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day60_optimize_exercises.py --part measure
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day60_optimize_exercises.py --part quality
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day60_optimize_exercises.py --part report
+```
+
+补充：对 `setdefault` 分组写法不熟时，跑
+[setdefault 演示](demos/day60/day60_setdefault_demo.py)，看 `q01` 第二次遇到时
+返回原列表、`get` 不插入、`defaultdict` 的区别。
+
+预算：measure 48 次 + quality 16 次 = **64 次调用**，费用约 0.15 元；失败不重试。
+两套配置共用一次索引构建，每轮交替先后顺序；第 1 轮会有缓存未命中的偏差，
+看 3 轮中位数，别用单轮。`measure` 另存 `paired_measurements.json`，
+`quality` 另存 `quality.json`，`report` 另存 `comparison.json`。
+
+注意：这次同时改了切块大小（8→4 行）和检索条数（3→2），属于一个压缩包；
+若结果有变化，不能单独归因给其中一个。字段与判分情形见
+[题目说明](demos/day60/day60_题目说明.md)。
+
 ## 复验安排
 
 Week07 交接留下的 Day54～56 跨天复现（限额、重试、整合，10～15 分钟闭卷变式）
@@ -173,7 +213,7 @@ Week07 交接留下的 Day54～56 跨天复现（限额、重试、整合，10�
 - [x] Day57：规则判分 + 基线回归，14 + 9 组对照与四道观察
 - [x] Day58：模型裁判、与人工判分逐题对齐、抽样分歧
 - [x] Day59：成本与延迟基线、瓶颈判断
-- [ ] Day60：按瓶颈做一项优化，同批前后对照
+- [x] Day60：按瓶颈做一项优化，同批前后对照
 - [ ] Day61：五类失败模式清单与自动判据，接进 pytest
 - [ ] Day62：GitHub Actions、推送后观察一次真实运行
 - [ ] Day63：阶段变式（含 Day54～56 复验）与口头解释
