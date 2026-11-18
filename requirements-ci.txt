@@ -1,0 +1,15 @@
+# CI 只装离线测试与检查需要的包；不装本地向量模型、Qdrant 等重依赖。
+# 本地开发仍用 requirements.txt。
+
+openai>=1.60
+httpx>=0.27
+python-dotenv>=1.0
+pydantic>=2.9
+
+langgraph==1.2.15
+langgraph-checkpoint-sqlite==3.1.2
+langchain-core==1.6.10
+
+pytest>=8.3
+ruff>=0.8
+PyYAML>=6.0

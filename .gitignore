@@ -22,6 +22,7 @@ env/
 .pytest_cache/
 .pytest_runtime/
 .pytest_tmp/
+pytest-of-*/
 .ruff_cache/
 .mypy_cache/
 .coverage

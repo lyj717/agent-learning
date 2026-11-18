@@ -3,7 +3,7 @@
 **阶段交付物**：自动评测集 + 可复现的回归检查 + GitHub Actions CI 回归报告，
 外加一份按瓶颈选择的成本/延迟优化对照与失败模式清单。
 
-## 当前接续：Day61 已验收（2026-11-18），下一步 Day62
+## 当前接续：Day62 开工（2026-11-18），Day57～61 已验收
 
 Week07 已完成（服务化主线与 Day56 整合），交接见
 [Week07 HANDOFF](../week07_production/HANDOFF.md)。按交接建议，本周先盘点
@@ -229,6 +229,32 @@ repeat 另存 `repeat_measurements.json`。
 `DAY61_VARIANT=good` 与 `bad` 上；故障版必须是 `AssertionError`，
 其他异常冒出来算「没咬住」。字段与 10 项判分情形见
 [题目说明](demos/day61/day61_题目说明.md)。
+
+## Day62：GitHub Actions 离线 CI + 手动 live（2026-11-18 开工）
+
+**预计约 1/2～3/4 天**：写一份 workflow，把 Day61 的检查接进 push/PR 的离线 job，
+真实模型只放在手动 `workflow_dispatch` 后面；push 后观察一次远端运行。
+
+要交的是 `.github/workflows/ci.yml`，不是 Python 函数。顺序：
+
+1. [CI 演示](demos/day62/day62_ci_demo.py)：触发、两个 job、secrets、预算五道闸、YAML 坑。
+2. 写 workflow：`offline` 与 `live` 两个 job，名字和字段按
+   [题目说明](demos/day62/day62_题目说明.md)。
+3. 跑检查器，应 **10/10**；再把离线命令本地跑一遍。
+4. 提交并 push（推送由学员执行），在 GitHub Actions 页观察 `offline`；`live` 在 push
+   上应 skipped。需要真实调用时手动 Run workflow 勾 `run_live`。
+5. 把运行 URL、两个 job 状态、用量/费用写进 [记录](demos/day62/day62_record.md)。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\demos\day62\day62_ci_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week08_evaluation_reliability\exercises\day62_ci_exercises.py
+.venv\Scripts\python.exe -m ruff check weeks\week08_evaluation_reliability tests
+.venv\Scripts\python.exe -m ruff format --check weeks\week08_evaluation_reliability tests
+.venv\Scripts\python.exe -m pytest -p no:cacheprovider tests
+```
+
+预算：offline **0 次模型调用**；live 最多 **1 次**（`max_tokens=32`、超时 30 秒、
+不重试），约 0.001 元。**没看到远端运行之前，不写「CI 已通过」**。
 
 ## 复验安排
 

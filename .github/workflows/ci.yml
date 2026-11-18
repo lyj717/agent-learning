@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_live:
+        description: Run one live model smoke test
+        type: boolean
+        default: false
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements-ci.txt
+      - run: ruff check weeks/week08_evaluation_reliability tests
+      - run: ruff format --check weeks/week08_evaluation_reliability tests
+      - run: pytest -p no:cacheprovider
+
+  live:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_live
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements-ci.txt
+      - run: python weeks/week08_evaluation_reliability/demos/day62/day62_live_smoke.py
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}

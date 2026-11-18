@@ -10,7 +10,7 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-11-18）**：Week08 进行中，Day57～61 已验收，下一步 Day62；入口见
+**当前接续点（2026-11-18）**：Week08 进行中，Day57～61 已验收，Day62 开工；入口见
 [Week08 README](weeks/week08_evaluation_reliability/README.md)。Week07 服务化主线
 Day50～56 已验收，交接与尾巴见 [Week07 HANDOFF](weeks/week07_production/HANDOFF.md)：
 接口与会话、SSE、标准 trace、并发/窗口限额、重试、错误映射、容器打包与最简页面；
@@ -43,7 +43,10 @@ q05 +169、q08 +105）；q06 因证据未覆盖 Pydantic 返回 insufficient，�
 Day61 已验收（2026-11-18）：五类失败模式各写一个确定性检查，正常版/故障版 10/10，
 pytest 5 passed；五类证据与四道观察通过。入口见
 [Day61 题目说明](weeks/week08_evaluation_reliability/demos/day61/day61_题目说明.md)。
-下一步 Day62：GitHub Actions 接入，离线测试 + 手动 live 入口 + 预算说明。
+Day62 已开工（2026-11-18）：写 `.github/workflows/ci.yml`，push/PR 跑离线测试，
+真实模型只放在手动 `workflow_dispatch` 后面；push 后观察一次远端运行。入口见
+[Day62 题目说明](weeks/week08_evaluation_reliability/demos/day62/day62_题目说明.md)；
+offline 0 次调用，live 最多 1 次。
 
 **Day53 已经答疑与订正完成本次验收，本地提交 2c45c82。**
 Day51A 到期短复验经反馈订正通过；A/B 演示及 C 的 19:05 版本均确认学员亲跑，
