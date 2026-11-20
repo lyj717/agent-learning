@@ -3,7 +3,7 @@
 **阶段交付物**：自动评测集 + 可复现的回归检查 + GitHub Actions CI 回归报告，
 外加一份按瓶颈选择的成本/延迟优化对照与失败模式清单。
 
-## 当前接续：Day62 开工（2026-11-18），Day57～61 已验收
+## 当前接续：Day62 已验收（2026-11-20），下一步 Day63
 
 Week07 已完成（服务化主线与 Day56 整合），交接见
 [Week07 HANDOFF](../week07_production/HANDOFF.md)。按交接建议，本周先盘点
@@ -230,10 +230,12 @@ repeat 另存 `repeat_measurements.json`。
 其他异常冒出来算「没咬住」。字段与 10 项判分情形见
 [题目说明](demos/day61/day61_题目说明.md)。
 
-## Day62：GitHub Actions 离线 CI + 手动 live（2026-11-18 开工）
+## Day62：GitHub Actions 离线 CI + 手动 live（2026-11-18 开工，11-20 验收）
 
-**预计约 1/2～3/4 天**：写一份 workflow，把 Day61 的检查接进 push/PR 的离线 job，
-真实模型只放在手动 `workflow_dispatch` 后面；push 后观察一次远端运行。
+**完成情况**：workflow 检查器 **10/10**；push 运行 `offline` success（33 秒）、
+`live` skipped；手动 Run workflow 时 `offline` 21 秒、`live` 16 秒均绿，
+live 1 次调用、35+18 token、1019ms、约 0.000214 元。四道观察通过。
+Node 20 / ubuntu-latest 两条只是 GitHub 的警告，不影响结果。
 
 要交的是 `.github/workflows/ci.yml`，不是 Python 函数。顺序：
 
@@ -283,7 +285,7 @@ repeat 另存 `repeat_measurements.json`。
 - [x] Day60：按瓶颈做一项优化，同批前后对照
 - [x] 复习：Day61 前 Day57～60 闭卷复现（10～15 分钟）
 - [x] Day61：五类失败模式清单与自动判据，接进 pytest
-- [ ] Day62：GitHub Actions、推送后观察一次真实运行
+- [x] Day62：GitHub Actions、推送后观察一次真实运行
 - [ ] Day63：阶段变式（含 Day54～56 复验、Day57～60 复习）与口头解释
 
 ## 验收标准
