@@ -10,7 +10,7 @@
 - 交付标准：每阶段有可演示成果，可以是同一项目的新版本；关键机制另做跨天独立复现。
 - 具体时间安排、复习方式和阶段取舍见 [学习计划](docs/ai-agent-12周学习计划.md) 与 [日程表](docs/21天详细日程表.md)。
 
-**当前接续点（2026-11-20）**：Week08 进行中，Day57～62 已验收，下一步 Day63；入口见
+**当前接续点（2026-11-21）**：Week08 已验收，Week09 选定 A｜MCP Server；入口见
 [Week08 README](weeks/week08_evaluation_reliability/README.md)。Week07 服务化主线
 Day50～56 已验收，交接与尾巴见 [Week07 HANDOFF](weeks/week07_production/HANDOFF.md)：
 接口与会话、SSE、标准 trace、并发/窗口限额、重试、错误映射、容器打包与最简页面；
@@ -47,7 +47,10 @@ Day62 已验收（2026-11-20）：`.github/workflows/ci.yml` 接入 GitHub Actio
 push 运行 offline 绿、live skipped；手动 Run workflow 时 offline 21 秒、live 16 秒均绿，
 live 1 次调用 35+18 token、1019ms、约 0.000214 元。入口见
 [Day62 题目说明](weeks/week08_evaluation_reliability/demos/day62/day62_题目说明.md)。
-下一步 Day63：阶段变式 + 三件套口头解释 + HANDOFF。
+Day63 已验收（2026-11-21）：Day57～60 变式复习 + Week07 Day54～56 复验六题通过；
+候选运行发布评审判出 5 道阻断；三件套口头解释与 Week08 HANDOFF 通过。
+Week09 选定 **A｜MCP Server**，交接见
+[Week08 HANDOFF](weeks/week08_evaluation_reliability/HANDOFF.md)。
 
 **Day53 已经答疑与订正完成本次验收，本地提交 2c45c82。**
 Day51A 到期短复验经反馈订正通过；A/B 演示及 C 的 19:05 版本均确认学员亲跑，
@@ -175,8 +178,8 @@ agent-learning/
 - [x] Week 05｜RAG 基础（Day 36～42 经答疑订正验收；自有资料问答、十题真实基线及引用回查变式已交付，跨天独立复验见交接）
 - [x] Week 06｜高级检索与评测（Day48 报告、Day49 阶段变式与口头解释已验收；延迟复验见 HANDOFF）
 - [x] Week 07｜工程化与可观测性（交付：带 trace 的服务；Day50～56 经答疑订正验收，真实 RAG/SSE 组合与真实服务商负载见 HANDOFF 尾巴）
-- [ ] Week 08｜评测与可靠性（交付：自动评测 + CI）
-- [ ] Week 09｜进阶方向选一项（交付：可用的 MCP Server 或其他选定方向成果）
+- [x] Week 08｜评测与可靠性（交付：规则判分 + 裁判 + 测量 + 一次优化 + 五类检查 + GitHub Actions；Day63 阶段变式与口头已验收）
+- [ ] Week 09｜进阶方向 A｜MCP Server（已选定；交付：可用的 MCP Server）
 - [ ] Week 10｜作品集定型（交付：两个主要项目 + 一个复用已有能力的小工具）
 - [ ] Week 11｜面试专项与投递
 - [ ] Week 12｜面试冲刺与复盘
