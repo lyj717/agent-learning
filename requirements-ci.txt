@@ -10,6 +10,9 @@ langgraph==1.2.15
 langgraph-checkpoint-sqlite==3.1.2
 langchain-core==1.6.10
 
+# Week09 Day68：MCP server 的离线测试要 import 官方 SDK；不装宿主或 CLI 扩展
+mcp==2.3.0
+
 pytest>=8.3
 ruff>=0.8
 PyYAML>=6.0

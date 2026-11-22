@@ -20,8 +20,8 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install -r requirements-ci.txt
-      - run: ruff check weeks/week08_evaluation_reliability tests
-      - run: ruff format --check weeks/week08_evaluation_reliability tests
+      - run: ruff check weeks/week08_evaluation_reliability weeks/week09_advanced projects tests
+      - run: ruff format --check weeks/week08_evaluation_reliability weeks/week09_advanced projects tests
       - run: pytest -p no:cacheprovider
 
   live:
