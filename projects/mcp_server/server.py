@@ -35,6 +35,24 @@ def search_text(text: str, keyword: str, limit: int = 5) -> list[dict[str, int |
         raise ToolError(str(error)) from error
 
 
+import os
+from pathlib import Path
+
+from projects.mcp_server.search import DEFAULT_NOTES_ROOT, search_files
+
+
+@mcp.tool()
+def search_notes(
+    keyword: str, limit: int = 5, folder: str = ""
+) -> list[dict[str, int | str]]:
+    """在本地 Markdown 笔记本里按关键词检索，返回来源文件、行号与原文。"""
+    root = Path(os.environ.get("NOTES_ROOT", str(DEFAULT_NOTES_ROOT)))
+    try:
+        return search_files(root, keyword, limit, folder)
+    except ValueError as error:
+        raise ToolError(str(error)) from error
+
+
 def main() -> None:
     """以 stdio 传输启动 server，阻塞等待客户端请求；返回 None。"""
     mcp.run(transport="stdio")

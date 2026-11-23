@@ -12,9 +12,10 @@
 
 **Week09 已开工（2026-11-21）**：方向 A｜MCP Server。本周排期、复验安排与逐日
 材料见 [Week09 README](weeks/week09_advanced/README.md)：约 4.5～5.5 天工作量铺在
-7 天里。Day64 **已验收（11-22）**：检查器 13/13，三问与六道观察订正通过，协议版本、
-工具名与运行日志已转录。下一步 Day65（文件检索与路径边界），开工前先做 10～15 分钟
-[Week08 复验](weeks/week09_advanced/demos/shared/week08_review.md)。
+7 天里。Day64 **已验收（11-22，13/13）**、Day65 **已验收（11-23，22/22）**：
+文件检索、路径边界与 `search_notes` 工具已接上，记录里的观察经订正通过。
+下一步 Day66（资源、提示词与错误语义），开工前先做 10～15 分钟
+[Day64 复验](weeks/week09_advanced/demos/shared/day64_review.md)。
 
 Week08 已验收，Week09 选定 A｜MCP Server；入口见
 [Week08 README](weeks/week08_evaluation_reliability/README.md)。Week07 服务化主线
@@ -185,7 +186,7 @@ agent-learning/
 - [x] Week 06｜高级检索与评测（Day48 报告、Day49 阶段变式与口头解释已验收；延迟复验见 HANDOFF）
 - [x] Week 07｜工程化与可观测性（交付：带 trace 的服务；Day50～56 经答疑订正验收，真实 RAG/SSE 组合与真实服务商负载见 HANDOFF 尾巴）
 - [x] Week 08｜评测与可靠性（交付：规则判分 + 裁判 + 测量 + 一次优化 + 五类检查 + GitHub Actions；Day63 阶段变式与口头已验收）
-- [ ] Week 09｜进阶方向 A｜MCP Server（Day64 已验收 13/13；交付：可用的 MCP Server）
+- [ ] Week 09｜进阶方向 A｜MCP Server（Day64 13/13、Day65 22/22 已验收；交付：可用的 MCP Server）
 - [ ] Week 10｜作品集定型（交付：两个主要项目 + 一个复用已有能力的小工具）
 - [ ] Week 11｜面试专项与投递
 - [ ] Week 12｜面试冲刺与复盘

@@ -112,12 +112,44 @@ schema 时再收一次；记录里写的宿主是 DeepSeek Harness，是否支�
 保存 `console.log`、`run_info.json`；`DAY64_RUN_ORIGIN` 默认 `unconfirmed`，
 AI 验证标记 `ai_validation`，不冒充分学员亲跑。
 
-## Day65：文件检索工具与路径边界（待开工）
+## Day65：文件检索工具与路径边界（2026-11-22 开工，11-23 验收）
 
-把 Day64 的纯文本匹配接到真实文件上：扫描 `notes/`（以及 `NOTES_ROOT` 指定的目录），
-返回 `source + line + text` 三元组，拒绝 `..` 越界与绝对路径，跳过空文件与非 UTF-8 文件。
-交付：`projects/mcp_server/search.py` 的文件层 + 检查器；预计约 1 天。
-开工前先做 10～15 分钟 [Week08 复验](demos/shared/week08_review.md)。
+**完成情况**：A 8/8、B 10/10、C 4/4，合计 **22/22**（学员亲跑三份日志，AI 全量复跑一致）。
+`safe_subdir` 用 resolve 后 relative_to 判父子；`search_files` 全局 limit、跳过坏编码与空文件、
+先校验后扫描；`search_notes` 每次调用读 `NOTES_ROOT`。五道观察经一轮订正通过：第 3 题原先
+想用 print 告知跳过文件，改为「必须走返回值」；第 4 题补上 limit 契约。练习提示与「第 65 题」
+标记已清理，`ruff` 与格式检查通过。
+
+**预计约 1 天**：两件新东西——文件层（遍历、编码、出处）与路径边界（resolve +
+relative_to），再把它注册成工具。读演示与跑检查器的时间要算进去。
+
+顺序：
+
+1. **先做 10～15 分钟 [Week08 复验](demos/shared/week08_review.md)**（闭卷，三件套）。
+2. 读 [文件层演示](demos/day65/day65_scan_demo.py)：排序、`source` 为什么用相对 POSIX 路径、
+   空文件与坏编码怎么处理、`limit` 为什么是全局的。
+3. 读 [路径边界演示](demos/day65/day65_path_safety_demo.py)：`..` 与绝对路径分别怎么逃出去、
+   为什么字符串查两点不够、判据为什么在 `resolve()` 之后。
+4. 打开 [题目说明](demos/day65/day65_题目说明.md)，实现 `safe_subdir`（A）→ 跑 `--part a`；
+   再实现 `search_files`（B）→ 跑 `--part b`；最后注册 `search_notes`（C）→ 跑 `--part c`。
+5. 三部分一起跑一遍，22/22；把结果与日志目录抄进 [Day65 记录](demos/day65/day65_记录.md)，
+   再答五道观察题。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day65\day65_scan_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day65\day65_path_safety_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day65_file_search_exercises.py --part a
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day65_file_search_exercises.py --part b
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day65_file_search_exercises.py --part c
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day65_file_search_exercises.py
+```
+
+预期：A 8/8、B 10/10、C 4/4，合计 22/22。
+
+数据：检查器用 `demos/day65/corpus/` 的固定语料（含一个空文件、一个坏编码文件、一个空目录）；
+第 22 组用仓库真实的 `notes/`，只要求至少一条、出处是相对 `.md`。预算 **0 次模型调用**。
+每次运行在 `demos/day65/outputs/` 下新建目录，保存 `console.log`、`run_info.json` 与
+`results.json`；`DAY65_RUN_ORIGIN` 默认 `unconfirmed`，AI 自验标 `ai_validation`。
 
 ## Day66：资源、提示词与错误语义（待开工）
 
@@ -166,7 +198,7 @@ MCP 协议闭卷复验、三件套口头解释（给谁用/怎么用/出问题�
 
 - [x] Day64：协议与工具注册，13 组检查
 - [ ] 复习：Day65 前 Week08 闭卷复现（10～15 分钟）
-- [ ] Day65：文件检索与路径边界
+- [x] Day65：文件检索与路径边界
 - [ ] 复习：Day66 前 Day64 闭卷复现（10～15 分钟）
 - [ ] Day66：资源、提示词与错误语义
 - [ ] Day67：打包与宿主配置

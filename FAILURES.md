@@ -20,6 +20,20 @@
 
 ## 记录
 
+### 2026-11-23｜工具把 str 传给 Path 参数，失败消息里没有原因
+
+- **现象**：Day65 C 组 2/4；客户端只看到 `Error executing tool search_notes`，冒号后没有原因，第 19 组正常检索也失败。
+- **原因**：`os.environ.get` 返回 str，`search_files` 第一行 `root.is_dir()` 抛 `AttributeError`；检查器旧版只判 `is_error`，崩溃也能碰巧「通过」两组。
+- **修复**：工具里先 `Path(...)` 转换；检查器第 20、21 组改为要求消息含 `Error executing tool search_notes:` 加原因，崩溃不再算通过。
+- **学到**：`is_error=True` 但**没有原因**，多半是代码崩了，不是业务拒绝；类型转换在工具入口一次做完。
+
+### 2026-11-22｜ruff 0.16 会把 Markdown 里的 Python 代码块当格式目标
+
+- **现象**：`ruff format --check weeks/week09_advanced` 报 `day65_题目说明.md` 需要重排，提示把示意签名拆行；同一目录只跑 `.py` 时却正常。
+- **原因**：ruff 0.16 的格式化器会解析 Markdown 中标注为 python 的代码块；题目说明里的示意代码没按 ruff 的换行规则写。
+- **处理**：`ruff.toml` 的 `extend-exclude` 加入 `**/*.md`，文档代码块不参与格式化；`.py` 仍全量检查。
+- **学到**：目录级检查会把文档代码块算进去；文档是手写材料，不按代码规范重排。
+
 ### 2026-11-22｜记录里的示例句被原样照抄，检查器代码被当成答案
 
 - **现象**：Day64 三问第 2 题的答案与题面示例逐字相同；观察 4 直接贴了检查器的 `limit_schema`、`has_default` 两行代码。
@@ -53,6 +67,7 @@
 - **现象**：`ruff format --check day64_mcp_hello_demo.py` 触发 ruff 0.16.8 panic：`Annotation range ... beyond the end of buffer`。
 - **原因**：check 模式渲染差异时对含多字节字符的超长行算错偏移；直接 `ruff format` 写入不受影响。
 - **处理**：先 `ruff format` 写入再 `--check`，文件已格式化且后续检查通过；未改全局配置。
+- **后续**：2026-11-23 在 `day65_file_search_exercises.py` 上再次出现，退出码 101；同样先写入再 `--check`，通过。
 - **学到**：工具崩溃不等于代码有问题，换等价命令先确认；交付前仍要 `--check` 通过。
 
 ### 2026-10-31｜Day 43 完成指标后，学员仍不清楚实际用途
