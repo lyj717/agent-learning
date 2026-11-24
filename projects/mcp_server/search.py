@@ -133,3 +133,83 @@ def search_files(
             if len(results) >= limit:
                 return results
     return results
+
+
+def resolve_note(root: Path, name: str) -> Path:
+    """把笔记的相对名字解析成绝对文件路径，保证不越界。
+
+    参数：
+        root（Path，必填）：笔记根目录。
+        name（str，必填）：相对 root 的路径，例如 "python-notes.md" 或
+            "notes/agent-notes.md"；可以含 notes/../notes 这类解析后仍在根内的写法。
+
+    返回：
+        Path：解析后的绝对路径，且一定在 root 里面。
+
+    抛出：
+        ValueError：root 不是目录；name 是绝对路径或解析后逃出 root；name 不是
+            .md 文件；文件不存在。消息里要说明是哪种情况。
+    """
+    if not root.exists():
+        raise ValueError("root不存在")
+    if not root.is_dir():
+        raise ValueError("root不是目录")
+    if Path(name).is_absolute():
+        raise ValueError("name是绝对路径")
+    path = (root / name).resolve()
+    try:
+        path.resolve().relative_to(root.resolve())
+    except ValueError:
+        raise ValueError("不在root内")
+    if not path.exists():
+        raise ValueError("指向不存在路径")
+    if not path.is_file():
+        raise ValueError("没有指向文件")
+    if path.suffix != ".md":
+        raise ValueError("不是md文件")
+    return path
+
+
+def list_note_paths(root: Path) -> list[str]:
+    """列出 root 下所有 Markdown 的相对 POSIX 路径，升序。
+
+    参数：
+        root（Path，必填）：笔记根目录。
+
+    返回：
+        list[str]：例如 ["archive/old.md", "notes/agent-notes.md"]；空目录返回 []。
+        只列 *.md，递归进子目录；不读文件内容，所以坏编码文件也会列出。
+
+    抛出：
+        ValueError：root 不存在或不是目录。
+    """
+    if not root.exists():
+        raise ValueError("root不存在")
+    if not root.is_dir():
+        raise ValueError("root不是目录")
+    paths: list[str] = []
+    for path in root.resolve().rglob("*"):
+        if path.is_file() and path.suffix == ".md":
+            paths.append(path.relative_to(root.resolve()).as_posix())
+    return sorted(paths)
+
+
+def load_note(root: Path, name: str) -> str:
+    """按名字读一篇笔记，返回全文。
+
+    参数：
+        root（Path，必填）：笔记根目录。
+        name（str，必填）：交给 resolve_note 的相对路径。
+
+    返回：
+        str：UTF-8 全文，原样返回（不 strip、不改行尾）。
+
+    抛出：
+        ValueError：resolve_note 抛的情况；文件不是 UTF-8 也抛 ValueError
+            （消息说明编码问题，不要用 errors=ignore 硬读）。
+    """
+    path = resolve_note(root, name)
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        raise ValueError("文件不是UTF-8")

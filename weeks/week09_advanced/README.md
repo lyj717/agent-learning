@@ -1,4 +1,4 @@
-# Week 09｜进阶方向 A：MCP Server
+﻿# Week 09｜进阶方向 A：MCP Server
 
 **阶段交付物**：一个别人可以安装、配置、真正用起来的 MCP Server——把本地 Markdown 笔记
 做成带行号出处的全文检索，配上工具、资源与提示词模板，带 README、测试和 CI。
@@ -151,11 +151,48 @@ relative_to），再把它注册成工具。读演示与跑检查器的时间要
 每次运行在 `demos/day65/outputs/` 下新建目录，保存 `console.log`、`run_info.json` 与
 `results.json`；`DAY65_RUN_ORIGIN` 默认 `unconfirmed`，AI 自验标 `ai_validation`。
 
-## Day66：资源、提示词与错误语义（待开工）
+## Day66：资源、提示词与错误语义（2026-11-23 开工，11-24 验收）
 
-把每份笔记暴露成资源（`note://<文件名>`），再加一个「复盘这篇笔记」的提示词模板；
-把「工具不存在」「参数不合法」「文件不存在」分别对应到正确的返回形态。
-开工前先做 10～15 分钟 [Day64 复验](demos/shared/day64_review.md)。预计约 3/4 天。
+**完成情况**：A 11/11、B 10/10，合计 **21/21**（学员全量运行，AI 复跑一致）。
+`note://index` + `note://{+path}` 两个资源、`review_note` 提示词、`read_note` 工具都已注册；
+错误形态分清：工具失败是 `is_error` 结果，资源/提示词失败是 `MCPError`（未知 URI `-32602`、
+处理器异常 `-32603`）。五道观察经一轮改写通过（第 4、5 题问法先改清楚，第 2 题把「异常给谁看」
+改准）。收尾发现并修正：说明写成行尾注释时 description 为空，已改回 docstring；脚手架已清，
+`ruff` 与格式检查通过。
+
+**预计约 3/4 天**：两件新东西——资源（具体资源 vs 模板、`{+path}`）与提示词（用户在宿主里挑），
+外加把三种原语的失败形态归位。读三份演示的时间要算进去。
+
+顺序：
+
+1. **先做 10～15 分钟 [Day64 复验](demos/shared/day64_review.md)**（闭卷）。
+2. 读 [资源演示](demos/day66/day66_resources_demo.py)：清单与模板为什么分开、`{+path}` 的作用、
+   读不到时客户端拿什么。
+3. 读 [资源怎么被用掉](demos/day66/day66_resource_flow_demo.py)：宿主先读资源、把正文拼进消息
+   与模型自己调工具，两条路径并排看。
+4. 读 [提示词演示](demos/day66/day66_prompts_demo.py)：参数表、渲染成的消息、失败形态。
+5. 读 [错误形态演示](demos/day66/day66_error_shapes_demo.py)：同一个「读笔记」走工具/资源/提示词，
+   三者的结果与异常并排看。
+6. 打开 [题目说明](demos/day66/day66_题目说明.md)，实现 A 的三个文件函数 → `--part a`；
+   再注册资源、提示词、工具 → `--part b`；最后全量 21/21。
+7. 把结果与日志目录抄进 [Day66 记录](demos/day66/day66_记录.md)，答五道观察题。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day66\day66_resources_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day66\day66_resource_flow_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day66\day66_prompts_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day66\day66_error_shapes_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day66_resources_exercises.py --part a
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day66_resources_exercises.py --part b
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day66_resources_exercises.py
+```
+
+预期：A 11/11、B 10/10，合计 21/21。
+
+数据：沿用 Day65 的固定语料 `demos/day65/corpus/`（含子目录、坏编码与空文件）。
+预算 **0 次模型调用**；每次运行在 `demos/day66/outputs/` 下新建目录，
+保存 `console.log`、`run_info.json`、`results.json`。
+`DAY66_RUN_ORIGIN` 默认 `unconfirmed`，AI 自验标 `ai_validation`。
 
 ## Day67：打包与宿主配置（待开工）
 
@@ -200,7 +237,7 @@ MCP 协议闭卷复验、三件套口头解释（给谁用/怎么用/出问题�
 - [ ] 复习：Day65 前 Week08 闭卷复现（10～15 分钟）
 - [x] Day65：文件检索与路径边界
 - [ ] 复习：Day66 前 Day64 闭卷复现（10～15 分钟）
-- [ ] Day66：资源、提示词与错误语义
+- [x] Day66：资源、提示词与错误语义
 - [ ] Day67：打包与宿主配置
 - [ ] Day68：测试与 CI
 - [ ] Day69：真实宿主跑通并留证
@@ -223,4 +260,5 @@ MCP 协议闭卷复验、三件套口头解释（给谁用/怎么用/出问题�
 - 不为了「看起来完整」堆工具；工具数量按真实用途定，宁少勿滥。
 - B/C/D 三个方向只作了解，不排任务、不计入验收。
 - 发布到 GitHub 的 push 由学员执行；AI 不 push，只报本地领先几个提交。
+
 

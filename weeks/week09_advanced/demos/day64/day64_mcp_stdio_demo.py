@@ -56,7 +56,7 @@ async def talk_to_child_process() -> None:
 def main() -> None:
     """按「是什么、为什么、场景、代码、注意」讲 stdio，再真跑一次。"""
     say("Week09 要交付别人能用的 MCP Server。上次是同一进程内连接，这次走真实进程。")
-    say("学完应能说清：谁启动谁、消息走哪两根管道、stdio 下为什么不能 print。")
+    say("学完应能说清：谁启动谁、消息走哪两根管道、stdio 下 stdout 为什么不能当日志。")
 
     say("\n一、这是什么")
     say("stdio 是 MCP 的两种标准传输之一：host 把 server 当普通子进程启动，")
@@ -87,8 +87,12 @@ def main() -> None:
     say("\n五、注意什么")
     say("1. 脚本路径要绝对：host 从它自己的工作目录启动，相对路径会找不到文件。")
     say(
-        "2. stdout 是协议。调试用 print 只会污染协议；要输出就写 stderr（logging 默认就是）。"
+        "2. stdout 是协议。服务开始前的 print 会先写进 stdout，客户端读到的第一行就不是 JSON；"
     )
+    say(
+        "   服务期间 v2 SDK 接管 stdout，工具里的 print 通常不弄坏协议，但输出会丢，别当日志。"
+    )
+    say("   要输出就用 logging（默认写 stderr），这是唯一可靠的通道。")
     say("3. 环境变量不会整份继承：SDK 只带 PATH、USERPROFILE 这类白名单，")
     say("   需要 API key 之类必须显式写进 env，或者由宿主配置传。")
     say("4. server 退出要干净：stdin 关闭后应正常结束，挂住的话宿主会强杀进程树。")
