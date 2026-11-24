@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "notes-mcp-server"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["mcp>=2.3,<3"]
+
+[project.scripts]
+notes-mcp-server = "projects.mcp_server.server:main"
+
+[tool.setuptools]
+packages = ["projects", "projects.mcp_server"]

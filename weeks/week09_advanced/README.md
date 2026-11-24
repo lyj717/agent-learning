@@ -194,10 +194,39 @@ relative_to），再把它注册成工具。读演示与跑检查器的时间要
 保存 `console.log`、`run_info.json`、`results.json`。
 `DAY66_RUN_ORIGIN` 默认 `unconfirmed`，AI 自验标 `ai_validation`。
 
-## Day67：打包与宿主配置（待开工）
+## Day67：打包与宿主配置（2026-11-24 开工，11-24 验收）
 
-`pyproject.toml`、`mcp-server` 入口命令、`NOTES_ROOT` 环境变量、README（给谁用、
-怎么装、怎么配 Claude Desktop / Cursor / VS Code）、版本号与 LICENSE。预计约 1/2～3/4 天。
+**完成情况**：检查器 **18/18**（A 8、B 8、C 2；学员全量运行，AI 复跑一致）。
+仓库根 `pyproject.toml`（入口点 `notes-mcp-server = "projects.mcp_server.server:main"`、
+`packages = ["projects", "projects.mcp_server"]`）、`projects/__init__.py`、
+README 的三份宿主配置与 MIT `LICENSE` 都已就位。四道观察经一轮订正通过：第 1 题从
+「环境变量找入口」改为「包已装进 site-packages、import 按模块路径找到」；第 3 题把
+`notes_root()` 从「传递者」改回「读取者」。收尾去掉骨架注释并修正 BOM；`ruff`、格式与
+`pytest 17 passed` 通过。
+
+**预计 1/2～3/4 天**：不写新的 MCP 机制，做交付层。主要时间在 pyproject 的字段对齐、
+README 的三份宿主配置和许可证选择；检查器不安装，18 组都是静态检查 + 一次模块冒烟。
+
+顺序：
+
+1. 读 [打包演示](demos/day67/day67_packaging_demo.py)：元数据/入口点/包发现、三份宿主配置的差别、
+   `NOTES_ROOT` 由谁传，以及仓库现在还缺什么。
+2. 打开 [题目说明](demos/day67/day67_题目说明.md)，按字段表写 `pyproject.toml` 和
+   `projects/__init__.py` → `--part a` 8/8。
+3. 填 `projects/mcp_server/README.md` 模板、选许可证并放 `LICENSE` → `--part b` 8/8。
+4. 跑全量 18/18；想亲眼看入口命令的话按题目说明里的可选安装步骤试一次，失败也记录。
+5. 把结果与日志目录抄进 [Day67 记录](demos/day67/day67_记录.md)，答四道观察题。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day67\day67_packaging_demo.py
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day67_packaging_exercises.py
+```
+
+预期：18/18（A 8、B 8、C 2）。
+
+数据：检查器只读文件、跑一次 `python -m projects.mcp_server.server` 冒烟；**0 次模型调用**。
+每次运行在 `demos/day67/outputs/` 下新建目录，保存 `console.log`、`run_info.json`、
+`results.json`；`DAY67_RUN_ORIGIN` 默认 `unconfirmed`。
 
 ## Day68：测试与 CI（待开工）
 
@@ -238,7 +267,7 @@ MCP 协议闭卷复验、三件套口头解释（给谁用/怎么用/出问题�
 - [x] Day65：文件检索与路径边界
 - [ ] 复习：Day66 前 Day64 闭卷复现（10～15 分钟）
 - [x] Day66：资源、提示词与错误语义
-- [ ] Day67：打包与宿主配置
+- [x] Day67：打包与宿主配置
 - [ ] Day68：测试与 CI
 - [ ] Day69：真实宿主跑通并留证
 - [ ] Day70：阶段变式与口头解释
@@ -260,5 +289,6 @@ MCP 协议闭卷复验、三件套口头解释（给谁用/怎么用/出问题�
 - 不为了「看起来完整」堆工具；工具数量按真实用途定，宁少勿滥。
 - B/C/D 三个方向只作了解，不排任务、不计入验收。
 - 发布到 GitHub 的 push 由学员执行；AI 不 push，只报本地领先几个提交。
+
 
 

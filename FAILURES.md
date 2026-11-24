@@ -20,6 +20,20 @@
 
 ## 记录
 
+### 2026-11-24｜模板 README 自带关键词，检查器白过
+
+- **现象**：Day67 的 README 还是空模板时，B 组第 10～12、14 组就通过——模板说明里正好有 `pip install`、`mcpServers`、`.cursor/mcp.json`、`NOTES_ROOT`。
+- **原因**：检查器对整篇做子串匹配，分不清「模板说明」和「学员写的答案」。
+- **修复**：只认 ``` 围栏代码块里的命令/JSON；骨架 README 里的说明也去掉被检查的关键词。
+- **学到**：关键词检查要限定在答案可能出现的结构里，否则模板自己就是答案。
+
+### 2026-11-24｜根 pyproject 带 BOM，tomllib 和 pytest 都报 Invalid statement
+
+- **现象**：`tomllib.loads` 报 `Invalid statement (at line 1, column 1)`；pytest 启动时读根 pyproject 直接失败。
+- **原因**：Windows 下 `Set-Content -Encoding utf8` 会写 BOM，TOML 解析器不认。
+- **修复**：写文件改用无 BOM 的 UTF-8；检查器读 pyproject/README 改用 `utf-8-sig`。
+- **学到**：Windows 生成配置或数据文件要显式去 BOM，读入端也顺手容忍 BOM。
+
 ### 2026-11-24｜说明写成行尾注释，工具/资源/提示词描述全是空
 
 - **现象**：Day66 检查器 21/21，但客户端读到的 `read_note` 工具描述、两个资源描述、提示词描述都是空字符串。
