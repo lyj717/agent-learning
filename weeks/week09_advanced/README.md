@@ -228,10 +228,38 @@ README 的三份宿主配置和许可证选择；检查器不安装，18 组都�
 每次运行在 `demos/day67/outputs/` 下新建目录，保存 `console.log`、`run_info.json`、
 `results.json`；`DAY67_RUN_ORIGIN` 默认 `unconfirmed`。
 
-## Day68：测试与 CI（待开工）
+## Day68：项目测试与 CI（2026-11-25 开工，11-25 验收）
 
-pytest：进程内 `Client(mcp)` 的确定性检查 + 一条 stdio 冒烟（带超时，防止挂死）；
-把 MCP 的检查接进 `.github/workflows/ci.yml` 的 offline job。预计约 1/2～3/4 天。
+**完成情况**：`tests/test_notes_mcp.py` **10 passed**，检查器 **9/9**（A 7、B 2）；
+CI 的 offline job 已加一步跑 `tests/test_notes_mcp.py`。四道观察通过（第 4 题经一轮订正，
+把「固定语料=可预期」与「monkeypatch=不污染」分开）。收尾清掉测试文件里的脚手架说明，
+`ruff`、格式与全量 `pytest 27 passed` 通过。过程中真实踩到：docstring 里用 `\\n` 示意换行，
+被照抄成字面反斜杠，已记入 FAILURES。
+
+**预计 1/2～3/4 天**：写 `tests/test_notes_mcp.py`（至少 8 个测试，覆盖 10 个契约），
+再把这一步接进 GitHub Actions 的 offline job。检查器会真跑一遍你的测试。
+
+顺序：
+
+1. 读 [测试演示](demos/day68/day68_testing_demo.py)：进程内 Client 怎么断言、`NOTES_ROOT` 怎么临时换、
+   stdio 冒烟为什么必须带超时。
+2. 打开 [题目说明](demos/day68/day68_题目说明.md)，按 10 个契约写测试；
+   `pytest tests\test_notes_mcp.py -v` 至少 8 passed。
+3. 在 `.github/workflows/ci.yml` 的 offline job 里加一步跑 MCP 测试。
+4. 跑检查器，目标 9/9；把结果与日志目录抄进 [Day68 记录](demos/day68/day68_记录.md)，
+   答四道观察题。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day68\day68_testing_demo.py
+.venv\Scripts\python.exe -m pytest -p no:cacheprovider tests\test_notes_mcp.py -v
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day68_ci_test_exercises.py
+```
+
+预期：你的测试至少 8 passed、0 failed、0 skipped；检查器 9/9（A 7、B 2）。
+
+数据：全部离线，测试用 `day65/corpus` 固定语料；检查器用 `subprocess` 跑 pytest，
+超时 180 秒。**0 次模型调用**。每次运行在 `demos/day68/outputs/` 下新建目录，
+保存 `console.log`、`run_info.json`、`results.json`。
 
 ## Day69：真实宿主跑通（待开工）
 
@@ -268,7 +296,7 @@ MCP 协议闭卷复验、三件套口头解释（给谁用/怎么用/出问题�
 - [ ] 复习：Day66 前 Day64 闭卷复现（10～15 分钟）
 - [x] Day66：资源、提示词与错误语义
 - [x] Day67：打包与宿主配置
-- [ ] Day68：测试与 CI
+- [x] Day68：测试与 CI
 - [ ] Day69：真实宿主跑通并留证
 - [ ] Day70：阶段变式与口头解释
 
@@ -289,6 +317,7 @@ MCP 协议闭卷复验、三件套口头解释（给谁用/怎么用/出问题�
 - 不为了「看起来完整」堆工具；工具数量按真实用途定，宁少勿滥。
 - B/C/D 三个方向只作了解，不排任务、不计入验收。
 - 发布到 GitHub 的 push 由学员执行；AI 不 push，只报本地领先几个提交。
+
 
 
 

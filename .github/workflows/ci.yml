@@ -23,6 +23,7 @@ jobs:
       - run: ruff check weeks/week08_evaluation_reliability weeks/week09_advanced projects tests
       - run: ruff format --check weeks/week08_evaluation_reliability weeks/week09_advanced projects tests
       - run: pytest -p no:cacheprovider
+      - run: pytest -p no:cacheprovider tests/test_notes_mcp.py
 
   live:
     if: github.event_name == 'workflow_dispatch' && inputs.run_live
@@ -38,3 +39,5 @@ jobs:
         env:
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+
+
