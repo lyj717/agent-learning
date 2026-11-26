@@ -186,8 +186,8 @@ agent-learning/
 - [x] Week 06｜高级检索与评测（Day48 报告、Day49 阶段变式与口头解释已验收；延迟复验见 HANDOFF）
 - [x] Week 07｜工程化与可观测性（交付：带 trace 的服务；Day50～56 经答疑订正验收，真实 RAG/SSE 组合与真实服务商负载见 HANDOFF 尾巴）
 - [x] Week 08｜评测与可靠性（交付：规则判分 + 裁判 + 测量 + 一次优化 + 五类检查 + GitHub Actions；Day63 阶段变式与口头已验收）
-- [ ] Week 09｜进阶方向 A｜MCP Server（Day64 13/13、Day65 22/22、Day66 21/21、Day67 18/18、Day68 9/9、Day69 10/10 已验收；交付：可用的 MCP Server）
-- [ ] Week 10｜作品集定型（交付：两个主要项目 + 一个复用已有能力的小工具）
+- [x] Week 09｜进阶方向 A｜MCP Server（Day64 13/13、Day65 22/22、Day66 21/21、Day67 18/18、Day68 9/9、Day69 10/10 已验收；交付：可用的 MCP Server）
+- [ ] Week 10｜整合型项目 + 作品集（工具调用、循环控制、RAG、MCP 合为一个可用 agent 工具）
 - [ ] Week 11｜面试专项与投递
 - [ ] Week 12｜面试冲刺与复盘
 
@@ -309,6 +309,7 @@ Remove-Item ".pytest_cache" -Recurse -Force
 | 2026-10-13 | Day 26A：模型用量累计与预算停止（三题及观察已验收） | [x] |
 | 2026-10-13 | Day 26B 前半：单次调用超时与任务总时限（三题及观察已验收） | [x] |
 | 2026-10-14 | Day 26B 后半：连续重复工具调用检测（三题及观察已验收） | [x] |
+
 
 
 
