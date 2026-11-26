@@ -20,6 +20,27 @@
 
 ## 记录
 
+### 2026-11-26｜read_note 描述没写「必须带 .md」，模型少后缀浪费一轮
+
+- **现象**：Day69 live 轨迹第 5 次调用 `read_note{name:"流式块解剖"}` 被拒（只接受 `.md`），第 6 次补上后缀才成功。
+- **原因**：工具描述只写「按名字读一篇笔记」，没给例子、没写必须带 `.md`；schema 只约束 `str`，模型只能猜。
+- **修复**：描述改成「name 传 `search_notes` 返回的 source（相对路径，含 .md）」；服务端错误消息仍提示 `.md`。
+- **学到**：描述是接口；测试用正确参数调用，测不出模型的猜法。
+
+### 2026-11-26｜thinking 模型的多轮工具调用必须回传 reasoning_content
+
+- **现象**：Day69 宿主真实调用第二次请求报 400：`The reasoning_content in the thinking mode must be passed back to the API`。
+- **原因**：宿主回填 assistant 消息时只带了 `tool_calls`，把模型的思考内容 `reasoning_content` 丢了；deepseek-flash 的 thinking 模式要求原样带回去。
+- **修复**：从响应里取 `message.reasoning_content`，写进回填的 assistant 消息。
+- **学到**：thinking 模型的工具循环不是「只回填 tool_calls」；先查服务商对多轮消息的要求。
+
+### 2026-11-26｜模型不肯收尾，禁用工具后把工具语法当正文输出
+
+- **现象**：问了「怎么处理流式块」，模型连续 4 轮都在检索；第 4 轮 `tool_choice="none"` 后，正文出现 `<｜｜DSML｜｜ calls>` 原始标记。
+- **原因**：thinking 模型倾向继续检索；禁用工具后，它把内部工具调用语法当普通文本吐出来。
+- **修复**：轮数上限后用已收集的工具结果另开一个新对话，并改用非 thinking 模型（`deepseek-chat`）生成最终回答；仍失败就记进轨迹，不伪造。
+- **学到**：宿主不能只靠模型自觉停；轮数上限、禁用工具、收尾兜底要一起设计。
+
 ### 2026-11-25｜docstring 里的 `\\n` 被照抄成字面反斜杠，测试断言错
 
 - **现象**：`test_search_text_hit` 失败，实际返回 `[]`：传进去的是 `"a\\nb 关键词"`（带反斜杠），不是两行文本。

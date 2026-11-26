@@ -79,7 +79,7 @@ def review_note(name: str) -> str:
 
 @mcp.tool(name="read_note")
 def read_note_tool(name: str) -> str:
-    """按名字读一篇笔记的全文，名字写错返回错误。"""
+    """按名字读一篇笔记的全文；name 传 search_notes 返回的 source（相对路径，含 .md），名字写错返回错误。"""
     try:
         return load_note(root=notes_root(), name=name)
     except ValueError as error:

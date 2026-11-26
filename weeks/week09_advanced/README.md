@@ -261,11 +261,33 @@ CI 的 offline job 已加一步跑 `tests/test_notes_mcp.py`。四道观察通�
 超时 180 秒。**0 次模型调用**。每次运行在 `demos/day68/outputs/` 下新建目录，
 保存 `console.log`、`run_info.json`、`results.json`。
 
-## Day69：真实宿主跑通（待开工）
+## Day69：真实宿主跑通（2026-11-26 开工，11-26 验收）
 
-用 MCP Inspector（`npx @modelcontextprotocol/inspector`）或自建 host + 真实模型，
-就 `notes/` 里的内容问一个真问题，留下面板截图/轨迹、工具调用参数与最终回答。
-**没看到真实宿主里工具被调用之前，不写「别人可以用」。** 预计约 1/2～3/4 天。
+**完成情况**：真实模型跑通一次：4 轮工具调用、6 次 `search_notes`/`read_note`，
+tokens 4320/736，最终回答 645 字、无 DSML；引用逐条核对 4 条均被原文支持。
+检查器 **10/10**。宿主在交付前被真实调用验证过，修掉三处：thinking 模式必须回传
+`reasoning_content`；`--live` 默认语料应为仓库 `notes/`；取消「最后一轮禁工具」的空转轮，
+到上限后改用非 thinking 模型收尾。四道观察通过（第 4 题把「引用不支持」只归给模型略窄，
+检索与证据拼装也可能）。`ruff`、格式与全量 `pytest 27 passed` 通过。
+
+**预计 1/2～3/4 天**：AI 已提供宿主脚本（`demos/day69/day69_host.py`），你负责跑、
+核对引用、记录轨迹。不要求重写宿主。
+
+顺序：
+
+1. 读 [题目说明](demos/day69/day69_题目说明.md)：三步（离线自检 → 真实模型 → 核对引用）。
+2. 先跑离线自检 `--fake`（0 次模型调用），确认 `fake_*.json` 里有一次工具调用。
+3. 再跑 `--live --question "..."`（最多 5 次调用：4 轮工具循环 + 1 次收尾），轨迹存到 `outputs/live_*.json`。
+4. 逐条核对回答里的「文件:行」引用，填进 [Day69 记录](demos/day69/day69_记录.md)。
+5. 跑检查器，目标 10/10；把数据与引用核对写进记录。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day69\day69_host.py --fake
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\demos\day69\day69_host.py --live --question "我的笔记里怎么处理流式块？"
+.venv\Scripts\python.exe -B -X utf8 weeks\week09_advanced\exercises\day69_host_exercises.py
+```
+
+预算：离线 0 次；真实一次最多 5 次，失败重跑一次。检查器不联网，只看 `outputs/` 里留下的轨迹。
 
 ## Day70：阶段变式与交接（待开工）
 
@@ -297,7 +319,7 @@ MCP 协议闭卷复验、三件套口头解释（给谁用/怎么用/出问题�
 - [x] Day66：资源、提示词与错误语义
 - [x] Day67：打包与宿主配置
 - [x] Day68：测试与 CI
-- [ ] Day69：真实宿主跑通并留证
+- [x] Day69：真实宿主跑通并留证
 - [ ] Day70：阶段变式与口头解释
 
 ## 验收标准
@@ -317,6 +339,8 @@ MCP 协议闭卷复验、三件套口头解释（给谁用/怎么用/出问题�
 - 不为了「看起来完整」堆工具；工具数量按真实用途定，宁少勿滥。
 - B/C/D 三个方向只作了解，不排任务、不计入验收。
 - 发布到 GitHub 的 push 由学员执行；AI 不 push，只报本地领先几个提交。
+
+
 
 
 
